@@ -1,0 +1,5 @@
+-- Generated KNOGO activation: 2026-08-27-05-hazelwood-woodlands
+begin;
+update public.places set is_active = true, updated_at = now() where id in ('lucky-bread-hazelwood', 'alfies-italian-cafe', 'aroma-hazelwood', 'culture-club-de-mexico', 'peaches-hazelwood', 'the-goat-hazelwood', 'raya-hazelwood', 'fumo-hazelwood', 'wok-n-roll-woodlands', 'ogalito-woodlands', 'the-daily-coffee-cafe-woodlands', 'king-pie-woodlands');
+insert into public.live_statuses (place_id, busy_level, confidence_score, source) select id, 'unknown', 0, 'unknown' from public.places where id in ('lucky-bread-hazelwood', 'alfies-italian-cafe', 'aroma-hazelwood', 'culture-club-de-mexico', 'peaches-hazelwood', 'the-goat-hazelwood', 'raya-hazelwood', 'fumo-hazelwood', 'wok-n-roll-woodlands', 'ogalito-woodlands', 'the-daily-coffee-cafe-woodlands', 'king-pie-woodlands') on conflict (place_id) do nothing;
+commit;

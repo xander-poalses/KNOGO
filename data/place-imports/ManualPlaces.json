@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "instructions": {
+    "purpose": "Enter restaurant and branch information here for review before importing it into KNOGO.",
+    "usage": "Duplicate the object in placeTemplate, add it to places, replace the example values, and remove fields you do not know.",
+    "requiredFields": [
+      "id",
+      "slug",
+      "name",
+      "category",
+      "area",
+      "address",
+      "coordinates",
+      "cuisines",
+      "openingHours",
+      "sources"
+    ],
+    "logoRule": "Use a direct JPEG URL ending in .jpg or .jpeg. The image must contain the logo's real background and must not rely on transparency.",
+    "excludedData": [
+      "user confirmations",
+      "live status",
+      "confidence scores",
+      "reporting users"
+    ]
+  },
+  "allowedValues": {
+    "categories": [
+      "restaurant",
+      "quick_bites",
+      "bar",
+      "cafe",
+      "pharmacy",
+      "hardware",
+      "vet",
+      "petrol_station",
+      "government_office"
+    ],
+    "features": [
+      "outdoor_seating",
+      "family_friendly",
+      "wheelchair_accessible",
+      "backup_power",
+      "card_payments",
+      "late_night",
+      "walk_ins",
+      "takeaway",
+      "bar",
+      "halaal_friendly",
+      "vegan_options",
+      "pet_friendly"
+    ],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ]
+  },
+  "places": [],
+  "placeTemplate": {
+    "id": "example-place-area",
+    "slug": "example-place-area",
+    "name": "Example Place Area",
+    "isActive": false,
+    "group": {
+      "id": "example-group",
+      "slug": "example-group",
+      "name": "Example Group",
+      "description": "Short description of the chain or franchise.",
+      "website": "https://example.com",
+      "sourceUrl": "https://example.com/branches",
+      "sourceCheckedAt": "2026-09-08"
+    },
+    "category": "restaurant",
+    "area": "Menlyn",
+    "regionId": "menlyn",
+    "address": "Street address, Pretoria, Gauteng",
+    "coordinates": {
+      "latitude": -25.0,
+      "longitude": 28.0,
+      "mapUrl": "https://maps.google.com/example"
+    },
+    "contact": {
+      "phone": "+27 12 000 0000",
+      "email": "hello@example.com",
+      "website": "https://example.com",
+      "menuUrl": "https://example.com/menu",
+      "bookingUrl": "https://example.com/book"
+    },
+    "logo": {
+      "url": "https://example.com/logo.jpg",
+      "sourceUrl": "https://example.com/brand",
+      "checkedAt": "2026-09-08",
+      "mimeType": "image/jpeg",
+      "backgroundColour": "#000000",
+      "attribution": "Logo supplied by the business or taken from its official brand page.",
+      "permissionNotes": "Record why KNOGO may display this logo."
+    },
+    "branchImage": {
+      "url": "https://example.com/branch-photo.jpg",
+      "sourceUrl": "https://example.com/location-page",
+      "checkedAt": "2026-09-08",
+      "attribution": "Photo supplied by or licensed from the business.",
+      "permissionNotes": "Record why KNOGO may display this photo."
+    },
+    "cuisines": [
+      "pizza",
+      "cafe"
+    ],
+    "features": [
+      "card_payments",
+      "takeaway"
+    ],
+    "tags": [
+      "family dining",
+      "breakfast"
+    ],
+    "openingHours": [
+      { "day": "Monday", "openTime": "08:00", "closeTime": "21:00", "isClosed": false },
+      { "day": "Tuesday", "openTime": "08:00", "closeTime": "21:00", "isClosed": false },
+      { "day": "Wednesday", "openTime": "08:00", "closeTime": "21:00", "isClosed": false },
+      { "day": "Thursday", "openTime": "08:00", "closeTime": "21:00", "isClosed": false },
+      { "day": "Friday", "openTime": "08:00", "closeTime": "22:00", "isClosed": false },
+      { "day": "Saturday", "openTime": "08:00", "closeTime": "22:00", "isClosed": false },
+      { "day": "Sunday", "openTime": "08:00", "closeTime": "20:00", "isClosed": false }
+    ],
+    "kitchenHours": [],
+    "sources": [
+      {
+        "type": "official_website",
+        "url": "https://example.com/location-page",
+        "checkedAt": "2026-09-08",
+        "supports": [
+          "name",
+          "address",
+          "phone",
+          "openingHours"
+        ]
+      },
+      {
+        "type": "map",
+        "url": "https://maps.google.com/example",
+        "checkedAt": "2026-09-08",
+        "supports": [
+          "address",
+          "coordinates"
+        ]
+      }
+    ],
+    "notes": "Add anything useful that does not fit another field.",
+    "customFields": {}
+  }
+}

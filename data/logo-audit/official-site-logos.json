@@ -1,0 +1,568 @@
+{
+  "checkedAt": "2026-09-08",
+  "results": [
+    {
+      "id": "aroma-coffee",
+      "name": "Aroma Gourmet Coffee Roastery",
+      "website": "https://www.aroma.co.za/",
+      "kind": "group",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "fetch failed"
+    },
+    {
+      "id": "burger-king",
+      "name": "Burger King",
+      "website": "https://www.burgerking.co.za/",
+      "kind": "group",
+      "sourcePage": "https://www.burgerking.co.za/",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "no company logo asset declared"
+    },
+    {
+      "id": "cappuccinos",
+      "name": "Cappuccinos",
+      "website": "https://www.cappuccinos.co.za",
+      "kind": "group",
+      "sourcePage": "https://www.cappuccinos.co.za/",
+      "logoUrl": "https://www.cappuccinos.co.za/template/default/img/logo-2017.png",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "casa-bella",
+      "name": "Casa Bella",
+      "website": "https://www.casabellarestaurants.co.za/",
+      "kind": "group",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "fetch failed"
+    },
+    {
+      "id": "cowfish",
+      "name": "Cowfish",
+      "website": "https://www.cowfish.co.za/",
+      "kind": "group",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "fetch failed"
+    },
+    {
+      "id": "crawdaddys",
+      "name": "Crawdaddy's",
+      "website": "https://crawdaddys.co.za",
+      "kind": "group",
+      "sourcePage": "https://crawdaddys.co.za/",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "no company logo asset declared"
+    },
+    {
+      "id": "doppio-zero",
+      "name": "Doppio Zero",
+      "website": "https://doppio.co.za",
+      "kind": "group",
+      "sourcePage": "https://doppio.co.za/",
+      "logoUrl": "https://doppio.co.za/wp-content/themes/Doppio2023/img/logo.png",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "fireroom",
+      "name": "Fireroom",
+      "website": "https://www.fireroom.co.za/",
+      "kind": "group",
+      "sourcePage": "https://fireroom.co.za/",
+      "logoUrl": "https://i0.wp.com/fireroom.co.za/wp-content/uploads/cropped-fireroomPoster.jpg?fit=180%2C180&quality=89&ssl=1",
+      "confidence": "medium",
+      "method": "touch icon declared by official site"
+    },
+    {
+      "id": "fleisherei",
+      "name": "Fleisherei",
+      "website": "https://www.fleisherei.co.za/",
+      "kind": "group",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "fetch failed"
+    },
+    {
+      "id": "forti",
+      "name": "Forti",
+      "website": "https://www.forti.co.za/",
+      "kind": "group",
+      "sourcePage": "https://www.forti.co.za/",
+      "logoUrl": "https://static.wixstatic.com/media/a3f578_751d7eba2da64697b75ae4d91c205d3a%7Emv2.jpg/v1/fill/w_180%2Ch_180%2Clg_1%2Cusm_0.66_1.00_0.01/a3f578_751d7eba2da64697b75ae4d91c205d3a%7Emv2.jpg",
+      "confidence": "medium",
+      "method": "touch icon declared by official site"
+    },
+    {
+      "id": "kauai",
+      "name": "Kauai",
+      "website": "https://www.kauai.co.za/",
+      "kind": "group",
+      "sourcePage": "https://kauai.co.za/",
+      "logoUrl": "https://kauai.co.za/wp-content/themes/kauai/img/logo_30.png",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "kfc",
+      "name": "KFC",
+      "website": "https://order.kfc.co.za/",
+      "kind": "group",
+      "sourcePage": "https://order.kfc.co.za/",
+      "logoUrl": "https://order.kfc.co.za/logo192.png",
+      "confidence": "medium",
+      "method": "touch icon declared by official site"
+    },
+    {
+      "id": "king-pie",
+      "name": "King Pie",
+      "website": "https://www.kingpie.co.za/",
+      "kind": "group",
+      "sourcePage": "https://kingpie.co.za/",
+      "logoUrl": "https://kingpie.co.za/wp-content/uploads/2025/10/King-Pie-Logo-P-scaled.png",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "kream",
+      "name": "Kream",
+      "website": "https://kreamrestaurant.co.za/",
+      "kind": "group",
+      "sourcePage": "https://kreamrestaurant.co.za/",
+      "logoUrl": "https://kreamrestaurant.co.za/wp-content/uploads/elementor/thumbs/Kream-Restaurant-Logo-q56o7i3ba08zqfd5gj5upg11p3pirmk4p02aldh79c.png",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "krispy-kreme",
+      "name": "Krispy Kreme",
+      "website": "https://krispykreme.co.za/",
+      "kind": "group",
+      "sourcePage": "https://krispykreme.co.za/",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "no company logo asset declared"
+    },
+    {
+      "id": "kung-fu-kitchen",
+      "name": "Kung Fu Kitchen",
+      "website": null,
+      "kind": "group",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "no official website recorded"
+    },
+    {
+      "id": "lucky-bread",
+      "name": "Lucky Bread",
+      "website": "https://www.luckybread.co.za/",
+      "kind": "group",
+      "sourcePage": "https://luckybread.co.za/",
+      "logoUrl": "https://luckybread.co.za/wp-content/uploads/2023/07/Fave-Icon.png",
+      "confidence": "medium",
+      "method": "touch icon declared by official site"
+    },
+    {
+      "id": "lupa-osteria",
+      "name": "Lupa Osteria",
+      "website": "https://lupa.co.za/",
+      "kind": "group",
+      "sourcePage": "https://www.lupa.co.za/",
+      "logoUrl": "https://www.lupa.co.za/wp-content/uploads/2025/07/Lupa-Logo-20242-1024x576.png",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "milky-lane",
+      "name": "Milky Lane",
+      "website": "https://www.milky-lane.co.za/",
+      "kind": "group",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "fetch failed"
+    },
+    {
+      "id": "mochachos",
+      "name": "Mochachos",
+      "website": "https://www.mochachos.com/",
+      "kind": "group",
+      "sourcePage": "https://www.mochachos.com/",
+      "logoUrl": "https://www.mochachos.com/wp-content/uploads/2019/11/cropped-Mochachos-Logo-Horizontal-2.png",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "moloko",
+      "name": "Moloko",
+      "website": null,
+      "kind": "group",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "no official website recorded"
+    },
+    {
+      "id": "moo-moos",
+      "name": "Moo Moo's",
+      "website": "https://www.moo-moos.co.za/",
+      "kind": "group",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "fetch failed"
+    },
+    {
+      "id": "mugg-and-bean",
+      "name": "Mugg & Bean",
+      "website": "https://muggandbean.co.za",
+      "kind": "group",
+      "sourcePage": "https://www.muggandbean.co.za/",
+      "logoUrl": "https://d1fbczgvp9hkii.cloudfront.net/assets/images/static/muggandbean-logo-white-sml.webp",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "nandos",
+      "name": "Nando's",
+      "website": "https://www.nandos.co.za",
+      "kind": "group",
+      "sourcePage": "https://www.nandos.co.za/eat/order",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "no company logo asset declared"
+    },
+    {
+      "id": "ogalito",
+      "name": "O'Galito",
+      "website": "https://ogalito.com/",
+      "kind": "group",
+      "sourcePage": "https://ogalito.com/",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "no company logo asset declared"
+    },
+    {
+      "id": "ocean-basket",
+      "name": "Ocean Basket",
+      "website": "https://www.oceanbasket.com",
+      "kind": "group",
+      "sourcePage": "https://www.oceanbasket.com/",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "no company logo asset declared"
+    },
+    {
+      "id": "padstal",
+      "name": "Padstal",
+      "website": "https://www.padstal.co.za/",
+      "kind": "group",
+      "sourcePage": "https://www.padstal.co.za/",
+      "logoUrl": "https://www.padstal.co.za/images/logo.png",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "panarottis",
+      "name": "Panarottis",
+      "website": "https://www.panarottis.com/",
+      "kind": "group",
+      "sourcePage": "https://www.panarottis.com/za",
+      "logoUrl": "https://www.panarottis.com/img/logo_mobile.svg",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "papachinos",
+      "name": "Papachinos",
+      "website": "https://www.papachinos.co.za",
+      "kind": "group",
+      "sourcePage": "https://www.papachinos.co.za/",
+      "logoUrl": "https://static.wixstatic.com/media/3058c8_673cb6bcd51f42f299f21b459501757f~mv2.png/v1/crop/x_1570,y_641,w_3092,h_395/fill/w_653,h_84,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Papachinos%20Star%20Logo.png",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "parrots",
+      "name": "Parrots",
+      "website": null,
+      "kind": "group",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "no official website recorded"
+    },
+    {
+      "id": "pizza-hut",
+      "name": "Pizza Hut",
+      "website": "https://www.pizzahut.co.za/",
+      "kind": "group",
+      "sourcePage": "https://www.pizzahut.co.za/en",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "no company logo asset declared"
+    },
+    {
+      "id": "rockets",
+      "name": "Rockets",
+      "website": "https://rockets.co.za/",
+      "kind": "group",
+      "sourcePage": "https://rockets.co.za/",
+      "logoUrl": "https://rockets.co.za/newsite/wp-content/uploads/2019/07/cropped-favicon-180x180.png",
+      "confidence": "medium",
+      "method": "touch icon declared by official site"
+    },
+    {
+      "id": "rocomamas",
+      "name": "RocoMamas",
+      "website": "https://www.rocomamas.com",
+      "kind": "group",
+      "sourcePage": "https://rocomamas.com/za",
+      "logoUrl": "https://rocomamas.com/img/rocomamas-logo.svg",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "seattle-coffee",
+      "name": "Seattle Coffee Company",
+      "website": "https://seattlecoffeecompany.co.za/",
+      "kind": "group",
+      "sourcePage": "https://www.seattlecoffeecompany.co.za/",
+      "logoUrl": "https://www.seattlecoffeecompany.co.za/wp-content/uploads/2022/10/seattle-coffee-co-logo-txt.svg",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "spur",
+      "name": "Spur",
+      "website": "https://www.spursteakranches.com",
+      "kind": "group",
+      "sourcePage": "https://www.spursteakranches.com/za",
+      "logoUrl": "https://www.spursteakranches.com/images/logo.svg",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "starbucks",
+      "name": "Starbucks",
+      "website": "https://www.starbucks.co.za/",
+      "kind": "group",
+      "sourcePage": "https://www.starbucks.co.za/",
+      "logoUrl": "https://www.starbucks.co.za/assets/app/icons/apple-icon.png",
+      "confidence": "medium",
+      "method": "touch icon declared by official site"
+    },
+    {
+      "id": "stoetbul",
+      "name": "Stoetbul",
+      "website": null,
+      "kind": "group",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "no official website recorded"
+    },
+    {
+      "id": "tashas",
+      "name": "Tashas",
+      "website": "https://www.tashascafe.com/",
+      "kind": "group",
+      "sourcePage": "https://www.tashascafe.com/",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "no company logo asset declared"
+    },
+    {
+      "id": "the-daily-coffee-cafe",
+      "name": "The Daily Coffee Cafe",
+      "website": "https://thedailycoffeecafe.co.za/",
+      "kind": "group",
+      "sourcePage": "https://thedailycoffeecafe.co.za/",
+      "logoUrl": "https://thedailycoffeecafe.co.za/wp-content/uploads/2025/01/logo_black-91x91.png",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "the-rock",
+      "name": "The Rock",
+      "website": "https://www.therockrestaurant.co.za/",
+      "kind": "group",
+      "sourcePage": "https://www.therockrestaurant.co.za/",
+      "logoUrl": "https://static.wixstatic.com/media/c45903_327995a2226e406f8a7a8edd305d5fd8~mv2.png/v1/fill/w_148,h_106,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/The%20Rock%20Logo_white.png",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "tranna",
+      "name": "Tranna",
+      "website": "https://www.tranna.co.za/",
+      "kind": "group",
+      "sourcePage": "https://www.tranna.co.za/hazeldian/",
+      "logoUrl": "https://www.tranna.co.za/hazeldian/wp-content/uploads/2023/06/Untitled-3.png",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "tribeca",
+      "name": "Tribeca Coffee",
+      "website": "https://www.tribecacoffee.co.za/",
+      "kind": "group",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "fetch failed"
+    },
+    {
+      "id": "vida-e-caffe",
+      "name": "vida e caffe",
+      "website": "https://www.vidacaffe.com/",
+      "kind": "group",
+      "sourcePage": "https://www.vidacaffe.com/",
+      "logoUrl": "https://cnrizhao.com/assets/202/static/picture/logo.png",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "vovo-telo",
+      "name": "Vovo Telo",
+      "website": "https://vovotelo.co.za/",
+      "kind": "group",
+      "sourcePage": "https://vovotelo.co.za/",
+      "logoUrl": "https://vovotelo.co.za/wp-content/uploads/2024/10/Vovo-telo-logo-1.svg",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "wok-n-roll",
+      "name": "Wok n Roll",
+      "website": "https://www.woknroll.co.za/",
+      "kind": "group",
+      "sourcePage": "https://www.woknroll.co.za/",
+      "logoUrl": "https://irp.cdn-website.com//aec84753/dms3rep/multi/opt/wok-n-roll-logo-285w.png",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "alfies-italian-cafe",
+      "name": "Alfie's Italian Cafe",
+      "website": "https://www.alfies.co.za/",
+      "kind": "place",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "official site returned 404"
+    },
+    {
+      "id": "bakka-cafe-and-grill-menlyn",
+      "name": "Bakka Cafe and Grill",
+      "website": "https://www.menlynpark.co.za/stores/bakka-cafe-and-grill/",
+      "kind": "place",
+      "sourcePage": "https://www.menlynpark.co.za/stores/bakka-cafe-and-grill/",
+      "logoUrl": "https://www.menlynpark.co.za/wp-content/uploads/2024/04/Menlyn-Logo-1.png",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "baobab-menlyn",
+      "name": "Baobab",
+      "website": "https://www.menlynpark.co.za/stores/baobab/",
+      "kind": "place",
+      "sourcePage": "https://www.menlynpark.co.za/stores/baobab/",
+      "logoUrl": "https://www.menlynpark.co.za/wp-content/uploads/2024/04/Menlyn-Logo-1.png",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "culture-club-de-mexico",
+      "name": "Culture Club de Mexico",
+      "website": "https://cultureclubmexico.co.za/",
+      "kind": "place",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "fetch failed"
+    },
+    {
+      "id": "food-and-chain-menlyn",
+      "name": "Food and Chain Menlyn",
+      "website": "https://www.menlynpark.co.za/stores/food-chain/",
+      "kind": "place",
+      "sourcePage": "https://www.menlynpark.co.za/stores/food-chain/",
+      "logoUrl": "https://www.menlynpark.co.za/wp-content/uploads/2024/04/Menlyn-Logo-1.png",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "fumo-hazelwood",
+      "name": "Fumo Hazelwood",
+      "website": "https://fumorestaurant.co.za/",
+      "kind": "place",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "fetch failed"
+    },
+    {
+      "id": "heat-grill-room-woodlands",
+      "name": "Heat Grill Room Woodlands",
+      "website": "https://woodlandsboulevard.co.za/shop/heat-grill-room",
+      "kind": "place",
+      "sourcePage": "https://woodlandsboulevard.co.za/shop/heat-grill-room",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "no company logo asset declared"
+    },
+    {
+      "id": "kings-meat-deli-lynnwood-bridge",
+      "name": "Kings Meat Deli Lynnwood Bridge",
+      "website": "https://lynnwoodbridge.co.za/lynnwood-bridge---restaurants",
+      "kind": "place",
+      "sourcePage": "https://lynnwoodbridge.co.za/lynnwood-bridge---restaurants",
+      "logoUrl": "https://cdn.prod.website-files.com/65c388b23642da5f3ebc9818/65c4efdbd4774f9fa4e4d10b_lbico_m.png",
+      "confidence": "medium",
+      "method": "touch icon declared by official site"
+    },
+    {
+      "id": "old-school-castle-gate",
+      "name": "Old School Castle Gate",
+      "website": "https://castlegate.co.za/castle-gate---stores",
+      "kind": "place",
+      "sourcePage": "https://castlegate.co.za/castle-gate---stores",
+      "logoUrl": "https://cdn.prod.website-files.com/663a0cf52437f91d6c2602c8/663a2a0b2b44e2a806611eeb_Builders_logo.jpg",
+      "confidence": "high",
+      "method": "logo image declared by official site"
+    },
+    {
+      "id": "peaches-hazelwood",
+      "name": "Peaches Hazelwood",
+      "website": "https://thevillagehazelwood.co.za/",
+      "kind": "place",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "fetch failed"
+    },
+    {
+      "id": "raya-hazelwood",
+      "name": "Raya Hazelwood",
+      "website": "https://thevillagehazelwood.co.za/",
+      "kind": "place",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "fetch failed"
+    },
+    {
+      "id": "stephnies-lynnwood-bridge",
+      "name": "Stephnie's Lynnwood Bridge",
+      "website": "https://lynnwoodbridge.co.za/lynnwood-bridge---restaurants",
+      "kind": "place",
+      "sourcePage": "https://lynnwoodbridge.co.za/lynnwood-bridge---restaurants",
+      "logoUrl": "https://cdn.prod.website-files.com/65c388b23642da5f3ebc9818/65c4efdbd4774f9fa4e4d10b_lbico_m.png",
+      "confidence": "medium",
+      "method": "touch icon declared by official site"
+    },
+    {
+      "id": "the-goat-hazelwood",
+      "name": "The Goat Hazelwood",
+      "website": "https://thevillagehazelwood.co.za/",
+      "kind": "place",
+      "logoUrl": null,
+      "confidence": "none",
+      "method": "fetch failed"
+    }
+  ]
+}

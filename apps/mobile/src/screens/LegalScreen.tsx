@@ -1,0 +1,11 @@
+import { BackButton, Page } from "../components/Ui";
+import { StyleSheet, Text, View } from "react-native";
+import { fonts, useThemeStyles, type ThemeColours } from "../theme";
+
+export function LegalScreen() {
+  const styles = useThemeStyles(createStyles);
+  return <Page><BackButton /><Text style={styles.eyebrow}>KNOGO policies</Text><Text style={styles.title}>Privacy and community rules</Text><Policy title="What KNOGO stores" body="KNOGO stores your email account, saved places and reports you submit. Search text, phone location and device coordinates are not sent to analytics." /><Policy title="Community reports" body="Say how you checked the place and report only what you believe is true. Two accounts must agree within four hours before a status changes. Reports may be limited or removed when they are false, repeated or abusive." /><Policy title="Diagnostics" body="With consent, KNOGO sends fault details to Sentry and action counts to PostHog. Email addresses, searches, coordinates, report answers and source links are excluded." /><Policy title="Your choices" body="You may sign out at any time. Contact support to correct place data, request account deletion or ask about stored information." /><Policy title="Terms" body="KNOGO helps people check a place before leaving. Status information can change, so contact the place when the result matters. Do not use KNOGO for emergencies." /></Page>;
+}
+
+function Policy({ title, body }: { title: string; body: string }) { const styles = useThemeStyles(createStyles); return <View style={styles.section}><Text style={styles.sectionTitle}>{title}</Text><Text style={styles.body}>{body}</Text></View>; }
+const createStyles = (colours: ThemeColours) => StyleSheet.create({ eyebrow: { color: colours.primary, fontFamily: fonts.extraBold, fontSize: 13 }, title: { paddingBottom: 7, color: colours.text, fontFamily: fonts.extraBold, fontSize: 34, lineHeight: 41 }, section: { gap: 5, paddingVertical: 12, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colours.border }, sectionTitle: { color: colours.text, fontFamily: fonts.extraBold, fontSize: 17 }, body: { color: colours.muted, fontFamily: fonts.regular, fontSize: 14, lineHeight: 21 } });

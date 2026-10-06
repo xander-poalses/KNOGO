@@ -1,0 +1,59 @@
+KNOGO STYLE TILE
+Typography and colour
+
+TYPOGRAPHY
+
+Typeface: DM Sans
+Fallback: system-ui, sans-serif
+
+Use the same typeface throughout. The voice is direct and legible.
+
+Weights
+- Regular 400: body copy, detail and helper text
+- Medium 500: short supporting copy and navigation
+- SemiBold 600: metadata, labels and secondary actions
+- Bold 700: use only where extra emphasis is needed
+- ExtraBold 800: page titles, section titles, buttons and status labels
+
+Type scale
+- Display / page title: 36-44 px, ExtraBold, line-height 1.2-1.3
+- Section title: 24-32 px, ExtraBold, line-height 1.2-1.3
+- Card title: 17-28 px, ExtraBold, line-height 1.2
+- Body: 14-15 px, Regular, line-height 1.4-1.5
+- Meta and labels: 10-13 px, SemiBold or ExtraBold
+
+Use uppercase for short status labels and eyebrows only. Keep body copy in sentence case.
+
+COLOUR: LIGHT
+
+- Background: #F3F3E8
+- Surface: #F6F7F2
+- Raised surface: #E9EDE7
+- Text / ink: #17221B
+- Muted text: #5F6861
+- Border / divider: #D8DDD7
+- Primary green: #0B4F2F
+- Soft green: #E1ECE4
+- Success / open: #1F7A4D
+- Gold / warning: #C8A13A / #93600E
+- Coral: #A65742
+- Closed / error: #B6463A
+
+COLOUR: DARK
+
+- Background: #000000
+- Surface: #121814
+- Raised surface: #222C25
+- Text / ink: #EDF4EE
+- Muted text: #AEBBB1
+- Border / divider: #354139
+- Primary green: #31B879
+- Soft green: #203C2C
+- Success / open: #72D99C
+- Gold / warning: #D9B85E / #E0AD55
+- Coral: #D7846D
+- Closed / error: #EF8174
+
+USE
+
+Keep green for primary actions and confirmed/open states. Use gold for attention and coral or red for warnings, errors and closed states. Pair text with background colours that keep the hierarchy clear.

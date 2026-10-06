@@ -1,0 +1,463 @@
+KNOGO | Issue Log
+=================
+Updated: 5 October 2026
+
+Verified in this pass
+--------------------
+[x] 6 October Settings redesign: account anchor, preference rows, appearance
+    and fuel sheets, help links. Removed inline fuel form and status paragraph.
+    Retained tokens, DM Sans, haptics and sign-out controls. Google remains
+    visible in Expo Go; press explains its limitation without opening OAuth.
+    332 mobile tests pass; mobile TypeScript passes. Browser reviewed dark
+    and light, theme/fuel/account sheets and widths 320/375/414/768 with no
+    root horizontal overflow. Restored System theme; QA tab closed and viewport
+    overrides reset. Screenshot apps/mobile/.expo/settings-redesign-qa.png.
+    Mobbin public page lists patterns but full examples require login; no claim
+    of inspecting every example. Two patches failed context checks and made no
+    changes; corrected contexts. IAB viewport session was unavailable, so used
+    Chrome QA. Phone keyboard/TalkBack and OAuth completion remain unverified.
+[x] 6 October: user enabled Google in Supabase. Public Auth settings confirm
+    external.google=true and external.email=true. Added the mobile Google flag
+    to .env.local without adding any secret. Redirect allowlist and account
+    sign-in remain unverified. Expo Go cannot handle KNOGO's OAuth scheme;
+    browser testing or a development build is required. No trust deployment.
+[ ] Hosted integration gate rechecked on 5 October using Supabase reads.
+    Migration history still lacks the trust migration. trust_rules,
+    report_risk_jobs and venue_claim_challenges return null from to_regclass.
+    Only trip-planner version 2 is listed. No deployment or hosted write made.
+    Attachment prohibits deployment. Required hosted trust/venue/risk proof
+    cannot proceed without deployment approval and provider setup.
+[x] Verified account navigation after unmount for Google session adoption and
+    account creation with deferred responses. Neither calls the navigation
+    callback after leaving the form. All 13 account-form tests pass. No runtime
+    or visual edits. Hosted Google setup, native redirect and session restoration
+    still need integration checks; these tests use mocked authentication.
+[x] AccountForm Google hand-off now has component tests with Google enabled.
+    Tests prove session adoption finishes before caller navigation, cancellation
+    adopts no session, and storage failure does not navigate or expose provider
+    error text. Report branch intent reaches request preparation. All 11 account
+    form tests pass. No runtime or visual changes, Google request, account
+    creation or hosted configuration change. Hosted OAuth/device proof remains
+    missing; mocked component coverage does not close that gate.
+[x] Ran the mobile suite after all diagnostics changes: 326 tests across
+    27 files pass. Generated Android export at
+    apps/mobile/.expo/trust-dashboard-current-export: 3937 modules, 49 assets,
+    7.9 MB Hermes bundle. Export includes account callback and persistence
+    changes made after the previous export. Missing Sentry organisation/project
+    warning remains. This is a local bundle, not an APK or a phone test.
+    No deployment, provider request or hosted configuration change was made.
+[x] Added Sentry beforeSend filtering for account/request/context/extra data,
+    breadcrumbs, exception messages and stack source context. Removed query
+    strings from stack paths. Disabled traces and automatic Sentry session
+    tracking; disabled PostHog lifecycle events and default person properties.
+    SDK declarations confirm these controls. Eight diagnostics tests and mobile
+    TypeScript pass. No provider traffic was sent. Native crash transport,
+    SDK metadata, IP handling and hosted settings still need release evidence;
+    these filters do not prove that all native events pass through JavaScript.
+[x] Follow-up diagnostics check found the category allowlist used fast_food
+    instead of KNOGO's quick_bites. Corrected it against PlaceCategory and
+    included the remaining supported categories. Error context now rejects
+    values outside auth/data/report/navigation at runtime. Seven diagnostics
+    tests pass. Full suite was not rerun after these two changes.
+    SDK declaration search first missed ignored dependency folders; using
+    rg -uuu -L found lifecycle capture controls. SDK collection review remains
+    unfinished; no settings or provider configuration were changed.
+[x] Restricted app-supplied diagnostics payloads to event-specific fields.
+    Provider exceptions are replaced with a fixed error message and context.
+    Search text, email, coordinates, source URLs and report text are discarded
+    from app event properties. Five boundary tests pass; mobile total 323
+    across 27 files. Mobile TypeScript passes. SDK automatic collection and
+    hosted telemetry configuration still require release review; this does
+    not establish end-to-end analytics privacy.
+    Initial test run could not read dependency links under sandbox access.
+    Approved execution worked. The first test filename was outside the mobile
+    suite pattern; changed it to telemetry.flow.tsx and confirmed execution.
+[x] Browser checked Home search and Saved after the persistence fix.
+    Stoetbul suggestions showed Olympus and Parkview branches; Parkview
+    opened /restaurants/stoetbul-parkview, not Cappuccinos. Saving changed
+    the heart, showed Parkview in Saved and survived reload. Removing the
+    test save returned the empty state. No initial save existed for Parkview.
+    Test server was started localhost-only after connection refusal, then
+    stopped; QA tab closed. Screenshot: apps/mobile/.expo/saved-removal-qa.png.
+    No account, report, location permission or routing-provider request used.
+    Web warned about deprecated shadow/pointerEvents/textShadow props and
+    native animation driver fallback. Phone storage/Back remain unverified.
+[x] Recovered the server runtime type check without user installation.
+    pnpm registry lookup returned Deno 2.9.6. Ran the pinned package through
+    pnpm dlx: all three entry points pass Deno check (trip-planner,
+    report-risk and venue-claim). No workspace dependency changes, deployment,
+    function execution, provider calls or hosted writes were needed.
+    Command: pnpm.cmd dlx deno@2.9.6 check
+      supabase/functions/trip-planner/index.ts
+      supabase/functions/report-risk/index.ts
+      supabase/functions/venue-claim/index.ts
+[x] Audited the remaining scope against implementation and test boundaries.
+    TRUST_AND_TRIP_IMPLEMENTATION now maps account, dashboard, trust, Gemini,
+    venue claims, trip, schedules, fuel and QA requirements to evidence and
+    missing gates. Venue setup notes now describe AccountForm rather than
+    retired email-link-only access. No code/config/runtime state changed.
+    Google setup, trust deployment permission, provider/data-use decisions,
+    fuel ingestion, onboarding direction and phone verification remain open.
+[x] Fixed the Gemini day-boundary gap in the undeployed trust migration.
+    Reservations retain a rolling 25-hour window and reject at the daily
+    allowance, covering Pacific daylight-saving quota days. Minute and UTC
+    counters still apply. SQL tests reject a rollover without consuming a
+    reservation and verify expiry/pruning; the full database harness passes.
+    No hosted migration, worker, provider call or billing was activated.
+[x] Rechecked Gemini model/pricing/data terms against Google docs on 5 October.
+    gemini-3.5-flash-lite still supports structured outputs with free-tier
+    Standard input/output. Paid rates remain USD 0.30/2.50 per million tokens.
+    No account, request, billing or terms acceptance was activated.
+[ ] Gemini account quota and data-use gates remain open.
+    The earlier UTC-only 50/day cap could permit 100 calls in a provider day;
+    the pending migration now includes the rolling-window guard above.
+    Project RPM/TPM/RPD, shared usage and billing state must be checked before
+    enablement, with aligned windows or lower caps for overlap. Unpaid terms
+    also prohibit personal/sensitive data. Pseudonyms alone do not prove
+    compliance. Provider notes record these gates; integration stays disabled.
+[x] Risk worker request boundaries lacked entry-handler tests.
+    Ten tests now execute the handler with simulated Deno/server calls:
+    wrong/missing secret, wrong method, caller instructions, invalid bodies,
+    oversized body, queue failure and authorised empty request.
+    All 241 core/website tests pass. Website TypeScript passes after changing
+    the harness import so it does not add Deno files to the web TS project.
+    No Gemini calls, queue writes, hosted changes or UI changes occurred.
+[x] Deno runtime check initially could not be repeated: no executable was found on PATH,
+    in workspace dependencies or the checked Temp location. Handler tests use
+    a simulated Deno host and do not replace Deno checks or deployment QA.
+    The pinned pnpm dlx check above subsequently passed on 5 October.
+[x] Account completion could navigate after leaving its form.
+    AccountForm now checks that it remains mounted before calling the
+    caller's navigation/completion handler, including after Google adoption.
+    A password test resolves sign-in after unmount and verifies no callback.
+    All 318 mobile tests and mobile TypeScript pass. Google provider/device
+    completion remains unverified. No appearance or auth settings changed.
+[x] Report registration sent confirmation returns to Settings.
+    AccountForm now uses intent=review and the report place ID for that
+    registration return. Venue access retains priority and Settings account
+    registration retains intent=account. Review callbacks do not auto-submit.
+    A form test checks the URL and pending confirmation state. All 317 mobile
+    tests and mobile TypeScript pass. Hosted email/redirect QA remains open.
+    No styling/config changes; the last export predates this URL correction.
+[x] Rechecked trust SQL and exported the latest dashboard code on 5 October.
+    The in-memory Postgres harness passes trust/RLS, provider caps, risk queue,
+    venue claims, blocking, inactive venue and anonymous-account checks.
+    All 231 core/website tests pass. Android export completes with Saved and
+    refresh fixes: apps/mobile/.expo/trust-dashboard-qa-export (3937 modules,
+    49 assets, 7.9 MB Hermes bundle). Sentry configuration warning remains.
+    These results do not prove hosted deployment, provider delivery or phone
+    behaviour. No hosted writes, deployment, sign-in or provider calls occurred.
+[x] Callback routing lacked screen-level tests.
+    Five tests exercise Settings, venue and report-review destinations,
+    an exchange failure and unmount during a pending exchange.
+    They simulate finishEmailReport results, not email delivery or Google.
+    Existing core tests remain responsible for exchange/draft behaviour.
+    All 316 mobile tests and mobile TypeScript pass. No UI/config changes.
+[x] Saved taps used render-time state and could overwrite each other.
+    Saved writes now wait for startup restoration and run in order using
+    the last accepted saved IDs. State changes after storage accepts a write;
+    failure leaves the previous state and does not stop the next save.
+    Three tests cover delayed restore, overlapping taps/removal and failure.
+    All 311 mobile tests and mobile TypeScript pass. No visual changes.
+    The last Android export predates this persistence change.
+[x] Overlapping place refreshes could replace results in completion order.
+    Launch and refresh now share one in-flight request. Once it settles,
+    another refresh can start. If network and cache reads both fail, the
+    network error remains on screen and refreshing stops without rejecting.
+    Two tests cover overlap, cache failure and retry. All 308 mobile tests
+    and mobile TypeScript pass. No UI or hosted configuration changed.
+    The Android export above predates this request guard.
+[x] Rechecked the account/dashboard changes after session restoration.
+    All 306 mobile tests and mobile TypeScript pass on 5 October.
+    Android export completed: apps/mobile/.expo/session-restoration-export,
+    3937 modules, 49 assets and a 7.9 MB Hermes bundle. This verifies bundling,
+    not account delivery, Google callbacks or behaviour on a phone.
+[ ] Expo Doctor passed 20 of 21 checks on 5 October.
+    Dependency validation lists 14 SDK 57 patch updates, including Expo
+    57.0.20 -> ~57.0.26. No package versions were changed in this pass.
+[ ] Android export warns that Sentry organisation/project are not configured.
+    Export succeeds, but crash reporting and source-map upload are not proven.
+[x] Device session restoration accepted arbitrary JSON objects.
+    Storage now checks required credential/account fields and expiry values,
+    rejects incomplete records and projects only KNOGO's session fields.
+    Expired sessions and legacy missing-expiry sessions remain available for
+    the API refresh path. Storage failure and damaged JSON return signed out.
+    Eighteen cases cover these boundaries. All 306 mobile tests and mobile
+    TypeScript pass. This is parsing, not proof of token validity or account
+    ownership: Supabase remains the authority. No tokens were sent or logged.
+    Rejected records are not removed during a read, avoiding deletion of a
+    replacement session written while restoration is waiting. No UI changes.
+[x] Integration notes mixed historical state with current hosted state.
+    Read-only Supabase checks confirm ACTIVE_HEALTHY, Google disabled, email
+    enabled with confirmation required, and only trip-planner deployed.
+    Trust rules, risk queue and venue claim tables are absent. Trip caps are
+    enabled at 100/day and 10/minute for routes and addresses. Setup and scope
+    documents now distinguish these checks from hosted account/provider QA.
+    A cap query used a wrong column name; the migration was inspected and
+    the query corrected to minute_limit. No state, quotas or credentials changed.
+    Full goal remains open: hosted trust, Google, Gemini, venue OTP, fuel feed
+    and phone verification gates have not been passed.
+[x] One failed startup preference read could prevent place loading.
+    PlacesContext now restores Saved, confirmations, search history and area
+    preferences independently. Cache restoration still precedes the network
+    refresh, but a cache read failure no longer prevents that fetch.
+    Four tests cover an area read failure, pending history, failed cache and
+    unmount during cache restoration. All 288 mobile tests and mobile
+    TypeScript pass. No layout, colours, provider config or database changes.
+[x] Address and Home search inputs could lose focus to modal entrance.
+    StagedModal now exposes onReady after its backdrop/sheet entrance ends.
+    Trip address and Home search request focus then, rather than onShow.
+    Interrupted/closed entrances cannot request focus; Reduce Motion runs
+    readiness without animation. Five added tests cover those boundaries and
+    callback changes. All 284 mobile tests and mobile TypeScript pass.
+    Chrome confirms Starting address and Search KNOGO own focus after opening,
+    without clicking either input. Home search at 375x812 has no horizontal
+    overflow; screenshot: apps/mobile/.expo/home-search-focus-qa.png.
+    Hallmark interaction scope: preserve tokens, layout, entrance sequence and
+    Reduce Motion. Critique P5 H4 E4 S5 R5 V4. Phone keyboard remains untested.
+[x] Dashboard sheets needed a browser check beyond mocked flow tests.
+    Chrome at localhost:8081 checked status, hours, trip, nested address,
+    place information and contact disclosure for Cappuccinos Menlyn.
+    Escape dismissed hours and nested address sheets; focus returned to
+    their triggers. Contact buttons measured 54px and Close measured 44px
+    at 320/375/414/768px, with no document horizontal overflow.
+    Listed hours were inspected in Light and Dark at 375x812. Missing kitchen
+    hours stay labelled as unpublished. Screenshots are saved in .expo as
+    dashboard-hours-light-qa.png and dashboard-hours-dark-qa.png.
+    System mode and viewport defaults were restored after QA. No credentials,
+    location permission, report submission or external contact launch used.
+    These checks do not prove native animation timing, TalkBack, large text,
+    live route results or hosted authentication. Address input focus on sheet
+    entrance still needs inspection: the browser initially focused the modal
+    container rather than the input. No styling changed in this pass.
+[x] Closing the trip planner left its GPS timeout waiting for Expo.
+    Location waits now settle on cancellation and clear their timeout and
+    abort listener. Expo's position lookup cannot be cancelled by this API;
+    any later result or failure is handled without starting a route.
+    Six helper tests cover success, cancellation, timeout and failure. Two
+    planner tests cover closing during permission and position requests.
+    All 279 mobile tests and mobile TypeScript pass. Android export passes
+    at apps/mobile/.expo/trip-cancellation-export (3937 modules, 49 assets).
+    No layout or palette changes. Export is not phone/runtime verification.
+    Sentry still warns that organisation/project configuration is missing.
+[x] Switching report routes could carry one venue's answers into another.
+    The report form now remounts for each venue/callback target, isolating
+    answers, source, account hand-off, busy state and submission outcome.
+    Tests reproduced the route-state leak before the fix. Delayed drafts from
+    the previous venue are ignored. Draft read failures keep the form usable.
+    Reports also wait for place loading rather than announcing a missing venue.
+    Four added cases pass; all 271 mobile tests and mobile TypeScript pass.
+    Hallmark scope: existing Notice loading state, no token/layout changes.
+    Critique: P5 H4 E4 S5 R5 V4. Native route and hosted report QA remain open.
+[x] Theme restoration could overwrite a choice made during startup.
+    The provider now guards startup restoration and queues preference writes
+    in selection order. Storage failures no longer leave rejected promises
+    unhandled or prevent the next save. A failed write still means the choice
+    may not survive restart; the current session keeps the chosen theme.
+    Five tests cover restoration, startup races, write ordering, read errors,
+    unsupported values and write recovery. All 267 mobile tests and mobile
+    TypeScript pass. No colours, layout or motion were changed in this pass.
+[x] Dashboard entry points lacked screen-level regression coverage.
+    Ten tests now cover status/hours/trip/details/contact disclosure, report
+    and venue routing, Save, missing hours/features/contact details, link
+    failure and place loading. The dashboard waits for data restoration rather
+    than announcing a missing place during loading. Layout/tokens stay intact.
+[x] Place contact actions accepted unusable URLs and coordinates.
+    Shared actions now allow HTTP(S) web links without embedded credentials,
+    format phone numbers without dial commands, and require valid coordinates
+    for Directions. Contact-gap copy uses the actions that can be offered.
+    Ten action cases cover URL schemes, malformed URLs, phone formatting and
+    coordinates. All 231 core/web tests and 262 mobile tests pass; both core
+    and mobile TypeScript pass. This pass did not run phone or browser QA.
+    Sheet motion and planner behaviour have separate tests; dashboard tests
+    mock those components and do not prove native modal or location behaviour.
+[x] Venue representatives still had the retired email-link sign-in form.
+    Venue access now uses the shared password/Google account form. Registration
+    and Google return URLs retain the venue target, without report submission.
+    Signing in reads venue access; it does not request an SMS or voice code.
+    Venue loading also no longer flashes Place not found during restoration.
+    All 252 mobile tests and mobile TypeScript pass. Chrome checks both themes
+    and 320/375/414/768px layouts; account inputs measure 52px high with no
+    horizontal overflow. Registration mode was inspected without credentials.
+    Hallmark guided shared controls/tokens and task separation. No palette or
+    home-screen changes were made. Theme and viewport were restored after QA.
+    Hosted Google credentials and venue-code delivery remain unconfigured.
+[x] Account blocking and inactive venues lacked database QA coverage.
+    The disposable Postgres script now verifies blocked report submission,
+    withdrawal of blocked evidence, rejection of blocked claims and venue
+    updates, block expiry, inactive-place submission and public-view removal.
+    It also rejects an online report with a javascript source URL and an
+    attempt to remove the account's own block. The database checks pass.
+    No schema edits, hosted writes, SMS, provider calls or deployment occurred.
+    This verifies the migration in memory, not the hosted project's state.
+[x] Launch session restoration could replace a sign-in or undo sign-out.
+    Account revisions now stop launch restoration from replacing those actions.
+    A rejected session read ends auth loading without an unhandled rejection.
+    Four provider tests cover delayed sessions, no stored session and failure.
+[x] The settings storage helper hid read failures by returning defaults.
+    Settings reads now report storage and JSON failures to the provider.
+    Diagnostics stay off and the prompt stays hidden if restoration fails.
+    Four storage tests cover no settings, a decline, read failure and damage.
+    All 247 mobile tests and mobile TypeScript checks pass. Android export
+    succeeds at apps/mobile/.expo/account-recovery-export. It is not a signed
+    build or a device test. Sentry still warns about missing organisation and
+    project configuration. No hosted accounts or reports were created.
+[x] A logout response could clear a replacement sign-in.
+    Storage is cleared only if the logout still owns the stored session.
+    The mobile provider also preserves a replacement session in screen state.
+    Tests cover logout success, network failure and replacement sign-ins.
+    Provider tests cover settings restoration apart from the cache and a
+    settings storage failure. All 221 core/web and 239 mobile tests pass;
+    core and mobile TypeScript checks pass. No hosted accounts were created.
+    Supabase sign-out documentation was checked. The changelog markdown
+    endpoint remains unreadable through the web tool (unsupported content).
+[x] Diagnostics consent appeared before saved settings had loaded.
+    Settings now restore apart from the place cache and saved-place reads.
+    The prompt waits for settings restoration. Diagnostics stay off while
+    waiting and if the settings read fails. No sheet styling was changed.
+    Tests cover a saved decline and a grant waiting for restoration.
+[x] A delayed report draft could replace answers after the user had tapped.
+    Draft restoration now stops after an edit. Four flow tests cover restore
+    for review, edits during loading, stale drafts and account hand-off.
+    These tests do not submit hosted reports or create accounts.
+    All 234 mobile tests and the mobile TypeScript check pass.
+    Device motion, haptics and hosted Google sign-in still need verification.
+
+Open
+----
+[ ] CTA and sheet device QA
+    CTA source review follows docs/CTA_AUDIT.md. Venue and trip sheets use a
+    backdrop-first entrance with reduced-motion support. Phone motion,
+    text scaling and screen-reader checks remain before release.
+    All 202 mobile tests and mobile TypeScript checks pass. Browser hours/trip
+    sheets open and close; focus returns to their opening command. A resize
+    produced overflow before the viewport hook updated, not after it settled.
+    A modal reopened during its motion-preference lookup could receive the
+    previous opening's callback. Opening IDs now reject that callback.
+    Browser QA found a second event-order issue: onShow can precede the
+    parent's passive effect on web. The regression now covers that order.
+    All 215 mobile tests and mobile TypeScript checks pass after both fixes.
+    Listed hours render in light mode at 320/375/414/768px with no horizontal
+    overflow. Account forms and the dark trip sheet render. Phone QA remains.
+    Home search and filters now use the staged entrance with their backdrop
+    kept outside moving content. Search retains its theme overlay token.
+    Chrome verifies input focus, Stoetbul Parkview branch routing, multi-area
+    selection and no horizontal overflow at 320/375/414/768px. Filter close
+    targets measure 44x44px. Home artwork and placement were not changed.
+    Branch details and diagnostics consent now reuse PlaceSheet. No mobile
+    screen owns a legacy Modal wrapper. Woodlands branch routing and sheet
+    sizing pass browser QA at 320/375/414/768px. Directions errors remain in
+    the sheet rather than becoming unhandled rejections. Phone QA remains.
+    Consent takes effect only after persistence, close means decline, and a
+    failed write keeps diagnostics off with a retry message. All 228 mobile
+    tests and mobile TypeScript pass after this change.
+    The Woodlands sheet was inspected in light and dark themes. Android export
+    passes at apps/mobile/.expo/sheets-export (3,936 modules, 49 assets).
+    Phone verification has been requested for keyboard, Back, safe areas and
+    haptics. It is not yet signed off.
+
+[ ] Venue dashboard redesign
+    The user now wants status, listed hours and trip controls in modals rather
+    than a page of scrolling sections, with Contact & directions floating.
+    The dashboard and task sheets are implemented. Browser hours and trip
+    commands have been checked in dark mode; light mode and phone QA remain.
+    Hours must not be labelled Google-sourced without evidence.
+
+[ ] Sign-in return and Google/email-password options
+    Email/password forms and confirmation-required signup are implemented.
+    Google uses PKCE code exchange, cancellation handling and report review.
+    Hosted Auth settings show email enabled, confirmation required and Google
+    disabled. Google stays gated until provider credentials are configured.
+    Callback allowlists, account testing and development-build return remain.
+    Refresh callers share one request. Tests cover sign-out during refresh and
+    an invalid old refresh not clearing a replacement session.
+    All 218 repository tests and 213 mobile tests pass. Core/mobile TypeScript
+    and Android export pass (3,936 modules, 49 assets). No account was created.
+    Settings now blocks repeat sign-out taps and handles a server failure
+    without exposing provider details. Report storage rejects damaged drafts,
+    duplicate answers and missing required checks. All 224 mobile tests and
+    mobile TypeScript pass. Setup and account QA: docs/ACCOUNT_SETUP.md.
+
+[ ] Trust deployment and hosted QA
+    The trust migration and venue/risk handlers have not been deployed.
+    Test-database checks do not prove hosted Supabase behaviour.
+
+[ ] Venue OTP delivery
+    The delivery adapter is unset. No SMS or voice codes can be sent.
+    A provider with acceptable costs and terms is required before activation.
+    Paid messaging has not been authorised.
+
+[ ] Gemini activation
+    Credentials, free-tier terms confirmation and scheduler setup remain.
+    AI failure must retain uncertainty rather than strengthen a negative claim.
+
+[ ] Fuel reference feed
+    Source rights, price intervals and diesel wholesale/pump basis remain
+    unresolved. Price entry works; no unverified reference feed is connected.
+
+[ ] Phone QA
+    Expo Go checks for permissions, TalkBack, text scaling, keyboard and both
+    themes remain. Browser/component checks are not a device sign-off.
+
+[ ] Design consistency
+    Radius, type and surface consistency needs a page-by-page Hallmark pass.
+
+[ ] Haptic hardware QA
+    CTA controls use the shared haptic wrapper, with return-fuel toggle feedback.
+    Android uses Segment_Frequent_Tick; iOS uses selection feedback. The browser
+    stays silent. Device intensity and disabled system feedback need phone QA.
+    All 199 mobile tests, mobile type checking and Android export pass.
+    Export: apps/mobile/.expo/haptics-export (3,879 modules, 49 assets).
+
+Resolved In Source, Awaiting Hosted Verification
+-----------------------------------------------
+[x] Anonymous Auth account boundary
+    Regression testing reproduced anonymous accounts submitting reports
+    through the authenticated database role. The pending trust migration
+    now rejects them for reports and venue access, and excludes their old
+    evidence from public trust and risk context. Hosted verification remains.
+    The test-database suite and all 209 repository tests pass after the fix.
+
+Tool And Reference Issues
+-------------------------
+[x] Metro preview after account dependencies
+    Both browsers showed a blank page. The bundle request returned a resolver
+    error for expo-crypto, despite its entry file existing on disk. The verified
+    KNOGO Metro process was restarted with --clear on port 8081.
+    Logs: apps/mobile/.expo/metro-account-qa.log and metro-account-qa-error.log.
+    Metro rebuilt the web bundle (3,456 modules), and Chrome renders the app.
+    The server remains on port 8081. No dependency files were deleted.
+
+[ ] Sentry release configuration
+    Android export reports missing Sentry organisation/project configuration.
+    Export completes, but source-map upload is not configured.
+
+[x] Metro cache read
+    Android export could not deserialize its cache and performed a file crawl.
+    It completed without manual cache deletion.
+
+[x] Haptics dependency installation
+    The first pnpm add failed during dependency-folder replacement and removed
+    package-store entries. Offline restoration lacked @types/leaflet. Online
+    installation from the frozen lockfile restored dependencies; haptics was
+    then installed with package-manager self-management disabled.
+    pnpm remains 12.3.4. No dependency-folder deletion was run by hand.
+
+[x] Attachment path
+    The updated objective names C:\Users\poals.codex\attachments\...
+    That path does not exist. The file was read at
+    C:\Users\poals\.codex\attachments\4ba746db-c333-4b92-9800-4ab4c5e507af\pasted-text-1.txt.
+
+[ ] Supabase changelog retrieval
+    The web tool rejects its text/markdown content type; shell retrieval was
+    denied network access. RLS documentation was retrieved. No SDK change
+    is being made from an assumed changelog state.
+
+[x] CTA test runner
+    Sandbox access stopped esbuild resolving the config. An approved run
+    worked. The native test mock needed Platform after adding web focus
+    feedback; it was updated and all 189 mobile tests passed.
+
+[ ] React Router upgrade warnings
+    Website tests report v7 transition and splat-path future flags.
+    Tests pass. No router upgrade is part of this change.

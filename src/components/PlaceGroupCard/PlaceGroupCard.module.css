@@ -1,0 +1,87 @@
+.card {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid rgba(var(--rgb-border), 0.72);
+  border-radius: 1.15rem;
+  background: color-mix(in srgb, var(--color-surface) 88%, white);
+  box-shadow: var(--shadow-small);
+  cursor: pointer;
+}
+
+.card:focus-visible {
+  outline: 0;
+  box-shadow:
+    var(--shadow-small),
+    inset 0 0 0 2px rgba(var(--rgb-primary), 0.35);
+}
+
+.image {
+  width: 100%;
+  height: clamp(9rem, 32vw, 14rem);
+  object-fit: cover;
+  background: var(--color-elevated);
+}
+
+.body {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.kicker {
+  color: var(--color-primary);
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.card h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: clamp(2rem, 8vw, 3.4rem);
+  font-weight: 850;
+  line-height: 0.95;
+}
+
+.card p,
+.meta {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3rem;
+  margin-top: 0.4rem;
+  padding: 0 1rem;
+  border-radius: 0.85rem;
+  background: var(--color-primary);
+  color: var(--color-background);
+  font-weight: 850;
+}
+
+@media (min-width: 900px) {
+  .card {
+    grid-template-columns: minmax(14rem, 0.75fr) minmax(0, 1fr);
+  }
+
+  .image {
+    height: 100%;
+    min-height: 17rem;
+  }
+}
+
+:root[data-theme="dark"] .card {
+  background: rgba(var(--rgb-surface), 0.9);
+}

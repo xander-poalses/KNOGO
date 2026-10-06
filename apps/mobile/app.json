@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "KNOGO",
+    "slug": "knogo",
+    "version": "0.1.0",
+    "runtimeVersion": { "policy": "appVersion" },
+    "orientation": "portrait",
+    "scheme": "knogo",
+    "userInterfaceStyle": "automatic",
+    "icon": "./assets/icon.png",
+    "android": {
+      "package": "za.co.knogo.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#f7f5ef"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "imageWidth": 260,
+          "resizeMode": "contain",
+          "backgroundColor": "#f7f5ef"
+        }
+      ],
+      "expo-font",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow KNOGO to estimate trips from your location and find places near you. Your location is not used to verify contributions."
+        }
+      ],
+      "expo-image",
+      "@sentry/react-native"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "supabaseUrl": "",
+      "supabasePublishableKey": ""
+    }
+  }
+}

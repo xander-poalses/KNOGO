@@ -1,0 +1,41 @@
+{
+  "name": "knogo",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@12.3.4",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc -b && vite build",
+    "build:web": "tsc -b && vite build",
+    "typecheck:core": "pnpm --dir packages/core typecheck",
+    "typecheck:mobile": "pnpm --dir apps/mobile typecheck",
+    "mobile": "pnpm --dir apps/mobile start",
+    "mobile:android": "pnpm --dir apps/mobile android",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
+    "test:mobile-flow": "vitest run --config vitest.mobile.config.ts",
+    "places:validate": "node scripts/place-importer.mjs validate",
+    "places:generate": "node scripts/place-importer.mjs generate",
+    "places:activate": "node scripts/place-importer.mjs activate",
+    "start": "npm run"
+  },
+  "dependencies": {
+    "@knogo/core": "workspace:*",
+    "@vitejs/plugin-react": "^4.3.4",
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^15.0.7",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "csv-parse": "6.1.0",
+    "jsdom": "^25.0.1",
+    "vitest": "^2.1.4"
+  }
+}

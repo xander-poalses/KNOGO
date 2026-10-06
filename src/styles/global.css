@@ -1,0 +1,124 @@
+:root {
+  --color-background: #f3f3e8;
+  --color-surface: #ebebd6;
+  --color-elevated: #e8e0cd;
+  --color-primary: #0b4f2f;
+  --color-primary-soft: #dde8d6;
+  --color-gold: #c8a13a;
+  --color-coral: #9a6a42;
+  --color-success: #1f7a4d;
+  --color-warning: #a96d12;
+  --color-closed: #b6463a;
+  --color-text: #172018;
+  --color-muted: #6b6659;
+  --color-border: #d8d0be;
+  --color-control: rgba(var(--rgb-text), 0.055);
+  --color-control-strong: rgba(var(--rgb-text), 0.12);
+  --rgb-background: 243, 243, 232;
+  --rgb-surface: 246, 247, 242;
+  --rgb-elevated: 232, 224, 205;
+  --rgb-primary: 11, 79, 47;
+  --rgb-text: 23, 32, 24;
+  --rgb-muted: 107, 102, 89;
+  --rgb-border: 216, 208, 190;
+  --shadow-soft: 0 18px 46px rgba(60, 50, 35, 0.1);
+  --shadow-small: 0 8px 22px rgba(60, 50, 35, 0.08);
+  --font-heading: "DM Sans", system-ui, sans-serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+  color: var(--color-text);
+  background: var(--color-background);
+  font-family: var(--font-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:root[data-theme="dark"] {
+  --color-background: #111610;
+  --color-surface: #18211d;
+  --color-elevated: #101d17;
+  --color-primary: #a9c47f;
+  --color-primary-soft: #20351f;
+  --color-gold: #d2b15a;
+  --color-coral: #b98256;
+  --color-success: #78be82;
+  --color-warning: #d6a84a;
+  --color-closed: #dd776d;
+  --color-text: #f7f2e7;
+  --color-muted: #b8b09d;
+  --color-border: #3f4939;
+  --color-control: rgba(var(--rgb-text), 0.075);
+  --color-control-strong: rgba(var(--rgb-text), 0.14);
+  --rgb-background: 17, 22, 16;
+  --rgb-surface: 26, 33, 24;
+  --rgb-elevated: 36, 48, 34;
+  --rgb-primary: 169, 196, 127;
+  --rgb-text: 247, 242, 231;
+  --rgb-muted: 184, 176, 157;
+  --rgb-border: 63, 73, 57;
+  --shadow-soft: 0 18px 46px rgba(0, 0, 0, 0.24);
+  --shadow-small: 0 8px 22px rgba(0, 0, 0, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--color-background);
+  scrollbar-width: none;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: var(--color-background);
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled),
+a[href] {
+  transition:
+    background-color 170ms ease,
+    border-color 170ms ease,
+    box-shadow 170ms ease,
+    color 170ms ease,
+    filter 170ms ease,
+    transform 170ms ease;
+}
+
+button:active:not(:disabled),
+a[href]:active {
+  filter: brightness(0.96) saturate(0.98);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 0;
+}
+
+::selection {
+  background: rgba(var(--rgb-primary), 0.2);
+}

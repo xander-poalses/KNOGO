@@ -1,0 +1,292 @@
+import type { OpeningHours, Place } from "../types/place";
+
+const lateHours: OpeningHours[] = [
+  { day: "Mon", openTime: "11:00", closeTime: "22:00", isClosed: false },
+  { day: "Tue", openTime: "11:00", closeTime: "22:00", isClosed: false },
+  { day: "Wed", openTime: "11:00", closeTime: "22:00", isClosed: false },
+  { day: "Thu", openTime: "11:00", closeTime: "22:30", isClosed: false },
+  { day: "Fri", openTime: "11:00", closeTime: "23:00", isClosed: false },
+  { day: "Sat", openTime: "10:00", closeTime: "23:00", isClosed: false },
+  { day: "Sun", openTime: "10:00", closeTime: "21:00", isClosed: false }
+];
+
+const kitchenLate: OpeningHours[] = lateHours.map((hours) => ({
+  ...hours,
+  closeTime: hours.day === "Sun" ? "20:30" : "21:30"
+}));
+
+const standardHours: OpeningHours[] = [
+  { day: "Mon", openTime: "09:00", closeTime: "20:00", isClosed: false },
+  { day: "Tue", openTime: "09:00", closeTime: "20:00", isClosed: false },
+  { day: "Wed", openTime: "09:00", closeTime: "20:00", isClosed: false },
+  { day: "Thu", openTime: "09:00", closeTime: "21:00", isClosed: false },
+  { day: "Fri", openTime: "09:00", closeTime: "21:30", isClosed: false },
+  { day: "Sat", openTime: "09:00", closeTime: "21:30", isClosed: false },
+  { day: "Sun", openTime: "10:00", closeTime: "18:00", isClosed: false }
+];
+
+export const mockPlaces: Place[] = [
+  {
+    id: "culture-corner",
+    name: "Culture Corner",
+    slug: "culture-corner",
+    category: "restaurant",
+    area: "Hazelwood",
+    address: "16 Firwood Avenue, Hazelwood",
+    latitude: -25.7807,
+    longitude: 28.2546,
+    cuisine: ["Mediterranean", "Small plates"],
+    phone: "012 555 0134",
+    website: "https://example.com/culture-corner",
+    menuUrl: "https://example.com/culture-corner/menu",
+    openingHours: lateHours,
+    kitchenHours: kitchenLate,
+    features: ["late_night", "walk_ins", "backup_power", "card_payments", "outdoor_seating", "bar"],
+    currentStatus: {
+      isOpen: true,
+      isKitchenServing: true,
+      acceptsWalkIns: true,
+      busyLevel: "busy",
+      hasBackupPower: true,
+      cardMachineWorking: true,
+      lastConfirmedAt: new Date(Date.now() - 14 * 60 * 1000).toISOString(),
+      confidenceScore: 88,
+      source: "community"
+    }
+  },
+  {
+    id: "menlyn-noodle-bar",
+    name: "Menlyn Noodle Bar",
+    slug: "menlyn-noodle-bar",
+    category: "restaurant",
+    area: "Menlyn",
+    address: "Lois Avenue, Menlyn",
+    latitude: -25.7866,
+    longitude: 28.2762,
+    cuisine: ["Asian", "Noodles"],
+    phone: "012 555 0188",
+    website: "https://example.com/menlyn-noodle-bar",
+    openingHours: lateHours,
+    kitchenHours: kitchenLate,
+    features: ["late_night", "takeaway", "card_payments", "backup_power"],
+    currentStatus: {
+      isOpen: true,
+      isKitchenServing: true,
+      acceptsWalkIns: false,
+      busyLevel: "packed",
+      hasBackupPower: true,
+      cardMachineWorking: true,
+      lastConfirmedAt: new Date(Date.now() - 32 * 60 * 1000).toISOString(),
+      confidenceScore: 78,
+      source: "estimated"
+    }
+  },
+  {
+    id: "brooklyn-fire-table",
+    name: "Brooklyn Fire Table",
+    slug: "brooklyn-fire-table",
+    category: "restaurant",
+    area: "Brooklyn",
+    address: "Veale Street, Brooklyn",
+    latitude: -25.7719,
+    longitude: 28.2344,
+    cuisine: ["Grill", "Steakhouse"],
+    phone: "012 555 0145",
+    openingHours: lateHours,
+    kitchenHours: kitchenLate,
+    features: ["late_night", "walk_ins", "card_payments", "family_friendly"],
+    currentStatus: {
+      isOpen: true,
+      isKitchenServing: null,
+      acceptsWalkIns: true,
+      busyLevel: "normal",
+      hasBackupPower: false,
+      cardMachineWorking: true,
+      lastConfirmedAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+      confidenceScore: 45,
+      source: "unknown"
+    }
+  },
+  {
+    id: "lynnwood-garden-cafe",
+    name: "Lynnwood Garden Cafe",
+    slug: "lynnwood-garden-cafe",
+    category: "restaurant",
+    area: "Lynnwood",
+    address: "Lynnwood Road, Lynnwood",
+    latitude: -25.7635,
+    longitude: 28.2798,
+    cuisine: ["Cafe", "Bistro"],
+    phone: "012 555 0191",
+    openingHours: standardHours,
+    kitchenHours: standardHours,
+    features: ["outdoor_seating", "vegan_options", "pet_friendly", "card_payments"],
+    currentStatus: {
+      isOpen: true,
+      isKitchenServing: false,
+      acceptsWalkIns: true,
+      busyLevel: "quiet",
+      hasBackupPower: null,
+      cardMachineWorking: true,
+      lastConfirmedAt: new Date(Date.now() - 48 * 60 * 1000).toISOString(),
+      confidenceScore: 70,
+      source: "official"
+    }
+  },
+  {
+    id: "faerie-glen-pizza-house",
+    name: "Faerie Glen Pizza House",
+    slug: "faerie-glen-pizza-house",
+    category: "restaurant",
+    area: "Faerie Glen",
+    address: "Atterbury Road, Faerie Glen",
+    latitude: -25.7892,
+    longitude: 28.3156,
+    cuisine: ["Pizza", "Italian"],
+    phone: "012 555 0167",
+    openingHours: lateHours,
+    kitchenHours: kitchenLate,
+    features: ["late_night", "walk_ins", "takeaway", "family_friendly", "backup_power", "card_payments"],
+    currentStatus: {
+      isOpen: true,
+      isKitchenServing: true,
+      acceptsWalkIns: true,
+      busyLevel: "normal",
+      hasBackupPower: true,
+      cardMachineWorking: true,
+      lastConfirmedAt: new Date(Date.now() - 8 * 60 * 1000).toISOString(),
+      confidenceScore: 92,
+      source: "community"
+    }
+  },
+  {
+    id: "moreleta-spice-room",
+    name: "Moreleta Spice Room",
+    slug: "moreleta-spice-room",
+    category: "restaurant",
+    area: "Moreleta Park",
+    address: "Rubenstein Drive, Moreleta Park",
+    latitude: -25.8241,
+    longitude: 28.2894,
+    cuisine: ["Indian", "Curry"],
+    phone: "012 555 0152",
+    openingHours: lateHours,
+    kitchenHours: kitchenLate,
+    features: ["late_night", "halaal_friendly", "takeaway", "card_payments"],
+    currentStatus: {
+      isOpen: true,
+      isKitchenServing: true,
+      acceptsWalkIns: null,
+      busyLevel: "busy",
+      hasBackupPower: false,
+      cardMachineWorking: false,
+      lastConfirmedAt: new Date(Date.now() - 21 * 60 * 1000).toISOString(),
+      confidenceScore: 81,
+      source: "community"
+    }
+  },
+  {
+    id: "garsfontein-burger-yard",
+    name: "Garsfontein Burger Yard",
+    slug: "garsfontein-burger-yard",
+    category: "restaurant",
+    area: "Garsfontein",
+    address: "Jacqueline Drive, Garsfontein",
+    latitude: -25.8039,
+    longitude: 28.299,
+    cuisine: ["Burgers", "Casual"],
+    phone: "012 555 0109",
+    openingHours: standardHours,
+    kitchenHours: standardHours,
+    features: ["walk_ins", "takeaway", "card_payments", "family_friendly"],
+    currentStatus: {
+      isOpen: false,
+      isKitchenServing: false,
+      acceptsWalkIns: false,
+      busyLevel: "unknown",
+      hasBackupPower: null,
+      cardMachineWorking: null,
+      lastConfirmedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      confidenceScore: 62,
+      source: "estimated"
+    }
+  },
+  {
+    id: "waterkloof-late-plate",
+    name: "Waterkloof Late Plate",
+    slug: "waterkloof-late-plate",
+    category: "restaurant",
+    area: "Waterkloof",
+    address: "Crown Avenue, Waterkloof",
+    latitude: -25.7851,
+    longitude: 28.2426,
+    cuisine: ["Contemporary", "Wine bar"],
+    phone: "012 555 0177",
+    openingHours: lateHours,
+    kitchenHours: kitchenLate,
+    features: ["late_night", "bar", "outdoor_seating", "backup_power", "card_payments"],
+    currentStatus: {
+      isOpen: true,
+      isKitchenServing: null,
+      acceptsWalkIns: true,
+      busyLevel: "quiet",
+      hasBackupPower: true,
+      cardMachineWorking: true,
+      lastConfirmedAt: null,
+      confidenceScore: 28,
+      source: "unknown"
+    }
+  },
+  {
+    id: "silver-lakes-sushi-counter",
+    name: "Silver Lakes Sushi Counter",
+    slug: "silver-lakes-sushi-counter",
+    category: "restaurant",
+    area: "Silver Lakes",
+    address: "Silver Lakes Drive, Silver Lakes",
+    latitude: -25.7803,
+    longitude: 28.3579,
+    cuisine: ["Sushi", "Japanese"],
+    phone: "012 555 0122",
+    openingHours: lateHours,
+    kitchenHours: kitchenLate,
+    features: ["late_night", "takeaway", "card_payments", "walk_ins"],
+    currentStatus: {
+      isOpen: true,
+      isKitchenServing: true,
+      acceptsWalkIns: true,
+      busyLevel: "normal",
+      hasBackupPower: null,
+      cardMachineWorking: true,
+      lastConfirmedAt: new Date(Date.now() - 67 * 60 * 1000).toISOString(),
+      confidenceScore: 68,
+      source: "estimated"
+    }
+  },
+  {
+    id: "olympus-taco-window",
+    name: "Olympus Taco Window",
+    slug: "olympus-taco-window",
+    category: "restaurant",
+    area: "Olympus",
+    address: "Olympus Drive, Olympus",
+    latitude: -25.8068,
+    longitude: 28.3411,
+    cuisine: ["Mexican", "Street food"],
+    phone: "012 555 0138",
+    openingHours: lateHours,
+    kitchenHours: kitchenLate,
+    features: ["late_night", "walk_ins", "takeaway", "backup_power", "card_payments", "outdoor_seating"],
+    currentStatus: {
+      isOpen: true,
+      isKitchenServing: true,
+      acceptsWalkIns: true,
+      busyLevel: "busy",
+      hasBackupPower: true,
+      cardMachineWorking: true,
+      lastConfirmedAt: new Date(Date.now() - 19 * 60 * 1000).toISOString(),
+      confidenceScore: 84,
+      source: "community"
+    }
+  }
+];

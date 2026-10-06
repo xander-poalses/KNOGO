@@ -1,0 +1,73 @@
+.page,
+.empty {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.5rem var(--page-pad) calc(var(--nav-offset) + 2rem);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  gap: 0.4rem;
+  color: var(--color-muted);
+  text-decoration: none;
+  font-weight: 750;
+}
+
+.hero {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid rgba(var(--rgb-border), 0.7);
+  border-radius: 1.35rem;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-small);
+}
+
+.hero img {
+  width: 100%;
+  height: clamp(12rem, 34vw, 22rem);
+  object-fit: cover;
+}
+
+.hero div {
+  display: grid;
+  gap: 0.65rem;
+  padding: clamp(1.1rem, 4vw, 2rem);
+}
+
+.hero p,
+.hero span {
+  margin: 0;
+  color: var(--color-primary);
+  font-weight: 850;
+}
+
+.hero h1,
+.empty h1 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: clamp(3rem, 12vw, 6rem);
+  line-height: 0.95;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 900px) {
+  .page,
+  .empty {
+    max-width: 78rem;
+    margin: 0 auto;
+  }
+
+  .hero {
+    grid-template-columns: minmax(18rem, 0.9fr) minmax(0, 1fr);
+  }
+
+  .hero img {
+    height: 100%;
+  }
+}
