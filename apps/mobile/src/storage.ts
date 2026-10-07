@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { sessionStorage } from "./sessionStorage";
 import {
   defaultSettings,
   legacyStorageKeys,
@@ -86,10 +87,12 @@ export const mobileStorage = {
   }),
   writeSettings: (value: LocalSettings) => AsyncStorage.setItem(storageKeys.settings, JSON.stringify(value)),
   readSession: async () => {
-    return parseStoredSession(await readJson<unknown>(storageKeys.supabaseSession, null));
+    const raw = await sessionStorage.read();
+    if (!raw) return null;
+    try { return parseStoredSession(JSON.parse(raw)); } catch { return null; }
   },
-  writeSession: (value: SupabaseSession) => AsyncStorage.setItem(storageKeys.supabaseSession, JSON.stringify(value)),
-  clearSession: () => AsyncStorage.removeItem(storageKeys.supabaseSession),
+  writeSession: (value: SupabaseSession) => sessionStorage.write(JSON.stringify(value)),
+  clearSession: () => sessionStorage.clear(),
   readPlaceDataCache: async () => {
     const raw = await readJson<unknown>(storageKeys.placeDataCache, null);
     const parsed = parsePlaceDataCache(raw);

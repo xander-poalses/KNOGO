@@ -20,6 +20,16 @@ The attachment dated 1 October 2026 is the scope. This checklist tracks implemen
 
 ## Gate Review, 5 October 2026
 
+### Session storage update, 7 October 2026
+
+Android and iOS sessions now use Expo SecureStore, with migration from
+AsyncStorage only after the secure write succeeds. Read, write and sign-out
+operations are serialised. Browser storage remains AsyncStorage-backed.
+Mobile TypeScript and all 348 mobile tests pass, including six native storage
+tests. These mocked tests do not prove device migration, restart, refresh or
+sign-out. Phone QA and hosted authentication checks remain open.
+No hosted deployment or provider activation was performed in this update.
+
 This is not a completion claim. The attachment remains the scope. File and
 test evidence proves code behaviour only within the tested boundaries.
 

@@ -461,3 +461,9 @@ Tool And Reference Issues
 [ ] React Router upgrade warnings
     Website tests report v7 transition and splat-path future flags.
     Tests pass. No router upgrade is part of this change.
+[x] 7 October: native session storage moved to Expo SecureStore.
+    Android/iOS migrate the AsyncStorage session after the secure write succeeds.
+    Session operations are ordered; failures do not write plaintext as a fallback.
+    Browser storage is unchanged. Six tests cover migration, failure and sign-out.
+    Phone migration, restart, refresh and sign-out still need verification.
+    No deployment, provider activation, account login or GitHub push was made.
