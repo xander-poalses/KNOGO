@@ -467,3 +467,8 @@ Tool And Reference Issues
     Browser storage is unchanged. Six tests cover migration, failure and sign-out.
     Phone migration, restart, refresh and sign-out still need verification.
     No deployment, provider activation, account login or GitHub push was made.
+[x] 7 October: account form now separates email confirmation from sign-in.
+    Return preserves email but does not assume verification or submit reports.
+    Password visibility resets on mode changes. Type check and 16 form tests pass.
+[ ] Account audit: password recovery and hosted account/device QA remain open.
+    No email, Google login, deployment or GitHub push was performed.

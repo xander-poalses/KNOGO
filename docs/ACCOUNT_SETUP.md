@@ -2,6 +2,15 @@
 
 ## What Is Ready
 
+7 October account audit: Google was enabled by the user on 6 October; the
+mobile flag is present. The 4 October snapshot below is historical.
+Signup now has a confirmation screen with a return-to-sign-in action.
+Returning does not assume the email was verified and does not submit reports.
+Password visibility controls reset when switching modes. Mobile TypeScript
+and 16 account-form tests pass. Hosted signup, delivery, Google callbacks and
+device restart are not yet verified. Password recovery is not implemented.
+Deployment remains on hold at the user's request.
+
 Hosted settings checked on 4 October 2026: email enabled, signup enabled,
 email auto-confirm off, Google disabled. The mobile Google enablement flag
 is absent. These are configuration checks, not a completed sign-in test.

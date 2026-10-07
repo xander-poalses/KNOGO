@@ -45,7 +45,7 @@ type AuthUserResponse = { id?: string; email?: string };
 type SupabaseError = { error_description?: string; msg?: string; message?: string; error_code?: string; error?: string };
 
 class AuthRequestError extends Error {
-  constructor(message: string, readonly status: number) { super(message); }
+  constructor(message: string, readonly status: number, readonly code?: string) { super(message); }
 }
 
 export function createSupabaseApi(config: {
@@ -103,7 +103,10 @@ export function createSupabaseApi(config: {
       },
       body: JSON.stringify(body)
     });
-    if (!response.ok) throw new AuthRequestError(await readError(response, `Supabase Auth failed with ${response.status}`), response.status);
+    if (!response.ok) {
+      const details = await response.clone().json().catch(() => null) as SupabaseError | null;
+      throw new AuthRequestError(await readError(response, `Supabase Auth failed with ${response.status}`), response.status, details?.error_code);
+    }
     if (response.status === 204) return {};
     return (await response.json()) as AuthResponse;
     });

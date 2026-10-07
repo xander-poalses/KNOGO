@@ -2,6 +2,11 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AccountForm } from "./AccountForm";
 const mocks = vi.hoisted(() => ({ signIn: vi.fn(), register: vi.fn(), adopt: vi.fn(), prepare: vi.fn(), open: vi.fn(), google: false, supported: true, configured: true }));
+vi.mock("lucide-react-native", () => ({ Eye: () => null, EyeOff: () => null, CircleAlert: () => null, X: () => null }));
+vi.mock("./HapticPressable", async () => {
+  const { createElement } = await import("react");
+  return { HapticPressable: ({ children, accessibilityLabel, onPress, disabled }: any) => createElement("button", { "aria-label": accessibilityLabel, onClick: onPress, disabled }, children) };
+});
 vi.mock("../auth/googleSignIn", () => ({ get googleSignInEnabled() { return mocks.google; }, get googleSignInSupported() { return mocks.supported; }, prepareGoogleSignIn: mocks.prepare, openGoogleSignIn: mocks.open }));
 vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ signInWithEmail: mocks.signIn, registerWithEmail: mocks.register, adoptSession: mocks.adopt, hasSupabaseConfig: mocks.configured }) }));
 vi.mock("expo-linking", () => ({ createURL: (_path: string, options: any) => "knogo://auth/callback?" + new URLSearchParams(options.queryParams) }));
@@ -22,6 +27,38 @@ function fill(password = "test-password") {
   fireEvent.change(screen.getByLabelText("Password"), { target: { value: password } });
 }
 describe("account form", () => {
+  it("lets the user dismiss feedback without clearing the form", async () => {
+    mocks.signIn.mockRejectedValue({ code: "invalid_credentials", status: 400 });
+    render(<AccountForm onAuthenticated={vi.fn()}/>); fill();
+    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    expect((await screen.findByRole("alert")).textContent).toContain("Check your email and password");
+    fireEvent.click(screen.getByRole("button", { name: "Dismiss notification" }));
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect((screen.getByLabelText("Email address") as HTMLInputElement).value).toBe("person@example.com");
+  });
+  it("shows and hides a password, then masks it when changing modes", () => {
+    render(<AccountForm onAuthenticated={vi.fn()}/>); fill();
+    expect((screen.getByLabelText("Password") as HTMLInputElement).type).toBe("password");
+    fireEvent.click(screen.getByRole("button", { name: "Show password" }));
+    expect((screen.getByLabelText("Password") as HTMLInputElement).type).toBe("text");
+    fireEvent.click(screen.getByRole("button", { name: "Create an account" }));
+    expect((screen.getByLabelText("Password") as HTMLInputElement).type).toBe("password");
+    expect((screen.getByLabelText("Password") as HTMLInputElement).value).toBe("");
+  });
+  it("returns from confirmation to sign-in without assuming verification", async () => {
+    const done = vi.fn(); render(<AccountForm reportPlaceId="branch-1" onAuthenticated={done}/>);
+    fireEvent.click(screen.getByRole("button", { name: "Create an account" })); fill();
+    fireEvent.click(screen.getByRole("button", { name: "Create account" }));
+    await screen.findByText(/If your account needs confirmation/);
+    expect(screen.getByRole("alert").textContent).toContain("If you have an account");
+    expect(screen.getByRole("alert").textContent).toContain("does not change your password");
+    expect(screen.queryByLabelText("Password")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    expect((screen.getByLabelText("Email address") as HTMLInputElement).value).toBe("person@example.com");
+    expect((screen.getByLabelText("Password") as HTMLInputElement).value).toBe("");
+    expect(done).not.toHaveBeenCalled();
+    expect(mocks.signIn).not.toHaveBeenCalled();
+  });
   it("keeps Google visible in Expo Go and explains the limitation on press", () => {
     mocks.google = true; mocks.supported = false;
     render(<AccountForm onAuthenticated={vi.fn()}/>);
@@ -102,7 +139,7 @@ describe("account form", () => {
     const done = vi.fn(); render(<AccountForm reportPlaceId="venue-1" onAuthenticated={done}/>);
     fireEvent.click(screen.getByRole("button", { name: "Create an account" })); fill();
     fireEvent.click(screen.getByRole("button", { name: "Create account" }));
-    await screen.findByText(/Once you confirm your email/);
+    await screen.findByText(/If your account needs confirmation/);
     expect(mocks.register).toHaveBeenCalledWith("person@example.com", "test-password", "knogo://auth/callback?intent=review&placeId=venue-1");
     expect(done).not.toHaveBeenCalled();
   });
@@ -110,7 +147,7 @@ describe("account form", () => {
     const done = vi.fn(); render(<AccountForm venuePlaceId="venue-1" onAuthenticated={done}/>);
     fireEvent.click(screen.getByRole("button", { name: "Create an account" })); fill();
     fireEvent.click(screen.getByRole("button", { name: "Create account" }));
-    await screen.findByText(/Once you confirm your email/);
+    await screen.findByText(/If your account needs confirmation/);
     expect(mocks.register).toHaveBeenCalledWith("person@example.com", "test-password", "knogo://auth/callback?venue=venue-1");
     expect(done).not.toHaveBeenCalled();
   });
@@ -125,7 +162,7 @@ describe("account form", () => {
     const done = vi.fn(); render(<AccountForm onAuthenticated={done}/>);
     fireEvent.click(screen.getByRole("button", { name: "Create an account" })); fill();
     fireEvent.click(screen.getByRole("button", { name: "Create account" }));
-    await screen.findByText(/Once you confirm your email/);
+    await screen.findByText(/If your account needs confirmation/);
     expect(done).not.toHaveBeenCalled();
     expect(mocks.register).toHaveBeenCalledWith("person@example.com", "test-password", "knogo://auth/callback?intent=account");
   });

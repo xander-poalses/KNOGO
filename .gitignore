@@ -26,3 +26,7 @@ output/
 *.keystore
 credentials.json
 supabase/.temp/
+
+# Expo generates native projects from the mobile app configuration.
+/apps/mobile/android/
+/apps/mobile/ios/

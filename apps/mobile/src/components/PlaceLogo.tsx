@@ -31,7 +31,7 @@ export function PlaceLogo({ id, name, uri: _uri, style, fallback = "tone", compa
 
   return <View style={[styles.root, { backgroundColor }, style]}>
     {!hasLogo ? <Text accessibilityElementsHidden style={[styles.initial, fallback === "surface" && styles.initialOnSurface, compact && styles.compactInitial]}>{initial(name)}</Text> : null}
-    {hasLogo ? <Image accessibilityLabel={`${name} logo`} cachePolicy="memory-disk" contentFit="contain" onError={() => { setFailed(true); setLoading(false); }} onLoad={() => setLoading(false)} onLoadStart={() => setLoading(true)} recyclingKey={name} source={logoSource} transition={160} style={styles.logo} /> : null}
+    {hasLogo ? <Image accessibilityLabel={`${name} logo`} cachePolicy="memory" contentFit="contain" onError={() => { setFailed(true); setLoading(false); }} onLoad={() => setLoading(false)} onLoadStart={() => setLoading(true)} recyclingKey={name} source={logoSource} transition={160} style={styles.logo} /> : null}
     {hasLogo && loading ? <View accessibilityLabel="Loading logo" accessibilityRole="progressbar" style={[styles.skeleton, { backgroundColor: "#000000" }]} /> : null}
   </View>;
 }
