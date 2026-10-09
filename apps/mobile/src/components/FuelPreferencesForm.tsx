@@ -83,5 +83,5 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   menuOption: { minHeight: 48, paddingHorizontal: 12, paddingVertical: 10, flexDirection: "row", alignItems: "center", gap: 12 },
   menuSelected: { backgroundColor: colours.primarySoft },
   pressed: { opacity: 0.92 },
-  input: { minHeight: 48, padding: 12, borderWidth: 1, borderColor: colours.border, borderRadius: 8, backgroundColor: colours.control, color: colours.text, fontFamily: fonts.regular, fontSize: 16 },
+  input: { minHeight: 52, padding: 12, borderWidth: 1, borderColor: colours.controlBorder, borderRadius: 8, backgroundColor: colours.control, color: colours.text, fontFamily: fonts.regular, fontSize: 16 },
 });

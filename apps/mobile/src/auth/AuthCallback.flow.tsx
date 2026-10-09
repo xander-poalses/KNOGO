@@ -14,11 +14,25 @@ vi.mock("../storage", () => ({ mobileStorage: { readPendingReport: vi.fn(), clea
 vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ completeEmailLink: mocks.complete, addConfirmations: mocks.submit }) }));
 vi.mock("./googleSignIn", () => ({ completeBrowserAuthPopup: () => ({ type: "dismiss" }) }));
 vi.mock("./finishEmailReport", () => ({ finishEmailReport: mocks.finish }));
+vi.mock("../components/PasswordResetForm", () => ({ PasswordResetForm: () => <p>Choose a password</p> }));
 
 beforeEach(() => { vi.resetAllMocks(); mocks.finish.mockResolvedValue({ kind: "account" }); });
 afterEach(cleanup);
 
 describe("account callback screen", () => {
+  it.each([[429, /Too many attempts/], [401, /This link has expired/]])("explains callback failure status %s without submitting", async (status, expected) => {
+    mocks.finish.mockRejectedValue({ status });
+    const view = render(<AuthCallbackScreen/>);
+    await view.findByText(expected as RegExp);
+    expect(mocks.submit).not.toHaveBeenCalled(); expect(mocks.replace).not.toHaveBeenCalled();
+  });
+  it("opens password entry without routing or submitting a draft", async () => {
+    mocks.finish.mockResolvedValue({ kind: "recovery" });
+    const view = render(<AuthCallbackScreen/>);
+    await view.findByText("Choose a password");
+    expect(mocks.replace).not.toHaveBeenCalled();
+    expect(mocks.submit).not.toHaveBeenCalled();
+  });
   it.each([
     [{ kind: "account" }, "/settings"],
     [{ kind: "venue", placeId: "venue-a" }, { pathname: "/venue/[placeId]", params: { placeId: "venue-a" } }],
@@ -34,7 +48,7 @@ describe("account callback screen", () => {
   it("shows a callback failure without routing or submitting a report", async () => {
     mocks.finish.mockRejectedValue(new Error("Sign-in expired"));
     const view = render(<AuthCallbackScreen/>);
-    await waitFor(() => expect(view.getByText("Sign-in expired")).toBeTruthy());
+    await waitFor(() => expect(view.getByText(/This link could not finish/)).toBeTruthy());
     expect(mocks.replace).not.toHaveBeenCalled();
     expect(mocks.submit).not.toHaveBeenCalled();
   });

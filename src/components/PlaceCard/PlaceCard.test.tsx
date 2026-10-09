@@ -13,7 +13,7 @@ describe("website trust cards", () => {
     render(<MemoryRouter><PlaceCard place={mockPlaces[0]} saved={false} onToggleSaved={() => {}}/></MemoryRouter>);
     expect(screen.queryByText(/confidence/i)).toBeNull();
     expect(screen.queryByText("Working", { exact: true })).toBeNull();
-    expect(screen.getAllByText("Status unknown")).toHaveLength(5);
+    expect(screen.getAllByText("No recent check")).toHaveLength(5);
   });
   it("retains source/time/expiry and qualifies a negative community indication", () => {
     vi.useFakeTimers(); vi.setSystemTime(new Date("2026-10-04T13:00:00Z"));
@@ -37,8 +37,8 @@ describe("website trust cards", () => {
   });
   it("keeps a badge neutral when only a legacy closed boolean exists", () => {
     render(<StatusBadge status={{ ...mockPlaces[0].currentStatus, isOpen: false, confidenceScore: 99 }}/>);
-    const badge = screen.getByText("Status unknown");
+    const badge = screen.getByText("No recent check");
     expect(badge.className).not.toMatch(/closed/);
-    expect(badge.getAttribute("aria-label")).toBe("Status unknown");
+    expect(badge.getAttribute("aria-label")).toBe("No recent check");
   });
 });

@@ -8,6 +8,10 @@ const answers: ConfirmationAnswer[] = [
 ];
 
 describe("report submit validation", () => {
+  it("rejects duplicate observations and invalid values", () => {
+    expect(reportValidationError({ answers: [answers[0], answers[0]], reportSource: "phone" })).toContain("Review");
+    expect(reportValidationError({ answers: [{ type: "open_status", value: "maybe" }], reportSource: "phone" })).toContain("Review");
+  });
   it("explains why a missing check method cannot submit", () => {
     expect(reportValidationError({ answers, reportSource: null })).toContain("Choose how you checked");
   });
@@ -21,7 +25,10 @@ describe("report submit validation", () => {
     }
     expect(reportValidationError({ answers, reportSource: "online", sourceUrl: " https://example.com/page " })).toBeNull();
   });
-  it("requires the three checks but not optional answers", () => {
-    expect(reportValidationError({ answers: answers.slice(0, 2), reportSource: "phone" })).toContain("Answer the open");
+  it("requires one observation without forcing open, kitchen or busyness", () => {
+    expect(reportValidationError({ answers: [], reportSource: "phone" })).toContain("at least one");
+    for (const answer of [...answers, { type: "open_status" as const, value: "closed" }, { type: "card_machine" as const, value: "yes" }]) {
+      expect(reportValidationError({ answers: [answer], reportSource: "phone" })).toBeNull();
+    }
   });
 });

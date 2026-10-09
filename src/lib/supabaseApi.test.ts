@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createSupabaseApi, type SupabaseSession } from "@knogo/core";
 
 function response(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+  return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", ...(Array.isArray(body) ? { "Content-Range": `*/${body.length}` } : {}) } });
 }
 
 function createHarness(initialSession: SupabaseSession | null = null, venueClaimUrl?: string) {
@@ -25,6 +25,26 @@ const authResponse = {
 afterEach(() => { vi.restoreAllMocks(); vi.useRealTimers(); });
 
 describe("Supabase API authentication", () => {
+  it("requests recovery with a redirect but never stores an account session", async () => {
+    const { api, storage } = createHarness();
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(response({}));
+    await api.requestPasswordRecovery("person@example.com", "knogo://auth/callback?intent=recovery");
+    expect(fetchMock.mock.calls[0][0]).toBe("https://test.supabase.co/auth/v1/recover?redirect_to=knogo%3A%2F%2Fauth%2Fcallback%3Fintent%3Drecovery");
+    expect(JSON.parse(fetchMock.mock.calls[0][1]!.body as string)).toEqual({ email: "person@example.com" });
+    expect(storage.write).not.toHaveBeenCalled();
+  });
+  it("updates the password using the session and PUT", async () => {
+    const { api } = createHarness({ accessToken: "access", refreshToken: "refresh", userId: "user-1", expiresAt: Math.floor(Date.now() / 1000) + 3600 });
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(response({ id: "user-1" }));
+    await api.updatePassword("new-password");
+    expect(fetchMock).toHaveBeenCalledWith("https://test.supabase.co/auth/v1/user", expect.objectContaining({ method: "PUT", body: JSON.stringify({ password: "new-password" }), headers: expect.objectContaining({ Authorization: "Bearer access" }) }));
+  });
+  it("does not update a password without a session", async () => {
+    const { api } = createHarness();
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+    await expect(api.updatePassword("new-password")).rejects.toMatchObject({ code: "session_not_found" });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
   it.each([204, 503])("keeps a replacement sign-in when an earlier logout returns %s", async (status) => {
     const initial: SupabaseSession = { accessToken: "old", refreshToken: "old-refresh", userId: "user-1", email: "person@example.com", expiresAt: Math.floor(Date.now() / 1000) + 3600 };
     const { api, storage } = createHarness(initial);
@@ -266,6 +286,22 @@ describe("venue access client", () => {
 });
 
 describe("Supabase API place loading", () => {
+  it("loads every page even when the server caps pages below the requested limit", async () => {
+    const { api } = createHarness();
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async input => {
+      const url = new URL(String(input));
+      const offset = Number(url.searchParams.get("offset"));
+      const rows = url.pathname.endsWith("/regions")
+        ? [{ id: "region-1", name: "Brooklyn", slug: "brooklyn", region_type: "suburb_area", parent_id: null, sort_order: 1 }, { id: "region-2", name: "Menlyn", slug: "menlyn", region_type: "suburb_area", parent_id: null, sort_order: 2 }]
+        : [];
+      return new Response(JSON.stringify(rows.slice(offset, offset + 1)), { headers: { "Content-Range": `*/${rows.length}` } });
+    });
+    expect(await api.fetchPlaceData()).toEqual({ places: [], groups: [] });
+    const regions = fetchMock.mock.calls.filter(([url]) => String(url).includes("/regions?"));
+    expect(regions).toHaveLength(2);
+    expect(String(regions[1][0])).toContain("offset=1");
+    expect(regions[0][1]?.headers).toMatchObject({ Prefer: "count=exact" });
+  });
   const placeRow = {
     id: "place-1",
     slug: "test-place",
@@ -301,7 +337,7 @@ describe("Supabase API place loading", () => {
     expect(fetchMock.mock.calls).toHaveLength(4);
   });
 
-  it("keeps places available when optional datasets fail", async () => {
+  it("rejects dataset failures so callers preserve their cache", async () => {
     const { api } = createHarness();
     vi.spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(response([placeRow]))
@@ -310,12 +346,6 @@ describe("Supabase API place loading", () => {
       .mockResolvedValueOnce(response({ message: "hours unavailable" }, 503))
       .mockResolvedValueOnce(response({ message: "statuses unavailable" }, 503));
 
-    const result = await api.fetchPlaceData();
-
-    expect(result.places).toHaveLength(1);
-    expect(result.groups).toEqual([]);
-    expect(result.places[0].area).toBe("region-1");
-    expect(result.places[0].openingHours).toEqual([]);
-    expect(result.places[0].currentStatus.source).toBe("unknown");
+    await expect(api.fetchPlaceData()).rejects.toThrow("groups unavailable");
   });
 });

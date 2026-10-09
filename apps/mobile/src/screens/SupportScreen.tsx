@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { FeedbackToast } from "../components/FeedbackToast";
 import { useLocalSearchParams } from "expo-router";
 import { Linking, StyleSheet, Text, View } from "react-native";
 import { HapticPressable as Pressable } from "../components/HapticPressable";
@@ -10,8 +12,9 @@ export function SupportScreen() {
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
   const email = process.env.EXPO_PUBLIC_SUPPORT_EMAIL?.trim();
+  const [error, setError] = useState<string | null>(null);
   const subject = placeId ? `KNOGO data correction: ${placeId}` : "KNOGO support";
-  return <Page><BackButton /><View style={styles.header}><Text style={styles.eyebrow}>Support</Text><Text style={styles.title}>{placeId ? "Report a place data issue." : "How can we help?"}</Text><Text style={styles.body}>Tell us about wrong hours, contact details, categories, closures or account problems. Include the place name and what needs to change.</Text></View>{email ? <Pressable accessibilityRole="link" onPress={() => void Linking.openURL(`mailto:${email}?subject=${encodeURIComponent(subject)}`)} style={styles.action}><Mail color={colours.background} size={20} /><Text style={styles.actionText}>Email KNOGO support</Text></Pressable> : null}</Page>;
+  return <Page><BackButton /><View style={styles.header}><Text style={styles.eyebrow}>Support</Text><Text style={styles.title}>{placeId ? "Report a place data issue." : "How can we help?"}</Text><Text style={styles.body}>{email ? "Tell us about hours, contact details, closures, account problems or an account deletion request. Include the place name if relevant." : "Support contact is not available in this build. No request can be sent from this screen."}</Text></View>{email ? <Pressable accessibilityRole="link" onPress={() => void Linking.openURL(`mailto:${email}?subject=${encodeURIComponent(subject)}`).catch(() => setError("Could not open your email app. Use the address shown here."))} style={styles.action}><Mail color={colours.background} size={20} /><Text style={styles.actionText}>Email KNOGO support</Text></Pressable> : null}{email ? <Text selectable style={styles.body}>{email}</Text> : null}<FeedbackToast message={error} onDismiss={() => setError(null)}/></Page>;
 }
 
 const createStyles = (colours: ThemeColours) => StyleSheet.create({

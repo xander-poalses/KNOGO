@@ -35,10 +35,11 @@ export const trustRules = {
   negativeSourceCount: 2
 } as const;
 
-const allowedValues: Record<ConfirmationType, readonly string[]> = {
+export const reportObservationValues: Record<ConfirmationType, readonly string[]> = {
   open_status: ["open", "closed"], kitchen_status: ["yes", "no"], busy_level: ["quiet", "normal", "busy", "packed"],
   walk_ins: ["yes", "no"], card_machine: ["yes", "no", "cash_only"], backup_power: ["normal", "limited", "closed"]
 };
+const allowedValues = reportObservationValues;
 const unknown = (rule = "no_usable_evidence"): TrustClaim => ({ state: "unknown", value: null, evidence: [], reportedAt: null, expiresAt: null, rule });
 const negative = (type: ConfirmationType, value: string) => type === "open_status" ? value === "closed"
   : type === "kitchen_status" || type === "walk_ins" ? value === "no"
@@ -140,7 +141,7 @@ export function resolveTrust(reports: TrustEvidence[], now = Date.now()): TrustS
 }
 
 export function trustClaimLabel(type: ConfirmationType, claim?: TrustClaim): string {
-  if (!claim || claim.state === "unknown") return "Status unknown";
+  if (!claim || claim.state === "unknown") return "No recent check";
   if (claim.state === "disagree") return "Reports disagree";
   if (type === "open_status") {
     if (claim.state === "venue_update") return claim.value === "open" ? "Venue reports open" : "Venue reports closed";

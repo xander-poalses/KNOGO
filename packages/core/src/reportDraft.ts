@@ -1,6 +1,13 @@
 import type { ConfirmationAnswer } from "./lib/supabaseApi";
 import type { ReportSource, ReportSubmissionResult } from "./types/place";
+import { reportObservationValues } from "./trust";
 export type PendingReport = { placeId: string; answers: ConfirmationAnswer[]; reportSource: ReportSource; sourceUrl?: string; createdAt: string };
+export function isRecoveryCallback(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.searchParams.get("intent") === "recovery" || new URLSearchParams(parsed.hash.slice(1)).get("type") === "recovery";
+  } catch { return false; }
+}
 export function venueCallbackPlaceId(url: string): string | null {
   try {
     const placeId = new URL(url).searchParams.get("venue");
@@ -9,6 +16,7 @@ export function venueCallbackPlaceId(url: string): string | null {
 }
 export function reportValidationError(input: { answers: ConfirmationAnswer[]; reportSource: ReportSource | null; sourceUrl?: string }): string | null {
   if (!input.reportSource) return "Choose how you checked: at the venue, by phone or online.";
+  if (!["in_person", "phone", "online"].includes(input.reportSource)) return "Choose how you checked this place.";
   if (input.reportSource === "online") {
     try {
       const url = new URL(input.sourceUrl?.trim() ?? "");
@@ -17,9 +25,8 @@ export function reportValidationError(input: { answers: ConfirmationAnswer[]; re
       return "Add the website address where you checked, starting with https:// or http://.";
     }
   }
-  if (["open_status", "kitchen_status", "busy_level"].some((type) => !input.answers.some((answer) => answer.type === type))) {
-    return "Answer the open, kitchen and busy checks before submitting.";
-  }
+  if (!input.answers.length) return "Add at least one check before submitting.";
+  if (input.answers.length > 6 || new Set(input.answers.map(answer => answer.type)).size !== input.answers.length || input.answers.some(answer => !reportObservationValues[answer.type]?.includes(answer.value))) return "Review your answers before submitting.";
   return null;
 }
 export async function finishEmailReport(input: {
@@ -27,6 +34,7 @@ export async function finishEmailReport(input: {
   submit: (draft: PendingReport) => Promise<ReportSubmissionResult>; clearDraft: () => Promise<void>; now?: number;
 }) {
   await input.completeEmailLink(input.url);
+  if (isRecoveryCallback(input.url)) return { kind: "recovery" as const };
   const venue = venueCallbackPlaceId(input.url);
   if (venue) return { kind: "venue" as const, placeId: venue };
   // Account registration must not publish an unrelated report saved earlier.
@@ -35,8 +43,6 @@ export async function finishEmailReport(input: {
   } catch { /* Link validity is checked by completeEmailLink. */ }
   const draft = await input.readDraft();
   if (!draft) return { kind: "account" as const };
-  const now = input.now ?? Date.now();
-  const checkedAt = Date.parse(draft.createdAt);
   try {
     const callback = new URL(input.url);
     if (callback.searchParams.get("intent") === "review") {
@@ -44,8 +50,5 @@ export async function finishEmailReport(input: {
         ? { kind: "recheck" as const, draft } : { kind: "account" as const };
     }
   } catch { /* Link validity is checked by completeEmailLink. */ }
-  if (!Number.isFinite(checkedAt) || now - checkedAt >= 4 * 60 * 60 * 1000 || checkedAt > now) return { kind: "recheck" as const, draft };
-  const result = await input.submit(draft);
-  await input.clearDraft().catch(() => undefined);
-  return { kind: "report" as const, draft, result };
+  return { kind: "recheck" as const, draft };
 }

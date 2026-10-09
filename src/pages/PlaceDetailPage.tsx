@@ -85,9 +85,6 @@ export function PlaceDetailPage() {
               <Phone size={16} aria-hidden="true" />
             </a>
           ) : null}
-          <Link className={styles.confirmAction} to={`/confirm/${place.id}`}>
-            Confirm status
-          </Link>
           <button className={saved ? styles.saved : styles.save} type="button" onClick={() => toggleSaved(place.id)}>
             <Heart size={18} fill={saved ? "currentColor" : "none"} aria-hidden="true" />
             {saved ? "Saved" : "Save"}

@@ -1,13 +1,11 @@
 // Hallmark: decision-led place flow; KNOGO tokens; P5 H5 E4 S5 R5 V4.
 import { compareArrivalWithHours, createTripApi, estimateFuel, planJourney, positiveNumber, usableFuelPrice, validTripPoint, withSouthAfricanDepartureDay, type AddressResult, type Place, type TripPoint } from "@knogo/core";
 import * as Location from "expo-location";
-import { ArrowUpRight, Clock3, Fuel, Info, MapPin, Navigation, RefreshCw, Search, X } from "lucide-react-native";
+import { ArrowUpRight, ChevronLeft, Clock3, Fuel, Info, MapPin, Navigation, RefreshCw, Search } from "lucide-react-native";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { ActivityIndicator, KeyboardAvoidingView, Linking, Platform, ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
-import { StagedModal } from "./StagedModal";
+import { ActivityIndicator, Linking, StyleSheet, Switch, Text, TextInput, View } from "react-native";
 import { HapticPressable as Pressable } from "./HapticPressable";
 import { ctaHaptic } from "../haptics";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFuel } from "../state/FuelContext";
 import { fuelFeed } from "../fuelFeed";
 import { fonts, radii, sizes, space, useTheme, useThemeStyles, type ThemeColours } from "../theme";
@@ -52,6 +50,8 @@ export function TripPlanner({ place, onEstimateChange }: { place: Place; onEstim
   const searchController = useRef<AbortController | null>(null);
   const addressInput = useRef<TextInput>(null);
   const restoreFocus = useRef<() => void>(() => undefined);
+  const fuelVisited = useRef(false);
+  const timeVisited = useRef(false);
   const busy = phase !== "idle";
   useEffect(() => () => { controller.current?.abort(); controller.current = null; searchController.current?.abort(); searchController.current = null; }, []);
 
@@ -65,8 +65,9 @@ export function TripPlanner({ place, onEstimateChange }: { place: Place; onEstim
   };
   const openSheet = (next: Sheet) => {
     if (!sheetVisible) restoreFocus.current = rememberFocus();
-    if (next === "time") setDraftDeparture(leaveNow ? new Date(Date.now() + 3600000) : chosenDeparture);
-    if (next === "fuel") {
+    if (next === "time" && !timeVisited.current) { setDraftDeparture(leaveNow ? new Date(Date.now() + 3600000) : chosenDeparture); timeVisited.current = true; }
+    if (next === "fuel" && !fuelVisited.current) {
+      fuelVisited.current = true;
       setConsumption(preferences.consumptionLPer100Km?.toString() ?? "");
       setPumpPrice(preferences.priceOverrideZarPerLitre?.toString() ?? "");
       setFuelError(null);
@@ -163,6 +164,7 @@ export function TripPlanner({ place, onEstimateChange }: { place: Place; onEstim
   const control = (label: string, value: string, icon: ReactNode, onPress: () => void) => <Pressable accessibilityRole="button" accessibilityLabel={`${label}: ${value}. Change ${label.toLowerCase()}`} disabled={busy} onPress={onPress} style={({ pressed }) => [styles.control, pressed && styles.pressed]}>{icon}<View style={styles.controlCopy}><Text style={styles.caption}>{label}</Text><Text numberOfLines={2} style={styles.controlValue}>{value}</Text></View><ArrowUpRight color={colours.muted} size={18} /></Pressable>;
 
   return <View style={styles.section}>
+    {!sheetVisible ? <>
     <View style={styles.heading}><View style={styles.headingCopy}><Text accessibilityRole="header" style={styles.title}>{result ? "Trip estimate" : "Distance & fuel"}</Text></View>{result ? <Pressable accessibilityRole="button" accessibilityLabel="Refresh trip estimate" disabled={busy} onPress={() => void estimate()} style={styles.iconButton}><RefreshCw size={19} color={colours.muted}/></Pressable> : null}<Pressable accessibilityRole="button" accessibilityLabel="How trip estimates work" onPress={() => openSheet("about")} style={styles.iconButton}><Info size={20} color={colours.muted} /></Pressable></View>
     {journey && result ? <View accessibilityLiveRegion="polite" style={styles.receipt}>
       <Text style={styles.caption}>{fuel?.costZar != null ? `Estimated fuel / ${includeReturn ? "there and back" : "one way"}` : "Estimated drive"}</Text>
@@ -181,13 +183,14 @@ export function TripPlanner({ place, onEstimateChange }: { place: Place; onEstim
     {!api.configured ? <Text style={styles.note}>Trip estimates are not connected in this build.</Text> : null}
     <ActionButton label={phase === "locating" ? "Locating..." : phase === "routing" ? "Estimating..." : result ? "Open directions" : "Estimate my trip"} tone="green" loading={busy} icon={<Navigation color={colours.background} size={18} />} disabled={!validTripPoint(place) || (!api.configured && !result)} onPress={() => result ? directions() : void estimate()} />
     {!result ? <Text style={styles.consent}>Uses your starting place for this estimate.</Text> : <View style={styles.returnRow}><Text style={styles.controlValue}>Include return fuel</Text><Switch accessibilityLabel="Include return fuel" value={includeReturn} disabled={busy} onValueChange={value => { if (busy) return; ctaHaptic(); void changeReturn(value); }} trackColor={{ false: colours.controlStrong, true: colours.primary }} thumbColor={colours.paper} /></View>}
+    </> : null}
     <TripSheet title={sheet === "origin" ? "Where are you leaving from?" : sheet === "time" ? "When are you leaving?" : sheet === "fuel" ? "Your fuel details" : sheet === "arrival" ? "Hours at arrival" : "How estimates work"} visible={sheetVisible} onClose={closeSheet} onDismiss={() => restoreFocus.current()} onShow={() => { if (sheet === "origin") addressInput.current?.focus(); }}>
       {sheet === "origin" ? <>
-        <ActionButton label="Use my location" tone="light" icon={<Navigation color={colours.text} size={18}/>} onPress={() => { invalidate(); setOriginMode("device"); setOrigin(null); setOriginLabel("Your location"); closeSheet(); void estimate(undefined, includeReturn, true); }} />
+        <ActionButton label="Use my location" tone="light" icon={<Navigation color={colours.text} size={18}/>} onPress={() => { invalidate(); setOriginMode("device"); setOrigin(null); setOriginLabel("Your location"); closeSheet(); }} />
         <Text style={styles.caption}>Or choose another starting place</Text>
         <View style={styles.search}><Search size={20} color={colours.muted}/><TextInput ref={addressInput} autoFocus accessibilityLabel="Starting address" placeholder="Suburb, street or landmark" placeholderTextColor={colours.muted} value={query} onChangeText={value => { searchController.current?.abort(); setSearchBusy(false); setQuery(value); setAddresses([]); setSearchError(null); }} onSubmitEditing={() => void searchAddress()} returnKeyType="search" style={styles.searchInput} /><Pressable accessibilityRole="button" accessibilityLabel="Search starting places" disabled={searchBusy || query.trim().length < 3} onPress={() => void searchAddress()} style={styles.iconButton}>{searchBusy ? <ActivityIndicator color={colours.primary}/> : <ArrowUpRight size={20} color={colours.primary}/>}</Pressable></View>
         {searchError ? <Text accessibilityRole="alert" style={styles.warning}>{searchError}</Text> : null}
-        {addresses.map(item => <Pressable accessibilityRole="button" key={item.id} onPress={() => { invalidate(); setOriginMode("address"); setOrigin(item); setOriginLabel(item.label); closeSheet(); void estimate(item); }} style={styles.address}><MapPin color={colours.muted} size={18}/><Text style={styles.controlValue}>{item.label}</Text></Pressable>)}
+        {addresses.map(item => <Pressable accessibilityRole="button" key={item.id} onPress={() => { invalidate(); setOriginMode("address"); setOrigin(item); setOriginLabel(item.label); closeSheet(); }} style={styles.address}><MapPin color={colours.muted} size={18}/><Text style={styles.controlValue}>{item.label}</Text></Pressable>)}
       </> : sheet === "time" ? <>
         <ActionButton label="Leave now" tone="light" onPress={() => { setLeaveNow(true); if (result) setDeparture(new Date()); closeSheet(); }}/>
         <Text style={styles.caption}>Or plan for later / South African time</Text>
@@ -225,16 +228,14 @@ export function TripPlanner({ place, onEstimateChange }: { place: Place; onEstim
 function TripSheet({ title, visible, onClose, onDismiss, onShow, children }: { title: string; visible: boolean; onClose: () => void; onDismiss: () => void; onShow: () => void; children: ReactNode }) {
   const styles = useThemeStyles(createStyles);
   const { colours } = useTheme();
-  const insets = useSafeAreaInsets();
-  return <StagedModal visible={visible} onRequestClose={onClose} onDismiss={onDismiss} onReady={onShow}>
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.overlay}>
-      <Pressable accessible={false} focusable={false} onPress={onClose} style={StyleSheet.absoluteFill}/>
-      <View accessibilityViewIsModal style={[styles.sheet, { paddingBottom: space.md + insets.bottom, marginTop: insets.top + space.lg }]}>
-        <View style={styles.sheetHeading}><Text accessibilityRole="header" style={styles.sheetTitle}>{title}</Text><Pressable accessibilityLabel="Close trip sheet" accessibilityRole="button" onPress={onClose} style={styles.iconButton}><X color={colours.text} size={22}/></Pressable></View>
-        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.sheetContent}>{children}</ScrollView>
-      </View>
-    </KeyboardAvoidingView>
-  </StagedModal>;
+  const callbacks = useRef({ onShow, onDismiss });
+  callbacks.current = { onShow, onDismiss };
+  useEffect(() => { if (!visible) return; callbacks.current.onShow(); return () => callbacks.current.onDismiss(); }, [visible]);
+  if (!visible) return null;
+  return <View style={styles.section}>
+    <View style={styles.sheetHeading}><Pressable accessibilityLabel="Back to trip estimate" accessibilityRole="button" onPress={onClose} style={styles.iconButton}><ChevronLeft color={colours.text} size={22}/></Pressable><Text accessibilityRole="header" style={styles.sheetTitle}>{title}</Text></View>
+    <View style={styles.sheetContent}>{children}</View>
+  </View>;
 }
 const createStyles = (colours: ThemeColours) => StyleSheet.create({
   section: { gap: space.md },

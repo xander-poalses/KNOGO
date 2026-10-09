@@ -57,16 +57,6 @@ export function PlaceCard({ place, saved, onToggleSaved }: { place: Place; saved
       </View>
       <View style={styles.actions}>
         <Pressable accessibilityLabel={`View ${place.name} details`} accessibilityRole="button" onPress={open} style={({ pressed }) => [styles.detailsButton, pressed && styles.pressed]}><Text style={styles.detailsText}>View details</Text></Pressable>
-        <Pressable
-          accessibilityLabel={saved ? "Remove from saved" : "Save place"}
-          accessibilityRole="button"
-          accessibilityState={{ selected: saved }}
-          hitSlop={10}
-          onPress={(event) => { event.stopPropagation(); onToggleSaved(place.id); }}
-          style={styles.saveButton}
-        >
-          <Heart color={saved ? colours.primary : colours.muted} fill={saved ? colours.primary : "transparent"} size={20} />
-        </Pressable>
       </View>
     </View>
   );
@@ -76,11 +66,12 @@ export function GroupCard({ group, branches }: { group: PlaceGroup; branches: Pl
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
   const router = useRouter();
+  const openGroup = () => branches.length === 1 ? router.push({ pathname: "/restaurants/[placeId]", params: { placeId: branches[0].id } }) : router.push({ pathname: "/restaurants/groups/[groupSlug]", params: { groupSlug: group.slug } });
   return (
     <Pressable
       accessibilityLabel={`${group.name}, choose from ${branches.length} branches`}
       accessibilityRole="button"
-      onPress={() => router.push({ pathname: "/restaurants/groups/[groupSlug]", params: { groupSlug: group.slug } })}
+      onPress={openGroup}
       style={({ pressed }) => [styles.groupCard, pressed && styles.pressed]}
     >
       <View style={styles.groupCopy}>
@@ -93,7 +84,7 @@ export function GroupCard({ group, branches }: { group: PlaceGroup; branches: Pl
   );
 }
 
-export function ExplorePlaceTile({ place, width, saved, onToggleSaved, distance, onPress, layout = "grid" }: { place: Place; width: number; saved: boolean; onToggleSaved: (id: string) => void; distance?: string | null; onPress?: (place: Place) => void; layout?: "grid" | "list" }) {
+export function ExplorePlaceTile({ place, width, saved, onToggleSaved, distance, onPress, layout = "list", allowRemove = false }: { place: Place; width: number; saved: boolean; onToggleSaved: (id: string) => void; distance?: string | null; onPress?: (place: Place) => void; layout?: "grid" | "list"; allowRemove?: boolean }) {
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
   const router = useRouter();
@@ -104,18 +95,20 @@ export function ExplorePlaceTile({ place, width, saved, onToggleSaved, distance,
       <PlaceLogo compact id={place.id} name={place.groupName ?? place.name} uri={place.logoUrl} fallback="surface" style={styles.resultLogo}/>
       <View style={styles.resultCopy}><Text style={styles.resultName}>{place.name}</Text><Text style={styles.resultMeta}>{place.area}{distance ? ` · ${distance}` : ""}</Text><Text style={[styles.resultStatus, signalTone(trading.tone, styles)]}>{trading.tone === "neutral" ? "No recent check" : trading.label}</Text></View>
     </Pressable>
+    {allowRemove && saved ? <Pressable accessibilityRole="button" accessibilityLabel={`Remove ${place.name} from saved`} onPress={() => onToggleSaved(place.id)} style={styles.resultSave}><Heart color={colours.primary} fill={colours.primary} size={20}/></Pressable> : null}
   </View>;
   return (
-    <View style={[styles.exploreTile, { width, height: width }]}>
+    <View style={[styles.exploreTile, { width }]}>
       <Pressable accessibilityLabel={`${place.name}, ${trading.summary}, ${place.area}`} accessibilityRole="button" onPress={open} style={({ pressed }) => [styles.exploreMain, pressed && styles.pressed]}>
-        <PlaceLogo id={place.id} name={place.groupName ?? place.name} uri={place.logoUrl} fallback={"tone"} style={styles.fill} />
+        <PlaceLogo compact id={place.id} name={place.groupName ?? place.name} uri={place.logoUrl} fallback="surface" style={styles.gridLogo} />
         <View style={[styles.exploreCopy]}>
-          <Text numberOfLines={2} style={[styles.exploreName]}>{place.name}</Text>
-          <Text numberOfLines={1} style={[styles.exploreArea]}>{place.area}{distance ? ` / ${distance}` : ""}</Text>
+          <Text style={styles.exploreName}>{place.name}</Text>
+          <Text style={styles.exploreArea}>{place.area}{distance ? ` / ${distance}` : ""}</Text>
+          <Text style={[styles.resultStatus, signalTone(trading.tone, styles)]}>{trading.label}</Text>
         </View>
       </Pressable>
-      <Pressable
-        accessibilityLabel={saved ? "Remove from saved" : "Save place"}
+      {allowRemove && saved ? <Pressable
+        accessibilityLabel={`Remove ${place.name} from saved`}
         accessibilityRole="button"
         accessibilityState={{ selected: saved }}
         hitSlop={8}
@@ -123,7 +116,7 @@ export function ExplorePlaceTile({ place, width, saved, onToggleSaved, distance,
         style={styles.exploreSave}
       >
         <Heart color={colours.white} fill={saved ? colours.primary : colours.unsavedHeart} size={17} />
-      </Pressable>
+      </Pressable> : null}
     </View>
   );
 }
@@ -132,20 +125,24 @@ export function ExploreGroupTile({ group, branches, width = 196, distance, layou
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
   const router = useRouter();
+  const openGroup = () => branches.length === 1 ? router.push({ pathname: "/restaurants/[placeId]", params: { placeId: branches[0].id } }) : router.push({ pathname: "/restaurants/groups/[groupSlug]", params: { groupSlug: group.slug } });
+  if (branches.length === 1) return <ExplorePlaceTile place={branches[0]} width={width} saved={false} onToggleSaved={() => undefined} distance={distance} layout={layout}/>;
   if (layout === "list") return <Pressable accessibilityRole="button" accessibilityLabel={`${group.name}, choose a branch`} onPress={() => router.push({ pathname: "/restaurants/groups/[groupSlug]", params: { groupSlug: group.slug } })} style={({ pressed }) => [styles.resultRow, styles.resultGroup, { width }, pressed && styles.pressed]}>
     <PlaceLogo compact id={group.id} name={group.name} uri={group.logoUrl} fallback="surface" style={styles.resultLogo}/>
     <View style={styles.resultCopy}><Text style={styles.resultName}>{group.name}</Text><Text style={styles.resultMeta}>{[...new Set(branches.map(branch => branch.area))].slice(0, 2).join(" · ")}{distance ? ` · ${distance}` : ""}</Text><Text style={styles.resultGroupAction}>Choose a branch</Text></View>
   </Pressable>;
   return (
     <Pressable
-      onPress={() => router.push({ pathname: "/restaurants/groups/[groupSlug]", params: { groupSlug: group.slug } })}
+      onPress={openGroup}
       accessibilityLabel={`${group.name}, choose a branch`}
       accessibilityRole="button"
-      style={({ pressed }) => [styles.exploreGroup, { width, height: width, backgroundColor: colours.tileTones[[...group.id].reduce((sum, character) => sum + character.charCodeAt(0), 0) % colours.tileTones.length] }, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.exploreGroup, { width }, pressed && styles.pressed]}
     >
-      <PlaceLogo id={group.id} name={group.name} uri={group.logoUrl} fallback={"tone"} style={styles.fill} />
+      <PlaceLogo compact id={group.id} name={group.name} uri={group.logoUrl} fallback="surface" style={styles.gridLogo} />
       <View style={[styles.exploreCopy]}>
-        <Text numberOfLines={1} style={[styles.exploreGroupName]}>{group.name}</Text>
+        <Text style={styles.exploreName}>{group.name}</Text>
+        <Text style={styles.exploreArea}>{branches.length} branches</Text>
+        <Text style={styles.resultGroupAction}>Choose a branch</Text>
       </View>
     </Pressable>
   );
@@ -190,7 +187,8 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   ,
   exploreTile: { overflow: "hidden", borderRadius: radii.tile, backgroundColor: colours.elevated },
   exploreTileList: { borderWidth: 1, borderColor: colours.border, borderRadius: radii.surface, backgroundColor: colours.surface },
-  exploreMain: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
+  exploreMain: { flex: 1 },
+  gridLogo: { width: "100%", aspectRatio: 1.5, backgroundColor: colours.surface },
   tileLetter: { position: "absolute", right: 5, top: -20, color: colours.imageTextGhost, fontFamily: fonts.extraBold, fontSize: 96, lineHeight: 112 },
   fill: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   listLogo: { position: "absolute", top: 0, bottom: 0, left: 0, width: 132 },
@@ -200,11 +198,11 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   statusDotClosed: { backgroundColor: colours.closedDot },
   statusDotUnknown: { backgroundColor: colours.muted },
   exploreStatusText: { color: colours.white, fontFamily: fonts.semibold, fontSize: 9 },
-  exploreSave: { position: "absolute", zIndex: 1, top: 1, right: 1, width: 34, height: 34, alignItems: "center", justifyContent: "center" },
-  exploreCopy: { position: "absolute", right: 7, bottom: 7, left: 7, gap: 2 },
+  exploreSave: { position: "absolute", zIndex: 1, top: 1, right: 1, width: 44, height: 44, alignItems: "center", justifyContent: "center", backgroundColor: colours.surface, borderRadius: 8 },
+  exploreCopy: { padding: 12, gap: 4, backgroundColor: colours.surface },
   exploreCopyList: { top: 0, right: 44, bottom: 0, left: 148, justifyContent: "center", gap: 7 },
-  exploreName: { color: colours.white, fontFamily: fonts.extraBold, fontSize: 13, lineHeight: 15, textShadowColor: colours.overlay, textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 4 },
-  exploreArea: { color: colours.white, fontFamily: fonts.regular, fontSize: 9, textShadowColor: colours.overlay, textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 4 },
+  exploreName: { color: colours.text, fontFamily: fonts.semibold, fontSize: 17, lineHeight: 23 },
+  exploreArea: { color: colours.muted, fontFamily: fonts.regular, fontSize: 13, lineHeight: 19 },
   exploreNameList: { color: colours.text, fontSize: 18, lineHeight: 22, textShadowRadius: 0 },
   exploreAreaList: { color: colours.muted, fontSize: 12, textShadowRadius: 0 },
   listStatus: { color: colours.primary, fontFamily: fonts.extraBold, fontSize: 10, textTransform: "uppercase", textShadowRadius: 0 },

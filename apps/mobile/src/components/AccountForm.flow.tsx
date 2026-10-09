@@ -1,14 +1,14 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AccountForm } from "./AccountForm";
-const mocks = vi.hoisted(() => ({ signIn: vi.fn(), register: vi.fn(), adopt: vi.fn(), prepare: vi.fn(), open: vi.fn(), google: false, supported: true, configured: true }));
+const mocks = vi.hoisted(() => ({ recover: vi.fn(), signIn: vi.fn(), register: vi.fn(), adopt: vi.fn(), prepare: vi.fn(), open: vi.fn(), google: false, supported: true, configured: true }));
 vi.mock("lucide-react-native", () => ({ Eye: () => null, EyeOff: () => null, CircleAlert: () => null, X: () => null }));
 vi.mock("./HapticPressable", async () => {
   const { createElement } = await import("react");
   return { HapticPressable: ({ children, accessibilityLabel, onPress, disabled }: any) => createElement("button", { "aria-label": accessibilityLabel, onClick: onPress, disabled }, children) };
 });
 vi.mock("../auth/googleSignIn", () => ({ get googleSignInEnabled() { return mocks.google; }, get googleSignInSupported() { return mocks.supported; }, prepareGoogleSignIn: mocks.prepare, openGoogleSignIn: mocks.open }));
-vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ signInWithEmail: mocks.signIn, registerWithEmail: mocks.register, adoptSession: mocks.adopt, hasSupabaseConfig: mocks.configured }) }));
+vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ requestPasswordRecovery: mocks.recover, signInWithEmail: mocks.signIn, registerWithEmail: mocks.register, adoptSession: mocks.adopt, hasSupabaseConfig: mocks.configured }) }));
 vi.mock("expo-linking", () => ({ createURL: (_path: string, options: any) => "knogo://auth/callback?" + new URLSearchParams(options.queryParams) }));
 vi.mock("../theme", () => ({ fonts: {}, radii: {}, sizes: {}, space: {}, useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({}) }));
 vi.mock("./Ui", async () => {
@@ -27,6 +27,24 @@ function fill(password = "test-password") {
   fireEvent.change(screen.getByLabelText("Password"), { target: { value: password } });
 }
 describe("account form", () => {
+  it("requests recovery without publishing or leaving report review", async () => {
+    mocks.recover.mockResolvedValue(undefined);
+    const done = vi.fn(); render(<AccountForm reportPlaceId="branch-1" onAuthenticated={done}/>); fill();
+    fireEvent.click(screen.getByRole("button", { name: "Forgot password?" }));
+    fireEvent.click(screen.getByRole("button", { name: "Send recovery email" }));
+    await screen.findByText(/If an account can receive/);
+    expect(mocks.recover).toHaveBeenCalledWith("person@example.com", "knogo://auth/callback?intent=recovery&placeId=branch-1");
+    expect(done).not.toHaveBeenCalled();
+  });
+  it("offers recovery again after rate limiting without losing the email", async () => {
+    mocks.recover.mockRejectedValue({ status: 429 });
+    render(<AccountForm onAuthenticated={vi.fn()}/>); fill();
+    fireEvent.click(screen.getByRole("button", { name: "Forgot password?" }));
+    fireEvent.click(screen.getByRole("button", { name: "Send recovery email" }));
+    await screen.findByRole("alert");
+    expect((screen.getByLabelText("Recovery email address") as HTMLInputElement).value).toBe("person@example.com");
+    expect((screen.getByRole("button", { name: "Send recovery email" }) as HTMLButtonElement).disabled).toBe(false);
+  });
   it("lets the user dismiss feedback without clearing the form", async () => {
     mocks.signIn.mockRejectedValue({ code: "invalid_credentials", status: 400 });
     render(<AccountForm onAuthenticated={vi.fn()}/>); fill();

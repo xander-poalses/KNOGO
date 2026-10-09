@@ -76,7 +76,12 @@ describe("device place cache recovery", () => {
     await mobileStorage.writePendingReport(draft);
     expect(await mobileStorage.readPendingReport()).toEqual(draft);
   });
-  it.each([null, [null], [{ type: "open_status", value: "open" }], [{ type: "open_status", value: "open" }, { type: "kitchen_status", value: "yes" }, { type: "busy_level", value: "quiet" }, { type: "busy_level", value: "busy" }]])("rejects malformed or incomplete report answers: %j", async answers => {
+  it("restores a draft containing one observation", async () => {
+    const draft = { placeId: "cappuccinos-menlyn", createdAt: new Date().toISOString(), reportSource: "phone" as const, answers: [{ type: "card_machine" as const, value: "no" }] };
+    await mobileStorage.writePendingReport(draft);
+    expect(await mobileStorage.readPendingReport()).toEqual(draft);
+  });
+  it.each([null, [], [null], [{ type: "open_status", value: "open" }, { type: "kitchen_status", value: "yes" }, { type: "busy_level", value: "quiet" }, { type: "busy_level", value: "busy" }]])("rejects malformed or incomplete report answers: %j", async answers => {
     device.values.set(storageKeys.pendingReport, JSON.stringify({ placeId: "cappuccinos-menlyn", createdAt: new Date().toISOString(), reportSource: "in_person", answers }));
     expect(await mobileStorage.readPendingReport()).toBeNull();
     expect(device.remove).toHaveBeenCalledWith(storageKeys.pendingReport);

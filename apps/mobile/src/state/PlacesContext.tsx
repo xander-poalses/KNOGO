@@ -47,6 +47,7 @@ type PlacesContextValue = {
   session: SupabaseSession | null;
   authLoading: boolean;
   refresh: () => Promise<void>;
+  refreshPlace: (placeId: string) => Promise<void>;
   requestNearby: () => Promise<Coordinates | null>;
   setFallbackArea: (area: string) => Promise<void>;
   addRecentSearch: (query: string) => Promise<void>;
@@ -58,6 +59,8 @@ type PlacesContextValue = {
   completeEmailLink: (url: string) => Promise<SupabaseSession>;
   adoptSession: (session: SupabaseSession) => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<SupabaseSession>;
+  requestPasswordRecovery: (email: string, redirectTo: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
   registerWithEmail: (email: string, password: string, redirectTo: string) => Promise<SupabaseSession | null>;
   signOut: () => Promise<void>;
   addConfirmations: (placeId: string, answers: ConfirmationAnswer[], reportSource: ReportSource, sourceUrl?: string) => Promise<ReportSubmissionResult>;
@@ -83,6 +86,7 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
   const [authLoading, setAuthLoading] = useState(true);
   const authRevision = useRef(0);
   const placeFetch = useRef<Promise<void> | null>(null);
+  const placeRefreshes = useRef(new Map<string, Promise<void>>());
   const savedIds = useRef<string[]>([]);
   const savedRestore = useRef<Promise<void>>(Promise.resolve());
   const savedWrites = useRef<Promise<void>>(Promise.resolve());
@@ -174,6 +178,23 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
     return task;
   }, []);
 
+  const refreshPlace = useCallback((placeId: string) => {
+    const existing = placeRefreshes.current.get(placeId);
+    if (existing) return existing;
+    if (useMockData) return Promise.resolve();
+    const task = (async () => {
+      await placeFetch.current;
+      const next = await supabaseApi.fetchPlace(placeId);
+      setPlaces(current => next
+        ? current.some(place => place.id === placeId) ? current.map(place => place.id === placeId ? next : place) : [...current, next]
+        : current.filter(place => place.id !== placeId));
+    })();
+    placeRefreshes.current.set(placeId, task);
+    const release = () => { if (placeRefreshes.current.get(placeId) === task) placeRefreshes.current.delete(placeId); };
+    void task.then(release, release);
+    return task;
+  }, []);
+
   useEffect(() => {
     let active = true;
     void mobileStorage.readSettings().then((storedSettings) => {
@@ -243,6 +264,7 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
       session,
       authLoading,
       refresh: () => loadRemote(true),
+      refreshPlace,
       requestNearby,
       setFallbackArea: async (area) => {
         setFallbackAreaState(area);
@@ -275,6 +297,8 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
         return write;
       },
       sendEmailLink: (email, redirectTo) => supabaseApi.sendEmailLink(email, redirectTo),
+      requestPasswordRecovery: (email, redirectTo) => supabaseApi.requestPasswordRecovery(email, redirectTo),
+      updatePassword: (password) => supabaseApi.updatePassword(password),
       signInWithEmail: async (email, password) => {
         const nextSession = await supabaseApi.signInWithEmail(email, password);
         authRevision.current += 1;
@@ -327,8 +351,7 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
         const next = [...submitted, ...confirmations];
         setConfirmations(next);
         try {
-          const refreshedPlace = await supabaseApi.fetchPlace(placeId);
-          if (refreshedPlace) setPlaces((current) => current.map((place) => place.id === placeId ? refreshedPlace : place));
+          await refreshPlace(placeId);
         } catch {
           setError("Your report was received. Refresh to load the place status.");
         }
@@ -341,7 +364,7 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
         setSettings(next);
       }
     }),
-    [authLoading, cacheExpired, confirmations, coordinates, currentPlaces, dataSource, error, fallbackArea, lastUpdatedAt, loadRemote, loading, locationError, locationLoading, locationPermission, placeGroups, places, recentSearches, refreshing, requestNearby, savedPlaceIds, session, settings, settingsLoaded]
+    [authLoading, cacheExpired, confirmations, coordinates, currentPlaces, dataSource, error, fallbackArea, lastUpdatedAt, loadRemote, loading, locationError, locationLoading, locationPermission, placeGroups, places, recentSearches, refreshing, refreshPlace, requestNearby, savedPlaceIds, session, settings, settingsLoaded]
   );
 
   return <PlacesContext.Provider value={value}>{children}</PlacesContext.Provider>;

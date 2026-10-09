@@ -9,7 +9,7 @@ import {
   type PlaceActionLink,
   type TrustClaim,
 } from "@knogo/core";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import {
   CheckCircle2,
   ChevronRight,
@@ -26,7 +26,7 @@ import {
   TriangleAlert,
   UtensilsCrossed,
 } from "lucide-react-native";
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { AppState, Linking, StyleSheet, Text, View } from "react-native";
 import { HapticPressable as Pressable } from "../components/HapticPressable";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -53,7 +53,8 @@ export function PlaceDetailScreen() {
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
   const insets = useSafeAreaInsets();
-  const { places, loading, isSaved, toggleSaved } = usePlaces();
+  const { places, loading, isSaved, toggleSaved, refreshPlace } = usePlaces();
+  const [reportRefreshError, setReportRefreshError] = useState(false);
   const [actionsOpen, setActionsOpen] = useState(false);
   const [practicalOpen, setPracticalOpen] = useState(false);
   const [sheet, setSheet] = useState<
@@ -61,6 +62,17 @@ export function PlaceDetailScreen() {
   >(null);
   const [now, setNow] = useState(() => new Date());
   const place = places.find((item) => item.id === placeId);
+  const refreshReports = useCallback(async () => {
+    try { await refreshPlace(placeId); setReportRefreshError(false); }
+    catch { setReportRefreshError(true); }
+  }, [placeId, refreshPlace]);
+  useFocusEffect(useCallback(() => {
+    void refreshReports();
+    const subscription = AppState.addEventListener("change", state => {
+      if (state === "active") void refreshReports();
+    });
+    return () => subscription.remove();
+  }, [refreshReports]));
   useEffect(() => {
     if (place)
       captureEvent("place_opened", {
@@ -187,7 +199,7 @@ export function PlaceDetailScreen() {
             accessibilityRole="button"
             accessibilityLabel="Status and practical checks"
             aria-expanded={sheet === "status"}
-            onPress={() => setSheet("status")}
+            onPress={() => { setSheet("status"); void refreshReports(); }}
             style={styles.basisButton}
           >
             <Text style={styles.confirmed}>
@@ -268,6 +280,7 @@ export function PlaceDetailScreen() {
         onClose={() => setSheet(null)}
       >
         <View style={styles.reportSummary}>
+          {reportRefreshError ? <Notice title="Could not refresh reports" message="Showing the last loaded reports." actionLabel="Try again" onAction={() => void refreshReports()} /> : null}
           <Text style={styles.reportHeading}>Community reports</Text>
           <StatusRow
             label="Open"

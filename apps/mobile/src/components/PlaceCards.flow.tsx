@@ -1,9 +1,10 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { mockPlaces, type Place, type PlaceGroup, type TrustClaim } from "@knogo/core";
-import { ExplorePlaceTile, GroupCard, PlaceCard } from "./PlaceCards";
+import { ExploreGroupTile, ExplorePlaceTile, GroupCard, PlaceCard } from "./PlaceCards";
 
-vi.mock("expo-router", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+const mocks = vi.hoisted(() => ({ push: vi.fn() }));
+vi.mock("expo-router", () => ({ useRouter: () => ({ push: mocks.push }) }));
 vi.mock("lucide-react-native", () => ({ ChevronRight: () => null, Clock3: () => null, Heart: () => null, MapPin: () => null }));
 vi.mock("./PlaceLogo", () => ({ PlaceLogo: () => null }));
 vi.mock("../theme", () => ({
@@ -31,11 +32,26 @@ function withClaim(claim: TrustClaim): Place {
 }
 
 describe("trust claims across discovery cards", () => {
+  it.each(["list", "grid"] as const)("has no save action in Explore %s", layout => {
+    render(<ExplorePlaceTile place={base} width={320} layout={layout} saved onToggleSaved={vi.fn()}/>);
+    expect(screen.queryByRole("button", { name: /save/i })).toBeNull();
+    expect(screen.getByText(base.name)).toBeTruthy();
+  });
+  it("allows removal in Saved without opening the place", () => {
+    const remove = vi.fn(); render(<ExplorePlaceTile place={base} width={320} layout="list" saved allowRemove onToggleSaved={remove}/>);
+    fireEvent.click(screen.getByRole("button", { name: `Remove ${base.name} from saved` }));
+    expect(remove).toHaveBeenCalledWith(base.id);
+  });
+  it("opens a single branch without a preview step", () => {
+    render(<ExploreGroupTile group={group} branches={[base]} width={320} layout="list"/>);
+    fireEvent.click(screen.getByRole("button"));
+    expect(mocks.push).toHaveBeenCalledWith({ pathname: "/restaurants/[placeId]", params: { placeId: base.id } });
+  });
   it("does not present legacy practical booleans as report claims", () => {
     render(<PlaceCard place={{ ...base, currentStatus: { ...base.currentStatus, cardMachineWorking: false, hasBackupPower: true } }} saved={false} onToggleSaved={() => {}}/>);
     expect(screen.queryByText("Issue")).toBeNull();
     expect(screen.queryByText("Backup")).toBeNull();
-    expect(screen.getAllByText("Status unknown")).toHaveLength(5);
+    expect(screen.getAllByText("No recent check")).toHaveLength(5);
   });
   it("shows branch counts rather than implying the franchise is open", () => {
     render(<GroupCard group={group} branches={[base]}/>);
@@ -54,7 +70,7 @@ describe("trust claims across discovery cards", () => {
     const place = withClaim({ state: "community_indication", value: "open", reportedAt: "2026-10-04T10:00:00Z", expiresAt: "2026-10-04T14:00:00Z", evidence: [], rule: "test" });
     render(<ExplorePlaceTile place={place} width={320} layout="list" saved={false} onToggleSaved={() => {}}/>);
     expect(screen.getByText("No recent check")).toBeTruthy();
-    expect(screen.getByRole("button", { name: `${place.name}, ${place.area}, Status unknown` })).toBeTruthy();
+    expect(screen.getByRole("button", { name: `${place.name}, ${place.area}, No recent check` })).toBeTruthy();
     expect(screen.queryByText("Community reports open")).toBeNull();
   });
 });

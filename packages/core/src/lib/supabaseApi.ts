@@ -90,12 +90,12 @@ export function createSupabaseApi(config: {
     }
   }
 
-  async function authRequest(path: string, body: Record<string, unknown>, accessToken?: string) {
+  async function authRequest(path: string, body: Record<string, unknown>, accessToken?: string, method = "POST") {
     const current = requireConfig();
     return withRequestTimeout(async (signal) => {
     const response = await fetch(`${current.url}/auth/v1/${path}`, {
       signal,
-      method: "POST",
+      method,
       headers: {
         apikey: current.publishableKey,
         "Content-Type": "application/json",
@@ -125,7 +125,7 @@ export function createSupabaseApi(config: {
     };
   }
 
-  async function request<T>(table: string, init?: RequestInit, accessToken?: string): Promise<T> {
+  async function request<T>(table: string, init?: RequestInit, accessToken?: string, onResponse?: (response: Response) => void): Promise<T> {
     const current = requireConfig();
     return withRequestTimeout(async (signal) => {
     const response = await fetch(`${current.url}/rest/v1/${table}`, {
@@ -139,8 +139,29 @@ export function createSupabaseApi(config: {
       }
     });
     if (!response.ok) throw new Error((await response.text()) || `Supabase request failed with ${response.status}`);
+    onResponse?.(response);
     return (await response.json()) as T;
     });
+  }
+
+  async function requestAll<T>(table: string): Promise<T[]> {
+    const rows: T[] = [];
+    let total: number | null = null;
+    while (true) {
+      const page = await request<T[]>(`${table}&limit=500&offset=${rows.length}`, {
+        headers: { Prefer: "count=exact" }
+      }, undefined, response => {
+        const count = response.headers.get("Content-Range")?.split("/")[1];
+        if (count && /^\d+$/.test(count)) total = Number(count);
+      });
+      if (!Array.isArray(page)) throw new Error("Could not read place data.");
+      rows.push(...page);
+      if (total !== null && rows.length >= total) return rows;
+      if (!page.length) {
+        if (total !== null) throw new Error("Place data changed while loading. Try again.");
+        return rows;
+      }
+    }
   }
 
   async function sendEmailLink(email: string, redirectTo: string) {
@@ -196,6 +217,17 @@ export function createSupabaseApi(config: {
     const session = mapAuthResponse(await authRequest("token?grant_type=password", { email, password }), email);
     await sessionStorage.write(session);
     return session;
+  }
+
+  async function requestPasswordRecovery(email: string, redirectTo: string) {
+    await authRequest(`recover?redirect_to=${encodeURIComponent(redirectTo)}`, { email });
+  }
+
+  async function updatePassword(password: string) {
+    if (password.length < 8) throw new Error("Use at least 8 characters for your password.");
+    const session = await getValidSession();
+    if (!session) throw new AuthRequestError("Open a recovery link to change your password.", 401, "session_not_found");
+    await authRequest("user", { password }, session.accessToken, "PUT");
   }
 
   async function signUpWithEmail(email: string, password: string) {
@@ -353,7 +385,7 @@ export function createSupabaseApi(config: {
     const place = rows[0];
     if (!place) return null;
 
-    const [regionResult, groupResult, hoursResult, statusResult] = await Promise.allSettled([
+    const [regions, groups, hours, statuses] = await Promise.all([
       request<SupabaseRegionRow[]>(`regions?select=*&id=eq.${encodeURIComponent(place.region_id)}&limit=1`),
       place.group_id
         ? request<SupabasePlaceGroupRow[]>(`place_groups?select=*&id=eq.${encodeURIComponent(place.group_id)}&is_active=eq.true&limit=1`)
@@ -364,25 +396,21 @@ export function createSupabaseApi(config: {
 
     return mapSupabasePlace({
       place,
-      region: regionResult.status === "fulfilled" ? regionResult.value[0] : undefined,
-      group: groupResult.status === "fulfilled" ? groupResult.value[0] : undefined,
-      hours: hoursResult.status === "fulfilled" ? hoursResult.value : [],
-      liveStatus: statusResult.status === "fulfilled" ? statusResult.value[0] : undefined
+      region: regions[0],
+      group: groups[0],
+      hours,
+      liveStatus: statuses[0]
     });
   }
 
   async function fetchPlaceData(): Promise<{ places: Place[]; groups: PlaceGroup[] }> {
-    const places = await request<SupabasePlaceRow[]>("places?select=*&is_active=eq.true&order=name.asc");
-    const [groupsResult, regionsResult, hoursResult, statusesResult] = await Promise.allSettled([
-      request<SupabasePlaceGroupRow[]>("place_groups?select=*&is_active=eq.true&order=name.asc"),
-      request<SupabaseRegionRow[]>("regions?select=*"),
-      request<SupabaseHoursRow[]>("place_hours?select=*&order=sort_order.asc"),
-      request<SupabaseLiveStatusRow[]>("current_live_statuses?select=*")
+    const places = await requestAll<SupabasePlaceRow>("places?select=*&is_active=eq.true&order=name.asc,id.asc");
+    const [groups, regions, hours, statuses] = await Promise.all([
+      requestAll<SupabasePlaceGroupRow>("place_groups?select=*&is_active=eq.true&order=name.asc,id.asc"),
+      requestAll<SupabaseRegionRow>("regions?select=*&order=id.asc"),
+      requestAll<SupabaseHoursRow>("place_hours?select=*&order=place_id.asc,hours_type.asc,day_of_week.asc"),
+      requestAll<SupabaseLiveStatusRow>("current_live_statuses?select=*&order=place_id.asc")
     ]);
-    const groups = groupsResult.status === "fulfilled" ? groupsResult.value : [];
-    const regions = regionsResult.status === "fulfilled" ? regionsResult.value : [];
-    const hours = hoursResult.status === "fulfilled" ? hoursResult.value : [];
-    const statuses = statusesResult.status === "fulfilled" ? statusesResult.value : [];
     const groupsById = new Map(groups.map((group) => [group.id, group]));
     const regionsById = new Map(regions.map((region) => [region.id, region]));
     const hoursByPlace = new Map<string, SupabaseHoursRow[]>();
@@ -423,6 +451,8 @@ export function createSupabaseApi(config: {
     verifyEmailCode,
     completeEmailLink,
     signInWithEmail,
+    requestPasswordRecovery,
+    updatePassword,
     signUpWithEmail,
     registerWithEmail,
     refreshSession,

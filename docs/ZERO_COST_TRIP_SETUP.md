@@ -71,7 +71,7 @@ Kill switch after deployment: set both trip provider rows to enabled=false, or s
 
 ## Map hosting limits
 
-The Leaflet stylesheet is vendored from the installed 1.9.4 package in apps/mobile/public/leaflet.css, with its licence beside it. The library loads from the app bundle, not a runtime CDN.
+The trip planner no longer includes a route map. Leaflet and its stylesheet have been removed. Branch selection keeps its map.
 
 OSM tiles must retain attribution and normal HTTP caching. No offline download, bulk fetching, scraping or proxy hiding the app identity. Access has no SLA and can be withdrawn. Recheck tile hosting before public release. A Google Maps key and its own release setup are required for Android builds outside Expo Go.
 

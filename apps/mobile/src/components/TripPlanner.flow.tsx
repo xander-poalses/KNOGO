@@ -12,7 +12,7 @@ vi.mock("./StagedModal", async () => {
 vi.mock("@knogo/core", async importOriginal => ({ ...await importOriginal<object>(), createTripApi: () => ({ configured: true, route: mocks.route, search: mocks.search }) }));
 vi.mock("expo-location", () => ({ Accuracy: { Balanced: 3 }, requestForegroundPermissionsAsync: mocks.permission, getCurrentPositionAsync: mocks.location }));
 vi.mock("react-native-safe-area-context", () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0 }) }));
-vi.mock("lucide-react-native", () => Object.fromEntries(["ArrowUpRight", "Clock3", "Fuel", "Info", "MapPin", "Navigation", "RefreshCw", "Search", "X"].map(key => [key, () => null])));
+vi.mock("lucide-react-native", () => Object.fromEntries(["ArrowUpRight", "Clock3", "Fuel", "Info", "MapPin", "Navigation", "RefreshCw", "Search", "X", "ChevronLeft"].map(key => [key, () => null])));
 vi.mock("../theme", () => ({
   fonts: {}, radii: {}, sizes: {}, space: {},
   useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({})
@@ -54,6 +54,17 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("trip planner flow", () => {
+  it("keeps fuel edits when returning through Back without saving", async () => {
+    render(<TripPlanner place={mockPlaces[0]}/>);
+    fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
+    await screen.findByRole("button", { name: "Open directions" });
+    fireEvent.click(screen.getByRole("button", { name: "Add fuel details for a cost" }));
+    fireEvent.change(screen.getByLabelText("Car fuel use in litres per 100 kilometres"), { target: { value: "7.8" } });
+    fireEvent.click(screen.getByRole("button", { name: "Back to trip estimate" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add fuel details for a cost" }));
+    expect((screen.getByLabelText("Car fuel use in litres per 100 kilometres") as HTMLInputElement).value).toBe("7.8");
+    expect(mocks.save).not.toHaveBeenCalled(); expect(mocks.route).toHaveBeenCalledOnce();
+  });
   it("does not start a route when location arrives after closing the planner", async () => {
     let finish!: (value: unknown) => void;
     mocks.location.mockReturnValueOnce(new Promise(resolve => { finish = resolve; }));
@@ -110,13 +121,15 @@ describe("trip planner flow", () => {
     fireEvent.click(screen.getByRole("button", { name: "Change starting place" }));
     expect(screen.getByLabelText("Starting address")).toBeTruthy();
   });
-  it("selecting an address estimates without a second submit or GPS request", async () => {
+  it("selecting an address returns to estimate without a GPS or routing request", async () => {
     mocks.search.mockResolvedValue([{ id: "menlyn", label: "Menlyn", latitude: -25.78, longitude: 28.27 }]);
     render(<TripPlanner place={mockPlaces[0]}/>);
     fireEvent.click(screen.getByRole("button", { name: "From: Your location. Change from" }));
     fireEvent.change(screen.getByLabelText("Starting address"), { target: { value: "Menlyn" } });
     fireEvent.click(screen.getByRole("button", { name: "Search starting places" }));
     fireEvent.click(await screen.findByRole("button", { name: "Menlyn" }));
+    expect(mocks.route).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
     await screen.findByRole("button", { name: "Open directions" });
     expect(mocks.permission).not.toHaveBeenCalled();
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -157,9 +170,11 @@ describe("trip planner flow", () => {
     fireEvent.change(screen.getByLabelText("Starting address"), { target: { value: "Menlyn" } });
     fireEvent.click(screen.getByRole("button", { name: "Search starting places" }));
     fireEvent.click(await screen.findByRole("button", { name: "Chosen start" }));
+    fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
     await screen.findByRole("button", { name: "Open directions" });
     fireEvent.click(screen.getByRole("button", { name: "From: Chosen start. Change from" }));
     fireEvent.click(screen.getByRole("button", { name: "Use my location" }));
+    fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
     await waitFor(() => expect(mocks.route).toHaveBeenCalledTimes(2));
     expect(mocks.route.mock.calls[1][0]).toEqual({ latitude: -25.78, longitude: 28.27 });
     expect(mocks.location).toHaveBeenCalledTimes(1);

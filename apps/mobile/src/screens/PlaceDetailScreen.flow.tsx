@@ -3,9 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mockPlaces, type Place } from "@knogo/core";
 import { PlaceDetailScreen } from "./PlaceDetailScreen";
 
-const mocks = vi.hoisted(() => ({ places: [] as Place[], loading: false, saved: false, toggle: vi.fn(), push: vi.fn(), open: vi.fn() }));
-vi.mock("expo-router", () => ({ useLocalSearchParams: () => ({ placeId: "test-place" }), useRouter: () => ({ push: mocks.push }) }));
-vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ places: mocks.places, loading: mocks.loading, isSaved: () => mocks.saved, toggleSaved: mocks.toggle }) }));
+const mocks = vi.hoisted(() => ({ places: [] as Place[], loading: false, saved: false, toggle: vi.fn(), push: vi.fn(), open: vi.fn(), refresh: vi.fn() }));
+vi.mock("expo-router", async () => {
+  const { useEffect } = await import("react");
+  return { useLocalSearchParams: () => ({ placeId: "test-place" }), useRouter: () => ({ push: mocks.push }), useFocusEffect: (effect: () => void | (() => void)) => useEffect(effect, [effect]) };
+});
+vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ places: mocks.places, loading: mocks.loading, isSaved: () => mocks.saved, toggleSaved: mocks.toggle, refreshPlace: mocks.refresh }) }));
 vi.mock("../telemetry", () => ({ captureEvent: vi.fn() }));
 vi.mock("react-native-safe-area-context", () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0 }) }));
 vi.mock("lucide-react-native", () => Object.fromEntries(["CheckCircle2", "ChevronRight", "CircleHelp", "CircleX", "Clock3", "ExternalLink", "Globe", "Heart", "MapPin", "MoreHorizontal", "Navigation", "Phone", "TriangleAlert", "UtensilsCrossed"].map(name => [name, () => null])));
@@ -23,7 +26,7 @@ vi.mock("../components/Ui", async () => {
   return {
     Page: ({ children }: any) => createElement("main", null, children),
     BackButton: () => createElement("button", null, "Back"),
-    Notice: ({ title, message }: any) => createElement("p", null, title, message),
+    Notice: ({ title, message, actionLabel, onAction }: any) => createElement("div", null, createElement("p", null, title, message), actionLabel ? createElement("button", { onClick: onAction }, actionLabel) : null),
     ActionButton: ({ label, onPress }: any) => createElement("button", { onClick: onPress }, label)
   };
 });
@@ -43,10 +46,22 @@ beforeEach(() => {
   mocks.places = [{ ...mockPlaces[0], id: "test-place", kitchenHours: undefined, features: [], phone: undefined, website: undefined, menuUrl: undefined }];
   mocks.loading = false; mocks.saved = false;
   mocks.toggle.mockResolvedValue(undefined); mocks.open.mockResolvedValue(undefined);
+  mocks.refresh.mockReset().mockResolvedValue(undefined);
 });
 afterEach(cleanup);
 
 describe("place dashboard journey", () => {
+  it("refreshes on entry and lets a failed report refresh be retried", async () => {
+    mocks.refresh.mockRejectedValueOnce(new Error("Offline")).mockRejectedValueOnce(new Error("Offline"));
+    render(<PlaceDetailScreen/>);
+    await vi.waitFor(() => expect(mocks.refresh).toHaveBeenCalledWith("test-place"));
+    await vi.waitFor(() => expect(mocks.refresh).toHaveBeenCalledTimes(1));
+    fireEvent.click(screen.getByRole("button", { name: "Status and practical checks" }));
+    await screen.findByText(/Could not refresh reports/);
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    await vi.waitFor(() => expect(screen.queryByText(/Could not refresh reports/)).toBeNull());
+    expect(mocks.refresh).toHaveBeenCalledTimes(3);
+  });
   it("keeps detail content behind its commands", () => {
     render(<PlaceDetailScreen/>);
     for (const name of ["Status and practical checks", "View listed hours", "Plan your trip", "View place information", "Contact and directions"]) {

@@ -67,7 +67,7 @@ export function getConfidenceLabel(score: number) {
 
 export function getStatusLabel(status: LiveStatus) {
   if (status.trust) return trustClaimLabel("open_status", getCurrentStatus(status).trust?.claims.open_status);
-  return "Status unknown";
+  return "No recent check";
 }
 
 export function getStatusTone(status: LiveStatus) {

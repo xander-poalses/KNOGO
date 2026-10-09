@@ -27,15 +27,15 @@ describe("status helpers", () => {
       .toMatchObject({ isOpen: null, source: "unknown" });
   });
   it("does not overclaim unknown kitchen status", () => {
-    expect(getStatusLabel(baseStatus)).toBe("Status unknown");
+    expect(getStatusLabel(baseStatus)).toBe("No recent check");
   });
 
   it("does not convert a legacy score into a status claim", () => {
-    expect(getStatusLabel({ ...baseStatus, isKitchenServing: true, confidenceScore: 55 })).toBe("Status unknown");
+    expect(getStatusLabel({ ...baseStatus, isKitchenServing: true, confidenceScore: 55 })).toBe("No recent check");
   });
 
   it("does not treat a higher legacy score as proof of availability", () => {
-    expect(getStatusLabel({ ...baseStatus, isKitchenServing: true, confidenceScore: 82 })).toBe("Status unknown");
+    expect(getStatusLabel({ ...baseStatus, isKitchenServing: true, confidenceScore: 82 })).toBe("No recent check");
   });
 
   it("maps confidence scores", () => {

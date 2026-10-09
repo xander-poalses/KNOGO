@@ -11,8 +11,8 @@ import { fonts, radii, sizes, space, useTheme, useThemeStyles, type ThemeColours
 import { googleSignInEnabled, googleSignInSupported, openGoogleSignIn, prepareGoogleSignIn } from "../auth/googleSignIn";
 
 // Hallmark: P5 H4 E4 S5 R5 V4. One next-step command; existing form tokens.
-export function AccountForm({ onAuthenticated, reportPlaceId, venuePlaceId }: { onAuthenticated: () => void; reportPlaceId?: string; venuePlaceId?: string }) {
-  const { signInWithEmail, registerWithEmail, hasSupabaseConfig, adoptSession } = usePlaces();
+export function AccountForm({ onAuthenticated, reportPlaceId, venuePlaceId, startRecovery = false }: { onAuthenticated: () => void; reportPlaceId?: string; venuePlaceId?: string; startRecovery?: boolean }) {
+  const { signInWithEmail, registerWithEmail, requestPasswordRecovery, hasSupabaseConfig, adoptSession } = usePlaces();
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -22,6 +22,8 @@ export function AccountForm({ onAuthenticated, reportPlaceId, venuePlaceId }: { 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+  const [recovering, setRecovering] = useState(startRecovery);
+  const [recoverySent, setRecoverySent] = useState(false);
   const [googleRequest, setGoogleRequest] = useState<Awaited<ReturnType<typeof prepareGoogleSignIn>> | null>(null);
   const [googleBusy, setGoogleBusy] = useState(false);
   const [googleAttempt, setGoogleAttempt] = useState(0);
@@ -74,6 +76,27 @@ export function AccountForm({ onAuthenticated, reportPlaceId, venuePlaceId }: { 
     } finally { running.current = false; setBusy(false); }
   };
 
+  const recover = async () => {
+    if (running.current || !hasSupabaseConfig || !validEmail) return;
+    running.current = true; setBusy(true); setError(null);
+    try {
+      await requestPasswordRecovery(email.trim(), Linking.createURL("auth/callback", { queryParams: { intent: "recovery", ...(reportPlaceId ? { placeId: reportPlaceId } : {}) } }));
+      if (mounted.current) setRecoverySent(true);
+    } catch (cause) { if (mounted.current) setError(accountError(cause, "recovery")); }
+    finally { running.current = false; if (mounted.current) setBusy(false); }
+  };
+
+  if (recovering) return <View style={styles.form}>
+    <Text accessibilityRole="header" style={styles.title}>{recoverySent ? "Check your inbox" : "Reset your password"}</Text>
+    {recoverySent ? <Text accessibilityLiveRegion="polite" style={styles.body}>If an account can receive a recovery email, a link is on its way. Check your inbox and spam folder.</Text> : <>
+      <Text style={styles.body}>We will send a link to change your password.</Text>
+      <TextInput accessibilityLabel="Recovery email address" value={email} onChangeText={setEmail} autoCapitalize="none" autoCorrect={false} autoComplete="email" keyboardType="email-address" editable={!busy} style={styles.input}/>
+      <FeedbackToast message={error} onDismiss={() => setError(null)}/>
+      <ActionButton label="Send recovery email" tone="green" loading={busy} disabled={!validEmail || !hasSupabaseConfig} onPress={() => void recover()}/>
+    </>}
+    <ActionButton label="Back to sign in" tone="light" disabled={busy} onPress={() => { setRecovering(false); setRecoverySent(false); setError(null); }}/>
+  </View>;
+
   if (sent) return <View style={styles.form}>
     <Text accessibilityRole="header" style={styles.title}>Check your email</Text>
     <Text accessibilityRole="alert" style={styles.body}>If your account needs confirmation, check your inbox and spam folder for a link, then sign in. If you have an account, sign in with its password. This request does not change your password.</Text>
@@ -88,6 +111,7 @@ export function AccountForm({ onAuthenticated, reportPlaceId, venuePlaceId }: { 
     <View style={styles.field}><Text style={styles.label}>Email</Text><TextInput accessibilityLabel="Email address" value={email} onChangeText={setEmail} editable={!busy} autoCapitalize="none" autoCorrect={false} autoComplete="email" keyboardType="email-address" placeholder="you@example.com" placeholderTextColor={colours.muted} style={styles.input}/></View>
     <View style={styles.field}><Text style={styles.label}>Password</Text><View style={styles.passwordField}><TextInput accessibilityLabel="Password" value={password} onChangeText={setPassword} editable={!busy} secureTextEntry={!passwordVisible} autoCapitalize="none" autoCorrect={false} autoComplete={mode === "signup" ? "new-password" : "current-password"} textContentType={mode === "signup" ? "newPassword" : "password"} onSubmitEditing={() => void submit()} returnKeyType="go" style={[styles.input, styles.passwordInput]}/><Pressable accessibilityRole="button" accessibilityLabel={passwordVisible ? "Hide password" : "Show password"} accessibilityState={{ disabled: busy }} disabled={busy} onPress={() => setPasswordVisible(value => !value)} style={styles.visibilityButton}>{passwordVisible ? <EyeOff color={colours.muted} size={20}/> : <Eye color={colours.muted} size={20}/>}</Pressable></View>{mode === "signup" ? <Text style={styles.body}>Use at least 8 characters.</Text> : null}</View>
     <FeedbackToast message={error} onDismiss={() => setError(null)}/>
+    {mode === "signin" ? <Pressable accessibilityRole="button" onPress={() => { setRecovering(true); setPassword(""); setError(null); }} disabled={busy} style={{ minHeight: sizes.touch, justifyContent: "center" }}><Text style={styles.label}>Forgot password?</Text></Pressable> : null}
     <ActionButton label={mode === "signin" ? "Sign in" : "Create account"} tone="green" loading={busy && !googleBusy} disabled={busy || !hasSupabaseConfig || !validEmail || !password} onPress={() => void submit()}/>
     {googleSignInEnabled ? <ActionButton label="Continue with Google" tone="light" loading={googleBusy} disabled={busy || (googleSignInSupported && !googleRequest)} onPress={() => void google()}/> : null}
     <ActionButton label={mode === "signin" ? "Create an account" : "Use my account"} tone="light" disabled={busy} onPress={() => { setMode(mode === "signin" ? "signup" : "signin"); setPassword(""); setPasswordVisible(false); setError(null); setSent(false); }}/>

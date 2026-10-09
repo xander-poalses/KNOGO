@@ -29,7 +29,7 @@ function parsePendingReport(value: unknown): PendingReport | null {
     || typeof draft.createdAt !== "string" || !Number.isFinite(Date.parse(draft.createdAt))
     || !["in_person", "phone", "online"].includes(draft.reportSource ?? "")
     || (draft.sourceUrl !== undefined && (typeof draft.sourceUrl !== "string" || draft.sourceUrl.length > 2000))
-    || !Array.isArray(draft.answers) || draft.answers.length < 3 || draft.answers.length > 6) return null;
+    || !Array.isArray(draft.answers) || draft.answers.length < 1 || draft.answers.length > 6) return null;
   const allowed: Record<string, string[]> = {
     open_status: ["open", "closed"], kitchen_status: ["yes", "no"],
     busy_level: ["quiet", "normal", "busy", "packed"], walk_ins: ["yes", "no"],
@@ -42,7 +42,6 @@ function parsePendingReport(value: unknown): PendingReport | null {
       || types.has(answer.type)) return null;
     types.add(answer.type);
   }
-  if (!["open_status", "kitchen_status", "busy_level"].every(type => types.has(type))) return null;
   return draft as PendingReport;
 }
 

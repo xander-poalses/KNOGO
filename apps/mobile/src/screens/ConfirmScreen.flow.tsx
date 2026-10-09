@@ -3,16 +3,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mockPlaces } from "@knogo/core";
 import { ConfirmScreen } from "./ConfirmScreen";
 
-const mocks = vi.hoisted(() => ({ read: vi.fn(), write: vi.fn(), clear: vi.fn(), submit: vi.fn(), places: [] as any[], placeId: "", loading: false }));
+const mocks = vi.hoisted(() => ({ session: null as object | null, read: vi.fn(), write: vi.fn(), clear: vi.fn(), submit: vi.fn(), places: [] as any[], placeId: "", loading: false }));
 vi.mock("../storage", () => ({ mobileStorage: { readPendingReport: mocks.read, writePendingReport: mocks.write, clearPendingReport: mocks.clear } }));
-vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ places: mocks.places, loading: mocks.loading, addConfirmations: mocks.submit, authLoading: false, hasSupabaseConfig: true, session: null }) }));
+vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ places: mocks.places, loading: mocks.loading, addConfirmations: mocks.submit, authLoading: false, hasSupabaseConfig: true, session: mocks.session }) }));
 vi.mock("expo-router", () => ({ useLocalSearchParams: () => ({ placeId: mocks.placeId }), useRouter: () => ({ replace: vi.fn() }) }));
 vi.mock("../telemetry", () => ({ captureEvent: vi.fn(), captureError: vi.fn() }));
+vi.mock("../components/FeedbackToast", () => ({ FeedbackToast: ({ message }: any) => message ? <p role="alert">{message}</p> : null }));
 vi.mock("../theme", () => ({ fonts: {}, shadows: {}, sizes: {}, space: {}, useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({}) }));
 vi.mock("lucide-react-native", () => ({ Check: () => null, ChevronRight: () => null }));
 vi.mock("../components/AccountForm", async () => {
   const { createElement } = await import("react");
-  return { AccountForm: () => createElement("div", null, "Account access") };
+  return { AccountForm: ({ onAuthenticated }: any) => createElement("button", { onClick: () => { mocks.session = { userId: "tester" }; onAuthenticated(); } }, "Account access") };
 });
 vi.mock("../components/Ui", async () => {
   const { createElement } = await import("react");
@@ -30,6 +31,7 @@ vi.mock("react-native", async () => {
 beforeEach(() => {
   vi.clearAllMocks(); mocks.places = [mockPlaces[0]]; mocks.placeId = mockPlaces[0].id;
   mocks.loading = false;
+  mocks.session = null;
   mocks.read.mockResolvedValue(null); mocks.write.mockResolvedValue(undefined);
 });
 afterEach(cleanup);
@@ -40,6 +42,30 @@ function next() { fireEvent.click(screen.getByRole("button", { name: "Continue" 
 function answer(label: string) { fireEvent.click(screen.getByRole("radio", { name: label })); next(); }
 
 describe("report account hand-off", () => {
+  it("returns sign-in to review and requires a separate submit action", async () => {
+    mocks.read.mockResolvedValue(draft()); render(<ConfirmScreen/>);
+    fireEvent.click(await screen.findByRole("button", { name: "Sign in to submit" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Account access" }));
+    expect(screen.getByRole("button", { name: "Submit check" })).toBeTruthy();
+    expect(mocks.submit).not.toHaveBeenCalled(); expect(mocks.clear).not.toHaveBeenCalled();
+  });
+  it("preserves a signed-in draft when submission fails", async () => {
+    mocks.session = { userId: "tester" }; mocks.read.mockResolvedValue(draft()); mocks.submit.mockRejectedValue(new Error("Connection lost"));
+    render(<ConfirmScreen/>); fireEvent.click(await screen.findByRole("button", { name: "Submit check" }));
+    await screen.findByText("Connection lost");
+    expect(mocks.write).toHaveBeenCalledWith(expect.objectContaining({ placeId: mocks.placeId, answers: draft().answers }));
+    expect(mocks.clear).not.toHaveBeenCalled();
+  });
+  it("reviews a closure on its own without inferring kitchen or busyness", async () => {
+    render(<ConfirmScreen/>); await act(async () => {});
+    fireEvent.click(screen.getByRole("button", { name: "By phone" })); next();
+    fireEvent.click(screen.getByRole("radio", { name: "No, closed" }));
+    fireEvent.click(screen.getByRole("button", { name: "Review report" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sign in to submit" }));
+    await screen.findByText("Account access");
+    expect(mocks.write).toHaveBeenCalledWith(expect.objectContaining({ answers: [{ type: "open_status", value: "closed" }] }));
+    expect(mocks.submit).not.toHaveBeenCalled();
+  });
   it("keeps one question visible and requires a choice before continuing", async () => {
     render(<ConfirmScreen/>); await act(async () => {});
     expect((screen.getByRole("button", { name: "Continue" }) as HTMLButtonElement).disabled).toBe(true);
@@ -55,9 +81,9 @@ describe("report account hand-off", () => {
   });
   it("allows optional checks to be skipped without inventing answers", async () => {
     mocks.read.mockResolvedValue(draft()); render(<ConfirmScreen/>);
-    await screen.findByRole("button", { name: "Submit check" });
+    await screen.findByRole("button", { name: "Sign in to submit" });
     fireEvent.click(screen.getByRole("button", { name: "Add more checks" }));
-    for (let index = 0; index < 3; index++) fireEvent.click(screen.getByRole("button", { name: "Skip this question" }));
+    for (let index = 0; index < 3; index++) fireEvent.click(screen.getByRole("button", { name: "Did not check" }));
     expect(screen.getByText("Review your check")).toBeTruthy();
     expect(screen.queryByText("Are walk-ins welcome?")).toBeNull();
     expect(mocks.submit).not.toHaveBeenCalled();
@@ -104,7 +130,7 @@ describe("report account hand-off", () => {
   });
   it("restores answers for review without submitting them", async () => {
     mocks.read.mockResolvedValue(draft()); render(<ConfirmScreen/>);
-    await screen.findByRole("button", { name: "Submit check" });
+    await screen.findByRole("button", { name: "Sign in to submit" });
     expect(screen.getByText("By phone")).toBeTruthy();
     expect(screen.getByText("quiet")).toBeTruthy();
     expect(mocks.submit).not.toHaveBeenCalled();
@@ -120,14 +146,14 @@ describe("report account hand-off", () => {
     fireEvent.click(screen.getByRole("button", { name: "Back" }));
     fireEvent.click(screen.getByRole("button", { name: "Back" }));
     expect(screen.getByRole("button", { name: "At the venue" }).getAttribute("aria-pressed")).toBe("true");
-    expect(screen.queryByRole("button", { name: "Submit check" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Sign in to submit" })).toBeNull();
   });
   it("keeps a stale draft out of the form", async () => {
     mocks.read.mockResolvedValue(draft(new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString()));
     render(<ConfirmScreen/>);
     await act(async () => {});
     expect(screen.getByText("How did you check?")).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "Submit check" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Sign in to submit" })).toBeNull();
   });
   it("saves signed-out answers before showing account access", async () => {
     render(<ConfirmScreen/>);
@@ -135,7 +161,7 @@ describe("report account hand-off", () => {
     next(); answer("Yes, open"); answer("Yes, serving");
     fireEvent.click(screen.getByRole("radio", { name: "quiet" }));
     fireEvent.click(screen.getByRole("button", { name: "Review check" }));
-    fireEvent.click(screen.getByRole("button", { name: "Submit check" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sign in to submit" }));
     await screen.findByText("Account access");
     expect(mocks.write).toHaveBeenCalledWith(expect.objectContaining({ placeId: mocks.placeId, reportSource: "phone", answers: draft().answers }));
     expect(mocks.submit).not.toHaveBeenCalled();

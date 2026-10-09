@@ -39,21 +39,25 @@ describe("email return reporting", () => {
     }
     expect(venueCallbackPlaceId("not a url")).toBeNull();
   });
-  it("signs in before submitting the saved draft and clearing it", async () => {
+  it("returns every saved draft to review without publishing it", async () => {
     const input = harness();
-    expect((await finishEmailReport(input)).kind).toBe("report");
-    expect(input.submit).toHaveBeenCalledWith(draft);
-    expect(input.completeEmailLink.mock.invocationCallOrder[0]).toBeLessThan(input.submit.mock.invocationCallOrder[0]);
-    expect(input.submit.mock.invocationCallOrder[0]).toBeLessThan(input.clearDraft.mock.invocationCallOrder[0]);
-  });
-  it("preserves the draft on an auth or submission failure", async () => {
-    const input = harness();
-    input.submit.mockRejectedValueOnce(new Error("Offline"));
-    await expect(finishEmailReport(input)).rejects.toThrow("Offline");
+    expect((await finishEmailReport(input)).kind).toBe("recheck");
+    expect(input.submit).not.toHaveBeenCalled();
     expect(input.clearDraft).not.toHaveBeenCalled();
+  });
+  it("preserves the draft on an auth failure", async () => {
+    const input = harness();
     input.completeEmailLink.mockRejectedValueOnce(new Error("Expired link"));
     await expect(finishEmailReport(input)).rejects.toThrow("Expired link");
-    expect(input.submit).toHaveBeenCalledTimes(1);
+    expect(input.submit).not.toHaveBeenCalled();
+    expect(input.clearDraft).not.toHaveBeenCalled();
+  });
+  it.each(["knogo://auth/callback?intent=recovery&venue=place-1", "knogo://auth/callback#type=recovery&access_token=token"])("handles recovery before report and venue callbacks: %s", async url => {
+    const input = { ...harness(), url };
+    expect(await finishEmailReport(input)).toEqual({ kind: "recovery" });
+    expect(input.readDraft).not.toHaveBeenCalled();
+    expect(input.submit).not.toHaveBeenCalled();
+    expect(input.clearDraft).not.toHaveBeenCalled();
   });
   it("asks for a recheck rather than publishing a draft older than four hours", async () => {
     const input = harness();

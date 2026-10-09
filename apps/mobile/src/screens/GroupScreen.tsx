@@ -15,6 +15,7 @@ import { fonts, shadows, sizes, space, useTheme, useThemeStyles, type ThemeColou
 import { getCheckPresentation } from "../statusPresentation";
 
 export function GroupScreen() {
+  const router = useRouter();
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
   const { groupSlug } = useLocalSearchParams<{ groupSlug: string }>();
@@ -32,7 +33,7 @@ export function GroupScreen() {
         keyExtractor={(branch) => branch.id}
         empty={<Notice title="No branches available" />}
         header={<><BackButton label="Back to explore" /><View style={styles.head}><Text style={styles.eyebrow}>Group</Text><Title>{group.name}</Title>{group.description ? <Body muted>{group.description}</Body> : null}<Text style={styles.branchCount}>{branches.length} branches</Text></View>{branches.length ? <BranchMap branches={branches} selectedId={selected?.id} onSelect={setSelected} /> : null}<View style={styles.sectionHead}><Text style={styles.sectionTitle}>All branches</Text><Text style={styles.sectionCount}>{branches.length}</Text></View></>}
-        renderTile={(branch, width) => <BranchRow branch={branch} width={width} onPress={() => setSelected(branch)} />}
+        renderTile={(branch, width) => <BranchRow branch={branch} width={width} onPress={() => router.push({ pathname: "/restaurants/[placeId]", params: { placeId: branch.id } })} />}
       />
       <BranchSheet place={selected} onClose={() => setSelected(null)} />
     </>
@@ -45,8 +46,8 @@ function BranchRow({ branch, width, onPress }: { branch: Place; width: number; o
   return <Pressable accessibilityLabel={`${branch.name}, ${branch.area}, ${getCheckPresentation(branch.currentStatus).summary}`} accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.branchRow, { width }, pressed && styles.pressed]}>
     <PlaceLogo id={branch.id} name={branch.groupName ?? branch.name} uri={branch.logoUrl} fallback="surface" style={styles.branchLogo} />
     <View style={styles.branchCopy}>
-      <Text numberOfLines={2} style={styles.branchName}>{branch.name}</Text>
-      <Text numberOfLines={1} style={styles.branchArea}>{branch.area}</Text>
+      <Text style={styles.branchName}>{branch.name}</Text>
+      <Text style={styles.branchArea}>{branch.area}</Text>
       <View style={styles.branchMeta}><BranchStatus place={branch}/><Text style={styles.branchHours}>{getCloseTime(branch.openingHours)}</Text></View>
     </View>
     <ChevronRight color={colours.muted} size={20} />

@@ -5,8 +5,8 @@ import { getCheckPresentation, getOutlookTone } from "./statusPresentation";
 describe("status colour meaning", () => {
   it("does not give legacy answers a working or problem colour", () => {
     const status = { ...mockPlaces[0].currentStatus, isOpen: true, cardMachineWorking: false };
-    expect(getCheckPresentation(status)).toMatchObject({ label: "Status unknown", tone: "neutral", reportedOpen: false });
-    expect(getCheckPresentation(status, "card_machine")).toMatchObject({ label: "Status unknown", tone: "neutral", timing: null });
+    expect(getCheckPresentation(status)).toMatchObject({ label: "No recent check", tone: "neutral", reportedOpen: false });
+    expect(getCheckPresentation(status, "card_machine")).toMatchObject({ label: "No recent check", tone: "neutral", timing: null });
   });
   it("retains source, check time and expiry in South African time", () => {
     const claim: TrustClaim = { state: "community_indication", value: "open", reportedAt: "2026-10-04T10:00:00Z", expiresAt: "2026-10-04T14:00:00Z", rule: "test", evidence: [{
@@ -18,7 +18,7 @@ describe("status colour meaning", () => {
     expect(check.summary).toContain("12:00");
     expect(check.summary).toContain("expires");
     expect(check.summary).toContain("16:00");
-    expect(getCheckPresentation(status, "open_status", new Date("2026-10-04T14:00:00Z"))).toMatchObject({ label: "Status unknown", tone: "neutral", timing: null, reportedOpen: false });
+    expect(getCheckPresentation(status, "open_status", new Date("2026-10-04T14:00:00Z"))).toMatchObject({ label: "No recent check", tone: "neutral", timing: null, reportedOpen: false });
   });
   it("uses conflict colour without counting the venue as open", () => {
     const claim: TrustClaim = { state: "disagree", value: null, reportedAt: "2026-10-04T10:00:00Z", expiresAt: "2026-10-04T14:00:00Z", rule: "test", evidence: ["open", "closed"].map((value, index) => ({

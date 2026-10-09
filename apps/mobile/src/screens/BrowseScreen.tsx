@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { HapticPressable as Pressable } from "../components/HapticPressable";
 import { FilterSheet } from "../components/FilterSheet";
-import { ExploreGroupTile, ExplorePlaceTile, GroupCard, PlaceCard } from "../components/PlaceCards";
+import { ExploreGroupTile, ExplorePlaceTile } from "../components/PlaceCards";
 import { BackButton, Chip, CacheNotice, Notice, Page, SearchField, Skeleton } from "../components/Ui";
 import { VirtualizedGrid } from "../components/VirtualizedGrid";
 import { usePlaces } from "../state/PlacesContext";
@@ -21,6 +21,7 @@ type ExploreLayout = "list" | "grid";
 const exploreLayoutKey = "knogo.explore.layout";
 
 function useExploreLayout() {
+  const { width } = useWindowDimensions();
   const [layout, setLayoutState] = useState<ExploreLayout>("list");
   useEffect(() => { void AsyncStorage.getItem(exploreLayoutKey).then((value) => {
     if (value === "list" || value === "grid") setLayoutState(value);
@@ -29,7 +30,7 @@ function useExploreLayout() {
     setLayoutState(value);
     void AsyncStorage.setItem(exploreLayoutKey, value);
   };
-  return [layout, setLayout] as const;
+  return [width < 768 ? "list" : layout, setLayout] as const;
 }
 
 const categories: Array<{ id: FoodCategory; title: string; body: string; image: string }> = [
@@ -47,7 +48,7 @@ export function BrowseScreen() {
   const query = q?.trim() ?? "";
   const { places, placeGroups, isSaved, toggleSaved, coordinates, locationLoading, requestNearby } = usePlaces();
   const openItems = useMemo(() => buildDiscoveryItems(places.filter((place) => getCheckPresentation(place.currentStatus).reportedOpen), placeGroups, coordinates).slice(0, 6), [coordinates, placeGroups, places]);
-  const tileWidth = Math.floor((Math.min(width, 720) - 35) / 2);
+  const tileWidth = width < 768 ? Math.min(width, 720) - space.md * 2 : Math.floor((Math.min(width, 720) - 35) / 2);
 
   if (query) return <GlobalSearchResults initialQuery={query} />;
   if (nearby === "1") return <NearbyResultsScreen />;
@@ -71,12 +72,14 @@ export function BrowseScreen() {
           </View>
         </Pressable>
       ))}
-      {openItems.length ? <View style={styles.statusSection}><View style={styles.statusHead}><View><Text style={styles.statusTitle}>Status now</Text><Text style={styles.statusMeta}>{coordinates ? "Status near your location" : "Community and business updates"}</Text></View><Store color={colours.primary} size={20} /></View><View style={styles.statusGrid}>{openItems.map((item) => item.kind === "group" ? <ExploreGroupTile key={`group-${item.id}`} group={item.group} branches={item.branches} width={tileWidth} /> : <ExplorePlaceTile key={`place-${item.id}`} place={item.place} width={tileWidth} saved={isSaved(item.id)} onToggleSaved={(id) => void toggleSaved(id)} />)}</View></View> : null}
+      {openItems.length ? <View style={styles.statusSection}><View style={styles.statusHead}><View><Text style={styles.statusTitle}>Status now</Text><Text style={styles.statusMeta}>{coordinates ? "Status near your location" : "Community and business updates"}</Text></View><Store color={colours.primary} size={20} /></View><View style={styles.statusGrid}>{openItems.map((item) => item.kind === "group" ? <ExploreGroupTile key={`group-${item.id}`} group={item.group} branches={item.branches} width={tileWidth} layout={width < 768 ? "list" : "grid"} /> : <ExplorePlaceTile key={`place-${item.id}`} place={item.place} width={tileWidth} layout={width < 768 ? "list" : "grid"} saved={isSaved(item.id)} onToggleSaved={(id) => void toggleSaved(id)} />)}</View></View> : null}
     </Page>
   );
 }
 
 function GlobalSearchResults({ initialQuery }: { initialQuery: string }) {
+  const { width } = useWindowDimensions();
+  const rowWidth = Math.min(width, 720) - space.md * 2;
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
   const router = useRouter();
@@ -97,7 +100,7 @@ function GlobalSearchResults({ initialQuery }: { initialQuery: string }) {
       <BackButton label="Back to home" />
       <View style={styles.header}>
         <Text style={styles.eyebrow}>Search</Text>
-        <Text style={styles.resultsTitle}>Results across KNOGO.</Text>
+        <Text style={styles.resultText}>Search results</Text>
         <SearchField value={query} onChangeText={setQuery} />
       </View>
       <View style={styles.resultHead}>
@@ -108,8 +111,8 @@ function GlobalSearchResults({ initialQuery }: { initialQuery: string }) {
       {loading && !places.length ? <><Skeleton /><Skeleton /></> : null}
       {error && !places.length ? <Notice title="Could not load live places" message={error} actionLabel="Try again" onAction={() => void refresh()} /> : null}
       {!loading && (!error || dataSource === "cache") && !filteredPlaces.length ? <Notice title="No matches yet" message="Try another place, area, or cuisine." /> : null}
-      {groups.map(({ group, branches }) => <GroupCard key={group.id} group={group} branches={branches} />)}
-      {singles.map((place) => <PlaceCard key={place.id} place={place} saved={isSaved(place.id)} onToggleSaved={(id) => void toggleSaved(id)} />)}
+      {groups.map(({ group, branches }) => <ExploreGroupTile key={group.id} group={group} branches={branches} width={rowWidth} layout="list"/>)}
+      {singles.map(place => <ExplorePlaceTile key={place.id} place={place} saved={isSaved(place.id)} onToggleSaved={id => void toggleSaved(id)} width={rowWidth} layout="list"/>)}
     </Page>
   );
 }
@@ -122,6 +125,7 @@ export function BrowseResultsScreen() {
   const { places, placeGroups, isSaved, toggleSaved, loading, refreshing, error, dataSource, lastUpdatedAt, cacheExpired, refresh } = usePlaces();
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [layout, setLayout] = useExploreLayout();
+  const { width: viewportWidth } = useWindowDimensions();
   const [filters, setFilters] = useState({ ...defaultFilters, query: q ?? "" });
   const categoryPlaces = useMemo(() => places.filter((place) => place.category === category.id), [category.id, places]);
   const filteredPlaces = useMemo(() => filterPlaces(categoryPlaces, contextualFilters(filters, [category.id])), [categoryPlaces, filters, category.id]);
@@ -143,11 +147,10 @@ export function BrowseResultsScreen() {
         empty={!loading && (!error || dataSource === "cache") ? <Notice title="No matches yet" message="Try fewer filters or another category." /> : undefined}
         header={<><BackButton label="Choose category" /><View style={styles.header}>
           <Text style={styles.eyebrow}>{category.title}</Text>
-          <Text style={styles.resultsTitle}>{category.id === "restaurant" ? "See who is serving." : category.id === "quick_bites" ? "Check before you collect." : "See what is open."}</Text>
           <SearchField value={filters.query} onChangeText={(query) => setFilters({ ...filters, query })} />
         </View>
         <Pressable accessibilityLabel="Open filters" accessibilityRole="button" onPress={() => setFiltersOpen(true)} style={styles.filterLauncher}><SlidersHorizontal color={colours.text} size={18} /><Text style={styles.filterText}>Filters</Text><ChevronDown color={colours.muted} size={18} /></Pressable>
-        <View style={styles.resultHead}><View><Text style={styles.resultText}>{areaHeading}</Text><Text style={styles.sectionHint}>Select a place to see live details</Text></View><View style={styles.resultActions}><Text style={styles.resultCount}>{resultCount}</Text><Pressable accessibilityLabel={layout === "list" ? "Show three-column grid" : "Show list"} accessibilityRole="button" onPress={() => setLayout(layout === "list" ? "grid" : "list")} style={styles.layoutButton}>{layout === "list" ? <LayoutGrid color={colours.text} size={19} /> : <List color={colours.text} size={20} />}</Pressable></View></View>
+        <View style={styles.resultHead}><View><Text style={styles.resultText}>{areaHeading}</Text><Text style={styles.sectionHint}>Select a place to see live details</Text></View><View style={styles.resultActions}><Text style={styles.resultCount}>{resultCount}</Text>{viewportWidth >= 768 ? <Pressable accessibilityLabel={layout === "list" ? "Show three-column grid" : "Show list"} accessibilityRole="button" onPress={() => setLayout(layout === "list" ? "grid" : "list")} style={styles.layoutButton}>{layout === "list" ? <LayoutGrid color={colours.text} size={19} /> : <List color={colours.text} size={20} />}</Pressable> : null}</View></View>
         {dataSource === "cache" ? <CacheNotice fetchedAt={lastUpdatedAt} expired={cacheExpired} onRetry={() => void refresh()} /> : null}
         {loading && !places.length ? <><Skeleton /><Skeleton /></> : null}
         {error && !places.length ? <Notice title="Could not load live places" message={error} actionLabel="Try again" onAction={() => void refresh()} /> : null}
@@ -167,6 +170,7 @@ function NearbyResultsScreen() {
   const { places, placeGroups, isSaved, toggleSaved, loading, refreshing, error, dataSource, lastUpdatedAt, cacheExpired, coordinates, locationLoading, locationError, fallbackArea, requestNearby, setFallbackArea, refresh } = usePlaces();
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [layout, setLayout] = useExploreLayout();
+  const { width: viewportWidth } = useWindowDimensions();
   const [filters, setFilters] = useState({ ...defaultFilters });
   const areas = useMemo(() => [...new Set(places.map((place) => place.area))].sort(), [places]);
   const cuisines = useMemo(() => getCuisineOptions(places), [places]);
@@ -191,7 +195,7 @@ function NearbyResultsScreen() {
           <ScrollView horizontal style={styles.areaRailViewport} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.areaRail}>{areas.map((area) => { const active = selectedAreas.includes(area); return <Chip role="radio" key={area} label={area} selected={active} onPress={() => { setFilters({ ...filters, areas: [area] }); void setFallbackArea(area); }} />; })}</ScrollView>
         </View> : null}
         <Pressable accessibilityLabel="Open filters" accessibilityRole="button" onPress={() => setFiltersOpen(true)} style={styles.filterLauncher}><SlidersHorizontal color={colours.text} size={18} /><Text style={styles.filterText}>Filters</Text><ChevronDown color={colours.muted} size={18} /></Pressable>
-        <View style={styles.resultHead}><View><Text style={styles.resultText}>{coordinates ? "Status near you" : selectedAreas[0] ?? "Pretoria East"}</Text><Text style={styles.sectionHint}>Select a place to check its current report</Text></View><View style={styles.resultActions}><Text style={styles.resultCount}>{items.length}</Text><Pressable accessibilityLabel={layout === "list" ? "Show three-column grid" : "Show list"} accessibilityRole="button" onPress={() => setLayout(layout === "list" ? "grid" : "list")} style={styles.layoutButton}>{layout === "list" ? <LayoutGrid color={colours.text} size={19} /> : <List color={colours.text} size={20} />}</Pressable></View></View>
+        <View style={styles.resultHead}><View><Text style={styles.resultText}>{coordinates ? "Status near you" : selectedAreas[0] ?? "Pretoria East"}</Text><Text style={styles.sectionHint}>Select a place to check its current report</Text></View><View style={styles.resultActions}><Text style={styles.resultCount}>{items.length}</Text>{viewportWidth >= 768 ? <Pressable accessibilityLabel={layout === "list" ? "Show three-column grid" : "Show list"} accessibilityRole="button" onPress={() => setLayout(layout === "list" ? "grid" : "list")} style={styles.layoutButton}>{layout === "list" ? <LayoutGrid color={colours.text} size={19} /> : <List color={colours.text} size={20} />}</Pressable> : null}</View></View>
         {dataSource === "cache" ? <CacheNotice fetchedAt={lastUpdatedAt} expired={cacheExpired} onRetry={() => void refresh()} /> : null}
         {loading && !places.length ? <><Skeleton /><Skeleton /></> : null}
         {error && !places.length ? <Notice title="Could not load places" message={error} actionLabel="Try again" onAction={() => void refresh()} /> : null}
@@ -214,7 +218,7 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   categoryTitle: { paddingBottom: 3, color: colours.text, fontFamily: fonts.extraBold, fontSize: 32, lineHeight: 36 }, categoryFoot: { flexDirection: "row", alignItems: "center", gap: 12 }, categoryBody: { flex: 1, color: colours.muted, fontFamily: fonts.regular, fontSize: 14, lineHeight: 18 },
   foodImage: { width: "100%", aspectRatio: 16 / 9, borderRadius: radii.surface, backgroundColor: colours.elevated }, filterLauncher: { minHeight: 52, paddingHorizontal: 15, flexDirection: "row", alignItems: "center", gap: 10, borderRadius: radii.control, backgroundColor: colours.surface, borderWidth: 1, borderColor: colours.border },
   filterText: { flex: 1, color: colours.text, fontFamily: fonts.extraBold, fontSize: 15 }, resultHead: { minHeight: 55, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colours.border },
-  resultActions: { flexDirection: "row", alignItems: "center", gap: 8 }, layoutButton: { width: 42, height: 42, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: colours.border, borderRadius: radii.control, backgroundColor: colours.surface },
+  resultActions: { flexDirection: "row", alignItems: "center", gap: 8 }, layoutButton: { width: 44, height: 44, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: colours.controlBorder, borderRadius: radii.control, backgroundColor: colours.surface },
   resultText: { color: colours.text, fontFamily: fonts.extraBold, fontSize: 21, paddingBottom: 2 }, resultCount: { color: colours.text, fontFamily: fonts.extraBold, fontSize: 22, paddingBottom: 4 }, pressed: { opacity: 0.82 },
   sectionHint: { paddingBottom: 6, color: colours.muted, fontFamily: fonts.regular, fontSize: 11 },
   areaRailViewport: { height: 48, flexGrow: 0, flexShrink: 0 },
