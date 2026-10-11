@@ -3,6 +3,7 @@ import Constants, { ExecutionEnvironment } from "expo-constants";
 import { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import { ExpoGoSkeleton } from "./ExpoGoSkeleton";
 import { fonts, useTheme, useThemeStyles, type ThemeColours } from "../theme";
 
 type BranchMapProps = {
@@ -39,7 +40,9 @@ export function BranchMap({ branches, selectedId, onSelect }: BranchMapProps) {
   const validBranches = branches.filter((branch) => Number.isFinite(branch.latitude) && Number.isFinite(branch.longitude) && Math.abs(branch.latitude) <= 90 && Math.abs(branch.longitude) <= 180);
   const fitBranches = () => { if (!validBranches.length) return; mapRef.current?.fitToCoordinates(validBranches.map(({ latitude, longitude }) => ({ latitude, longitude })), { animated: false, edgePadding: { top: 44, right: 44, bottom: 44, left: 44 } }); };
 
-  if (isExpoGo || mapFailed || !validBranches.length) return null;
+  if (!validBranches.length) return null;
+  if (isExpoGo) return <ExpoGoSkeleton label="Branch map unavailable in Expo Go" height={310} />;
+  if (mapFailed) return null;
 
   return (
     <View style={styles.mapWrap}>
