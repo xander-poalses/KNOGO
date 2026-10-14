@@ -4,6 +4,12 @@ This is a setup guide, not a deployment. No scheduler, secrets or Gemini access 
 
 ## Hosted Checkpoint: 11 October 2026
 
+14 October update: worker version 8 uses the account-and-venue scoped queue
+RPC from `20261014093834_scoped_report_risk_claim.sql`. Test runs claim only
+the configured test account at KNOGO Test Venue. In-memory scope/RLS checks
+and hosted grants passed. Gemini is still disabled; no scheduler or Google
+request has been enabled. See `GEMINI_TEST.md` for the current human steps.
+
 The user approved hosted report migrations and worker deployment with Gemini
 disabled. Applied checkin_hardening (20261011214152), trust_model_and_venue_claims
 (20261011214204) and report_assessment_receipts (20261011214216) to KNOGO

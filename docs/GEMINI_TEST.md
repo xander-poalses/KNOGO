@@ -2,7 +2,93 @@
 
 Prepared 12 October 2026. This is a test plan, not evidence of a Google request.
 
+## Checkpoint: 14 October 2026
+
+Worker version 8 and `scoped_report_risk_claim` are deployed to KNOGO. The
+worker requires a test account scope even while the free-tier flag is false.
+It calls the scoped queue RPC with that account and
+`knogo-gemini-test-venue`. Only matching jobs can be claimed or expired by
+this worker. The existing unscoped RPC remains available to server roles;
+this test worker does not use it.
+
+The test account and venue exist. The earlier fixture report has expired.
+One report outside the fixture scope is waiting with zero attempts; it was
+not claimed, changed or sent to Google. There are zero assessments. Gemini
+remains disabled with caps of five calls per 25-hour window and one per minute.
+
+Checks passed: 266 core/server tests, the in-memory database QA (including
+scope isolation and app-role rejection), and root/shared TypeScript. Hosted
+permissions allow only the server role to call the scoped RPC. A worker
+request without its credential returned 401. No Google request was made.
+
+Next human steps:
+
+1. If `RISK_WORKER_SECRET` was not saved, replace that entry with a generated
+   value of at least 32 characters and save it in a password manager. Do not
+   send it in chat. Leave `GEMNINI_API_KEY` and the other secrets unchanged.
+2. Confirm the KNOGO Google AI project still shows Free tier and no billing.
+   [Google's pricing page](https://ai.google.dev/gemini-api/docs/pricing) lists
+   input/output for `gemini-3.5-flash-lite` as free on that tier. It also says
+   unpaid inputs/outputs may be used to improve products. Use fixture data only.
+3. After those confirmations, sign in with the fixture account and submit one
+   invented report to KNOGO Test Venue. The agent must recheck scope and expiry
+   before enabling the provider for the test. Do not submit invented reports
+   to catalogue venues.
+4. The human supplies the saved worker credential in the authenticated worker
+   invocation, without giving it to the agent. The agent checks the assessment
+   and app receipt, then disables the provider. No scheduler is enabled.
+
+The user has not retained the worker credential. Credential replacement and
+the authenticated invocation remain human steps. This checkpoint supersedes
+the setup steps and deployment versions below; the earlier entries are history.
+
 ## Boundary
+
+### Verified Provider Response: 14 October 2026
+
+The human invocation returned `completed=1, deferred=0`. The hosted database
+confirms one Gemini reservation, an `assessed` result from
+`gemini-3.5-flash-lite`, and a `complete` fixture job. Assessment time:
+12:11:39 SAST. Result: `low`, reason `no_pattern_detected`. This is a reporting
+pattern signal, not proof of venue status or truth.
+
+The agent disabled the Gemini database gate after checking the result.
+No scheduler was enabled. The response used the configured test account at
+KNOGO Test Venue. The user supplied an Android development-build screenshot
+showing `Gemini review complete`, `No pattern flagged. This does not prove
+the report.`, and `Reviewed 12:11`. The phone receipt is now demonstrated.
+Evidence: [Android receipt](evidence/gemini-review-android-2026-10-14.jpg).
+
+### Invocation Checkpoint: 14 October
+
+First authorised invocation returned 503 after 21.3 seconds. The fixture job
+was leased with one attempt; provider usage and assessment tables were empty.
+The claim RPC logged 200, with no context/finish response logged in that window.
+The gate was disabled during diagnosis. A fixture-only database finish probe
+passed inside a rolled-back subtransaction; it left no assessment behind.
+
+Worker version 11 adds one retry for context/finish TimeoutError or AbortError,
+never for claims or Google calls. Finish retries reuse the report and lease.
+Each invocation handles one job. A 503 now includes a stage enum that the
+masked invocation script can print without printing raw errors or credentials.
+42 worker/provider tests pass. The one-request test gate was reopened with
+zero reservations; its result still requires the human invocation.
+
+The user confirmed Free tier and replacement of `RISK_WORKER_SECRET`. One
+fixture report is ready. Worker version 10 filters context to that account
+and KNOGO Test Venue before the provider adapter; the adapter's target and
+account checks remain in place. Mixed-context regression tests pass.
+
+The Gemini database gate is enabled for this manual test, with the cap reduced
+to one call per 25-hour window and one per minute. No scheduler is enabled.
+No request to Google has been demonstrated. The agent must disable the gate
+after the user invokes the worker and the assessment is checked.
+
+The user runs `scripts/invoke-report-risk.ps1` on their PC and supplies the
+saved worker credential through its masked prompt. The script neither prints
+the value nor writes it to a file. Its mocked self-check made no network call.
+Only share the resulting counts or HTTP status, never the credential. Do not
+retry a deferred result until the agent checks its database outcome.
 
 report-risk version 2 requires RISK_TEST_ACTOR_ID before enabled testing can
 claim jobs. The provider adapter refuses the entire context if any account ID

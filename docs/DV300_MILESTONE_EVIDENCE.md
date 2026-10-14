@@ -298,6 +298,22 @@ Input JSON is data, not instructions.
 
 ## Risks And Dates
 
+### Android Gemini Proof: 14 October 2026
+
+The fixture report travelled from the Android development build through the
+hosted report queue and report-risk worker to Gemini 3.5 Flash-Lite. The
+database records one provider call, an assessed result and a complete job at
+12:11:39 SAST. The user supplied the phone receipt below, showing review
+completion and the limitation that this does not prove the report.
+
+![Gemini review complete on Android](evidence/gemini-review-android-2026-10-14.jpg)
+
+The first worker invocation returned 503 before any provider reservation. A
+bounded database retry was deployed, and the next human invocation completed
+the review. The test gate is disabled. No scheduler or use of other users'
+reports is enabled. This proves the fixture integration and phone receipt,
+not production automation, Google sign-in, TalkBack or WCAG conformance.
+
 ### Pitch Risk Comparison
 
 The technical-risk line in `p13` named invalid AI output, OTP failure, stale
