@@ -15,6 +15,9 @@ Deno.serve(async (req:Request)=>{
   }
   const url=Deno.env.get("SUPABASE_URL")!;const key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   if(!url || !key)throw new Error("Server setup missing.");
+  const testActorId=Deno.env.get("RISK_TEST_ACTOR_ID");
+  // shortcut: reviews require a test account until production data handling is approved.
+  if(Deno.env.get("GEMINI_FREE_TIER_CONFIRMED")==="true" && !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(testActorId??""))return jsonResponse({error:"Test account scope missing. Review remains disabled."},503);
   const result=await drainRiskQueue({
    claim:async()=>{
     const jobs=await serverRpc(url,key,"claim_report_risk_job",{});
@@ -23,7 +26,7 @@ Deno.serve(async (req:Request)=>{
    assess:async(id)=>{
     const rows=await serverRpc(url,key,"report_risk_context",{p_report_id:id});
     if(!Array.isArray(rows))throw new Error("Context unavailable.");
-    return assessReportRisk(rows,{targetReportId:id,key:Deno.env.get("GEMINI_API_KEY"),model:Deno.env.get("GEMINI_RISK_MODEL"),pseudonymSecret:Deno.env.get("RISK_PSEUDONYM_SECRET"),freeTierConfirmed:Deno.env.get("GEMINI_FREE_TIER_CONFIRMED")==="true",reserve:(provider)=>serverRpc(url,key,"reserve_provider_call",{p_provider:provider})});
+    return assessReportRisk(rows,{targetReportId:id,testActorId,key:Deno.env.get("GEMNINI_API_KEY"),model:Deno.env.get("GEMINI_RISK_MODEL"),pseudonymSecret:Deno.env.get("RISK_PSEUDONYM_SECRET"),freeTierConfirmed:Deno.env.get("GEMINI_FREE_TIER_CONFIRMED")==="true",reserve:(provider)=>serverRpc(url,key,"reserve_provider_call",{p_provider:provider})});
    },
    finish:(job,assessment)=>serverRpc(url,key,"finish_report_risk_job",{p_report_id:job.report_id,p_lease_id:job.lease_id,p_risk:assessment.risk,p_reasons:assessment.reasons,p_model:assessment.model,p_outcome:assessment.outcome})
   });

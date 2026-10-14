@@ -26,6 +26,21 @@ const request = (body = "{}", method = "POST", token = "test-worker") => new Req
 });
 
 describe("risk worker request boundary", () => {
+  it.each([undefined, '', 'not-an-account-id'])("blocks enabled tests without a test account (%s)", async testActorId => {
+    env.GEMINI_FREE_TIER_CONFIRMED = 'true';
+    if (testActorId !== undefined) env.RISK_TEST_ACTOR_ID = testActorId;
+    expect((await handler(request())).status).toBe(503);
+    expect(mocks.drain).not.toHaveBeenCalled();
+  });
+  it("passes the server-held test account to the assessment boundary", async () => {
+    env.GEMNINI_API_KEY = 'test-gemini-key';
+    env.RISK_TEST_ACTOR_ID = '00000000-0000-0000-0000-000000000001';
+    env.GEMINI_FREE_TIER_CONFIRMED = 'true';
+    mocks.rpc.mockResolvedValue([]);
+    mocks.drain.mockImplementation(async input => { await input.assess('test-report'); return { processed: 1 }; });
+    expect((await handler(request())).status).toBe(200);
+    expect(mocks.assess).toHaveBeenCalledWith([], expect.objectContaining({ testActorId: env.RISK_TEST_ACTOR_ID, key: 'test-gemini-key' }));
+  });
   it.each(["", "wrong-worker"])("rejects an unauthorised caller before queue access (%s)", async token => {
     expect((await handler(request("{}", "POST", token))).status).toBe(401);
     expect(mocks.drain).not.toHaveBeenCalled();

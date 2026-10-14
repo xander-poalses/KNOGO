@@ -11,7 +11,7 @@ export function PlaceSheet({ visible, title, onClose, children }: { visible: boo
   const styles = useThemeStyles(createStyles);
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
-  return <StagedModal visible={visible} statusBarTranslucent onRequestClose={onClose}>
+  return <StagedModal accessibilityLabel={title} visible={visible} statusBarTranslucent onRequestClose={onClose}>
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.overlay}>
       <HapticPressable accessible={false} focusable={false} onPress={onClose} style={StyleSheet.absoluteFill}/>
       <View accessibilityViewIsModal style={[styles.sheet, { maxHeight: height - insets.top - space.lg }]}>

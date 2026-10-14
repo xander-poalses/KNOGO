@@ -197,7 +197,7 @@ export function PlaceDetailScreen() {
           ) : null}
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Status and practical checks"
+            accessibilityLabel="View recent reports"
             aria-expanded={sheet === "status"}
             onPress={() => { setSheet("status"); void refreshReports(); }}
             style={styles.basisButton}
@@ -305,7 +305,7 @@ export function PlaceDetailScreen() {
             <Clock3 color={colours.muted} size={20} />
             <View style={styles.toolCopy}>
               <Text style={styles.practicalTitle}>{outlook.trading.label}</Text>
-              <Text style={styles.confirmed}>From listed hours, not a community check.</Text>
+              <Text style={styles.confirmed}>{outlook.trading.detail}</Text>
             </View>
           </View>
         ) : null}

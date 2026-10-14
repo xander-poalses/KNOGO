@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en-ZA">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KNOGO Milestone Work Board - 11 October 2026</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #fff; color: #17221b; font: 16px/1.5 system-ui, sans-serif; }
+    main { max-width: 1120px; margin: auto; padding: 32px; }
+    header { border-bottom: 3px solid #0b4f2f; padding-bottom: 20px; }
+    h1 { font-size: 32px; line-height: 1.2; margin: 0 0 8px; }
+    h2 { font-size: 22px; margin: 28px 0 12px; }
+    p { margin: 8px 0; }
+    a { color: #0b4f2f; text-underline-offset: 3px; }
+    a:focus-visible { outline: 3px solid #0b4f2f; outline-offset: 4px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th, td { padding: 12px; border-bottom: 1px solid #c9d2cb; vertical-align: top; }
+    thead th { background: #e9ede7; }
+    tbody th { font-weight: 600; width: 27%; }
+    .state { font-weight: 600; white-space: nowrap; }
+    .passed { color: #17623c; }
+    .pending { color: #774d0b; }
+    .blocked { color: #9c3c32; }
+    .note { color: #505a52; font-size: 14px; }
+    .table-scroll { overflow-x: auto; }
+    footer { border-top: 1px solid #c9d2cb; padding-top: 16px; margin-top: 28px; }
+    @media(max-width:600px) { main { padding: 20px; } h1 { font-size: 28px; } th, td { padding: 10px; } }
+    @media print { main { padding: 0; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>KNOGO Milestone Work Board</h1>
+    <p>Snapshot: 11 October 2026. Milestone: 14 October. Hand-in: 28 October.</p>
+    <p class="note">Scope: accounts, community reports, Gemini assessment and trip fuel estimates. R0. No deployment.</p>
+    <p><a href="https://github.com/xander-poalses/KNOGO">Repository</a> &middot; Branch: codex/dv300-milestone &middot; Base: 7935b36 &middot; Changes not committed</p>
+  </header>
+  <h2>Before The Milestone</h2>
+  <div class="table-scroll">
+  <table>
+    <caption class="note">Ordered by priority. Passed rows retain their verification limits.</caption>
+    <thead><tr><th scope="col">Task</th><th scope="col">State</th><th scope="col">Next Proof Or Limit</th><th scope="col">Owner</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">1. Gemini account and demo</th><td class="state blocked">Blocked</td><td>Account sign-in, terms, quota and R0 eligibility; provider response through backend to KNOGO. No mock substitute.</td><td>User: account access<br>Agent: integration proof</td></tr>
+      <tr><th scope="row">1. Outside-user test</th><td class="state pending">Pending</td><td>Tester arranged for 11 or 12 October. Record observations and fixes; no feedback received.</td><td>User/tester<br>Agent: fixes</td></tr>
+      <tr><th scope="row">1. Rehearsal, 13 October</th><td class="state pending">Pending</td><td>Run the eight-step demo; check fixtures and services at rehearsal time. Do not claim readiness before this passes.</td><td>User and agent</td></tr>
+      <tr><th scope="row">2. Accessibility and device checks</th><td class="state pending">Partial</td><td>Browser widths, keyboard and light settings/status checked. Zoom, Android/TalkBack and other states remain.</td><td>Agent: browser<br>User: phone</td></tr>
+      <tr><th scope="row">2. Whole-branch review</th><td class="state pending">Pending</td><td>Review after implementation, then address findings and rerun checks. No merge or push authorised.</td><td>Agent</td></tr>
+      <tr><th scope="row">Accounts and role boundaries</th><td class="state passed">Passed in Docker</td><td>Signup/email return/session/logout, draft review without auto-submit and role assertions. Fixture does not prove SMS delivery.</td><td>Agent</td></tr>
+      <tr><th scope="row">Reports, expiry and disagreement</th><td class="state passed">Passed in browser</td><td>Report persistence/reload; expired answer removed; conflicting sources retained. Invented Docker records, not Gemini assessments.</td><td>Agent</td></tr>
+      <tr><th scope="row">Trip fuel and retry</th><td class="state passed">Passed in browser</td><td>Hosted route/address service, sample fuel maths, return leg and offline retry. Not device GPS or pump-price proof.</td><td>Agent</td></tr>
+      <tr><th scope="row">Automated tests</th><td class="state passed">658 tests passed</td><td>254 core/browser + 404 mobile tests, types and database checks. Mocks do not prove provider/device behaviour.</td><td>Agent</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h2>Plan Through Hand-In</h2>
+  <table>
+    <thead><tr><th scope="col">Date</th><th scope="col">Priority And Exit Check</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">11-12 October</th><td>Finish provider eligibility/demo; gather tester feedback. Address task-blocking findings.</td></tr>
+      <tr><th scope="row">13 October</th><td>Rehearse accounts, reports, Gemini, persistence, trip, recovery and sign-out. Record remaining limits.</td></tr>
+      <tr><th scope="row">14 October</th><td>Show verified evidence only. State which services and records are local, hosted, synthetic or mocked.</td></tr>
+      <tr><th scope="row">15-21 October</th><td>Account/device tests, AI/privacy review and feedback fixes. Review pitch gaps: evidence IDs, contextual inputs and venue delivery.</td></tr>
+      <tr><th scope="row">22-27 October</th><td>Regression/accessibility checks, evidence and hand-in rehearsal. Assess deployment prerequisites and R0 limits; ask before deployment or spending.</td></tr>
+      <tr><th scope="row">28 October</th><td>Hand-in. No deployment promise without approval and verified cost gates.</td></tr>
+    </tbody>
+  </table>
+  <footer>
+    <p>Source: DV300_MILESTONE_GOAL.md, DV300_MILESTONE_EVIDENCE.md and the checked worktree on 11 October.</p>
+    <p class="note">This is a dated evidence snapshot, not a live tracker. Screenshots count instead of Figma, as confirmed by the user. Goal remains incomplete.</p>
+  </footer>
+</main>
+</body>
+</html>

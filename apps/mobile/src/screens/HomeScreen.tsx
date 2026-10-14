@@ -48,7 +48,7 @@ export function HomeScreen() {
   return (
     <View style={styles.page}>
       <View style={styles.intro}>
-        <Text style={styles.title}>Know before you go</Text>
+        <Text accessibilityRole="header" style={styles.title}>Know before you go</Text>
         <Text style={styles.introCopy}>See community checks and estimate your trip's fuel cost before you leave.</Text>
         <Pressable accessibilityRole="button" accessibilityLabel="Search KNOGO" accessibilityHint="Opens the search field" onPress={() => setSearchOpen(true)} style={({ pressed }) => [styles.searchBox, pressed && styles.pressed]}>
           <Search color={colours.text} size={22} /><Text numberOfLines={1} style={[styles.input, !query && styles.placeholder]}>{query || "Search names, areas or cuisines"}</Text><View style={styles.searchArrow}><ArrowRight color={colours.background} size={21} /></View>
@@ -58,7 +58,7 @@ export function HomeScreen() {
         <Image accessibilityLabel="The KNOGO community" source={require("../../assets/community-meerkats.png")} contentFit="contain" contentPosition="bottom" style={styles.heroImage} />
       </View>
 
-      <StagedModal backdropColour={colours.searchOverlay} onRequestClose={() => setSearchOpen(false)} onReady={() => searchInputRef.current?.focus()} presentationStyle="overFullScreen" statusBarTranslucent visible={searchOpen}>
+      <StagedModal accessibilityLabel="Search KNOGO" backdropColour={colours.searchOverlay} onRequestClose={() => setSearchOpen(false)} onReady={() => searchInputRef.current?.focus()} presentationStyle="overFullScreen" statusBarTranslucent visible={searchOpen}>
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalRoot}>
           <Pressable accessibilityLabel="Close search" onPress={() => setSearchOpen(false)} style={StyleSheet.absoluteFill} />
           <View style={[styles.searchSheet, { paddingBottom: Math.max(insets.bottom, 12) }]}>

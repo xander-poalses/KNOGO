@@ -2,12 +2,18 @@
 
 ## Database
 
-The Supabase connector reported project `ivzofixdjcgkwalfzmmy` as `INACTIVE` on 30 September 2026. The check-in fixes are not deployed.
+The hosted project was healthy at the read-only 9 October audit, but lacked
+the trust migration and report-risk worker. Earlier INACTIVE notes are
+historical. No hosted deployment is authorised for the milestone.
 
-1. Open https://supabase.com/dashboard/project/ivzofixdjcgkwalfzmmy.
-2. Restore the project if the dashboard shows it as paused. Wait for its database and Auth to start.
-3. Tell Codex the project is restored. Codex must inspect migrations, deploy `supabase/migrations/20260930123118_checkin_hardening.sql`, then verify permissions and the status view. Do not run migration 008 again if its tables and policies exist.
-4. Start QA only after that verification. Previous community values without per-check timestamps will read as unknown. They remain stored, but need reports before they can be presented as current.
+1. Use the Docker milestone backend and invented test venues for testing.
+2. Confirm which migrations are applied before submitting reports. Trust rules
+   replace the earlier two-account consensus; do not test that legacy policy
+   as if it were the intended product.
+3. Never reset the hosted database or reapply migrations without checking its
+   state and obtaining deployment approval.
+4. Keep evidence expiry separate from trading hours. Old reports remain stored
+   but cannot be presented as live checks.
 
 ## Email and redirect setup
 
@@ -19,7 +25,10 @@ The Supabase connector reported project `ivzofixdjcgkwalfzmmy` as `INACTIVE` on 
 3. Expo Go does not register the KNOGO scheme. Its callback depends on Metro's address. If Metro shows `exp://192.168.1.20:8081`, add `exp://192.168.1.20:8081/--/auth/callback`. Substitute the address shown by your terminal. Update this entry if that address changes. Do not allow all hosts with a wildcard.
 4. Start the app using `pnpm.cmd mobile` from the project root. Keep the phone connected to Metro. Open the email link on that phone, not on another device.
 5. For tests without SMTP, use an email belonging to a member of the Supabase organisation. The default sender does not support arbitrary tester emails and has delivery limits. Do not give testers dashboard access to work around this.
-6. To test with people outside that team, choose a domain and an SMTP provider. Verify the domain using the provider's DNS instructions, then enter its host, port, username, password, sender email and sender name in Authentication > SMTP Settings. SMTP credentials belong in Supabase, never in Expo env files.
+6. For milestone tests, use Docker's Mailpit inbox instead of external SMTP.
+   If hosted delivery is considered later, check costs and obtain approval
+   before buying a domain or enabling a provider. SMTP credentials belong in
+   Supabase, never in Expo env files.
 7. Leave the email template as a link using `{{ .ConfirmationURL }}`. This build consumes email links, not six-digit codes. Disable provider link tracking if it rewrites Auth links.
 8. For tester distribution, use an installed preview build with `knogo://auth/callback`. Expo Go remains a development test, not the release path.
 
@@ -27,14 +36,27 @@ Do not share email links, tokens, SMTP passwords or service-role keys in screens
 
 ## QA sequence
 
-Use a test place in a development project, or a venue whose status you have checked. The reporting RPC requires `is_active = true`, so an inactive record cannot receive test reports. Do not publish invented reports to a venue used by the public. Live consensus testing needs at least two accounts, and three for a conflict test. Configure SMTP before inviting those accounts.
+Use an invented venue in the Docker test database. The reporting RPC requires
+`is_active = true`. Never publish invented reports to a public venue.
+Opposing usable answers create disagreement. A likely-negative indication
+requires three eligible accounts, two check methods, a 15-minute span and
+low-risk assessments; it is not a two-account vote. See COMMUNITY_RULES.md.
 
-1. Sign out. Open a place, choose Verify status and answer the questions. Choose At the venue, By phone or Online. Online must have an HTTP or HTTPS source URL.
-2. Submit. The app should ask for email after collecting the answers. Enter your email, request the link and open the newest email on the same device. A link is single-use.
-3. KNOGO should return, submit once and show Report received. The first account must not change the place status. In Supabase, the batch should be pending and all confirmations should have `location_verified = false`.
+1. Sign out. Open the test place, choose Leave a report and answer the questions.
+   Choose At the venue, By phone or Online. Online needs an HTTP or HTTPS source URL.
+2. Review your answers and choose Sign in to submit. Use the account flow;
+   confirm in Mailpit if creating an account. Do not assume a session exists
+   before confirmation.
+3. Return to review. Account access must not submit the draft. Choose Submit
+   check once; confirm Report received, the saved batch and its source.
+   `location_verified` remains false. A report may supply a community indication,
+   not proof of availability. Review unavailable must not mean report unsaved.
 4. Close and reopen KNOGO. Settings should retain the account. Sign out, restart and check that it remains signed out.
-5. With another account, submit matching answers within four hours. The batch should be accepted, the place should refresh and the matching checks should be displayed.
-6. On another test place, submit conflicting answers from two accounts. Submit an answer matching the first account from a third account. All conflicting batches must leave public status unchanged, even with two matching accounts.
+5. Test the negative threshold using database fixtures for account age and
+   time span. Without all conditions, including low-risk assessments, the
+   result must remain uncertain. Do not fake those conditions in a live demo.
+6. Submit opposing usable observations. The check must show Reports disagree,
+   not select a winner by majority vote. Preserve source/time evidence.
 7. Tap Submit twice. Only one batch should be created. Reporting to the same place again within 15 minutes should show a cooldown message. Reports beyond 30 batches per account per day must be refused.
 8. Turn off the network before submission. The app must show failure, not success. Turn it on and retry. If the database accepts a report but the follow-up fetch fails, the app should acknowledge receipt and offer refresh, not ask for another submission.
 9. Leave a draft for four hours before opening its email link. The app should ask you to check the place again, not submit those answers as current.

@@ -51,12 +51,16 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("place dashboard journey", () => {
+  it("uses the visible reports label as its accessible name", () => {
+    render(<PlaceDetailScreen/>);
+    expect(screen.getByRole("button", { name: "View recent reports" }).textContent).toContain("View recent reports");
+  });
   it("refreshes on entry and lets a failed report refresh be retried", async () => {
     mocks.refresh.mockRejectedValueOnce(new Error("Offline")).mockRejectedValueOnce(new Error("Offline"));
     render(<PlaceDetailScreen/>);
     await vi.waitFor(() => expect(mocks.refresh).toHaveBeenCalledWith("test-place"));
     await vi.waitFor(() => expect(mocks.refresh).toHaveBeenCalledTimes(1));
-    fireEvent.click(screen.getByRole("button", { name: "Status and practical checks" }));
+    fireEvent.click(screen.getByRole("button", { name: "View recent reports" }));
     await screen.findByText(/Could not refresh reports/);
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     await vi.waitFor(() => expect(screen.queryByText(/Could not refresh reports/)).toBeNull());
@@ -64,7 +68,7 @@ describe("place dashboard journey", () => {
   });
   it("keeps detail content behind its commands", () => {
     render(<PlaceDetailScreen/>);
-    for (const name of ["Status and practical checks", "View listed hours", "Plan your trip", "View place information", "Contact and directions"]) {
+    for (const name of ["View recent reports", "View listed hours", "Plan your trip", "View place information", "Contact and directions"]) {
       expect(screen.getByRole("button", { name })).toBeTruthy();
     }
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -72,7 +76,7 @@ describe("place dashboard journey", () => {
   });
   it("opens and closes status checks without starting a trip", () => {
     render(<PlaceDetailScreen/>);
-    fireEvent.click(screen.getByRole("button", { name: "Status and practical checks" }));
+    fireEvent.click(screen.getByRole("button", { name: "View recent reports" }));
     expect(screen.getByRole("dialog", { name: "Status & checks" })).toBeTruthy();
     expect(screen.getByText("Practical checks")).toBeTruthy();
     expect(screen.queryByText("Walk-ins")).toBeNull();
@@ -94,10 +98,10 @@ describe("place dashboard journey", () => {
   it("offers reporting inside the checks sheet without confusing schedules with evidence", () => {
     mocks.places[0] = { ...mocks.places[0], currentStatus: { ...mocks.places[0].currentStatus, trust: { version: 1, claims: {} } } };
     render(<PlaceDetailScreen/>);
-    fireEvent.click(screen.getByRole("button", { name: "Status and practical checks" }));
+    fireEvent.click(screen.getByRole("button", { name: "View recent reports" }));
     const sheet = within(screen.getByRole("dialog", { name: "Status & checks" }));
     expect(sheet.getByText("Community reports")).toBeTruthy();
-    expect(sheet.getByText("From listed hours, not a community check.")).toBeTruthy();
+    expect(sheet.getByText("Based on listed hours, not a status check.")).toBeTruthy();
     expect(sheet.queryByText("Outside service hours")).toBeNull();
     fireEvent.click(sheet.getByRole("button", { name: "Leave a report" }));
     expect(mocks.push).toHaveBeenCalledWith({ pathname: "/confirm/[placeId]", params: { placeId: "test-place" } });
@@ -109,6 +113,14 @@ describe("place dashboard journey", () => {
     fireEvent.click(screen.getByRole("button", { name: "View listed hours" }));
     expect(screen.getByText("Trading hours not published.")).toBeTruthy();
     expect(screen.queryByText("Closed today")).toBeNull();
+  });
+  it("does not claim a listed-hours basis when no trading hours exist", () => {
+    mocks.places[0] = { ...mocks.places[0], openingHours: [], currentStatus: { ...mocks.places[0].currentStatus, trust: { version: 1, claims: {} } } };
+    render(<PlaceDetailScreen/>);
+    fireEvent.click(screen.getByRole("button", { name: "View recent reports" }));
+    const sheet = within(screen.getByRole("dialog", { name: "Status & checks" }));
+    expect(sheet.getByText("Hours are not listed for this time. Contact the venue to check.")).toBeTruthy();
+    expect(sheet.queryByText("From listed hours, not a community check.")).toBeNull();
   });
   it("opens the selected venue planner on request", () => {
     render(<PlaceDetailScreen/>);

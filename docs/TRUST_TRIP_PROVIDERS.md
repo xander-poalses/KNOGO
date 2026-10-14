@@ -12,6 +12,22 @@ delivery and fuel ingestion are not verified as hosted integrations.
 No provider request, deployment or purchase was made in this read-only check.
 The historical setup notes below are not proof of current provider terms.
 
+### Hosted State Checked 11 October 2026
+
+The user approved the three report migrations and report-risk deployment,
+without Gemini activation. report-risk version 1 is ACTIVE; the trust queue
+and author-only receipt reader now exist. Gemini's database gate remains false
+at 50/day and 5/minute. No scheduler, provider call or venue delivery is proven.
+Missing and incorrect worker credentials were rejected with 401.
+
+Signed-in AI Studio inspection established KNOGO (knogo-510821) as Free tier,
+with Gemini 3.5 Flash Lite at 15 RPM, 250K TPM and 500 RPD. The user reports
+creating KNOGO Gemini and saving its key in hosted Supabase secrets. The key
+was not read and its validity has not been checked by a provider request.
+No billing or terms acceptance was performed by the agent. Unpaid-service
+privacy constraints still gate activation. See RISK_QUEUE_SETUP.md for the
+deployment/access checks; earlier dated notes remain historical evidence.
+
 ## Routes and starting-address search
 
 Candidate: openrouteservice. Screenshots supplied on 2 October 2026 show 2,000 directions per quota period and 40/minute; geocoding shows 3,000 per quota period and 100/minute. The reset period and plan name are not visible. The user confirms no payment details were added. Commercial use, quota renewal and account terms still need confirmation before enabling requests.

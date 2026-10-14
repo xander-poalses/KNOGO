@@ -8,7 +8,9 @@ Signup now has a confirmation screen with a return-to-sign-in action.
 Returning does not assume the email was verified and does not submit reports.
 Password visibility controls reset when switching modes. Mobile TypeScript
 and 16 account-form tests pass. Hosted signup, delivery, Google callbacks and
-device restart are not yet verified. Password recovery is not implemented.
+device restart are not yet verified. Password recovery is implemented in
+AccountForm, the callback screen and PasswordResetForm; delivery and reset
+against a provider still need an end-to-end check.
 Deployment remains on hold at the user's request.
 
 Hosted settings checked on 4 October 2026: email enabled, signup enabled,
@@ -73,5 +75,10 @@ See [Expo authentication](https://docs.expo.dev/guides/authentication/).
   community draft. Account registration and Google callbacks retain the venue
   target. Account access alone must never deliver a venue verification code.
 
+On 9 October, disposable accounts in Docker proved signup, confirmation
+delivery to Mailpit, pre-confirmation rejection, sign-in and sign-out through
+the API. Browser sign-in and report submission also passed. Those checks did
+not prove hosted email delivery, Google access or phone behaviour.
+
 Email delivery setup, redirect verification, Google credentials and phone QA
-remain release gates. No account was created during code verification.
+remain release gates. See DV300_MILESTONE_PROGRESS.md for test evidence.
