@@ -60,7 +60,7 @@ export function BrowseScreen() {
 
   return (
     <Page contentContainerStyle={styles.pickerPage}>
-      <View style={styles.header}><Text style={styles.eyebrow}>Explore</Text><Text style={styles.pickerTitle}>Check another way.</Text><Text style={styles.pickerCopy}>Browse live status by place type or location.</Text></View>
+      <View style={styles.header}><Text style={styles.eyebrow}>Explore</Text><Text accessibilityRole="header" style={styles.pickerTitle}>Check another way.</Text><Text style={styles.pickerCopy}>Browse live status by place type or location.</Text></View>
       <Pressable accessibilityLabel="Check places near me" accessibilityRole="button" accessibilityState={{ busy: locationLoading, disabled: locationLoading }} disabled={locationLoading} onPress={() => void openNearby()} style={({ pressed }) => [styles.nearbyButton, pressed && styles.pressed]}><MapPin color={colours.primary} size={18} /><Text style={styles.nearbyText}>{locationLoading ? "Finding you..." : coordinates ? "Show status near me" : "Check places near me"}</Text></Pressable>
       <View style={styles.rule} />
       {categories.map((category) => (
@@ -100,7 +100,7 @@ function GlobalSearchResults({ initialQuery }: { initialQuery: string }) {
       <BackButton label="Back to home" />
       <View style={styles.header}>
         <Text style={styles.eyebrow}>Search</Text>
-        <Text style={styles.resultText}>Search results</Text>
+        <Text accessibilityRole="header" style={styles.resultText}>Search results</Text>
         <SearchField value={query} onChangeText={setQuery} />
       </View>
       <View style={styles.resultHead}>
@@ -146,7 +146,7 @@ export function BrowseResultsScreen() {
         onRefresh={() => void refresh()}
         empty={!loading && (!error || dataSource === "cache") ? <Notice title="No matches yet" message="Try fewer filters or another category." /> : undefined}
         header={<><BackButton label="Choose category" /><View style={styles.header}>
-          <Text style={styles.eyebrow}>{category.title}</Text>
+          <Text accessibilityRole="header" style={styles.eyebrow}>{category.title}</Text>
           <SearchField value={filters.query} onChangeText={(query) => setFilters({ ...filters, query })} />
         </View>
         <Pressable accessibilityLabel="Open filters" accessibilityRole="button" onPress={() => setFiltersOpen(true)} style={styles.filterLauncher}><SlidersHorizontal color={colours.text} size={18} /><Text style={styles.filterText}>Filters</Text><ChevronDown color={colours.muted} size={18} /></Pressable>

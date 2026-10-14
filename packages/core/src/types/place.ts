@@ -126,6 +126,14 @@ export type ReportSubmissionResult = {
   confirmations: Confirmation[];
 };
 
+export type ReportAssessment = {
+  reportId: string;
+  state: "queued" | "reviewing" | "complete" | "unavailable" | "expired";
+  risk: "low" | "medium" | "high" | "unknown" | null;
+  model: string | null;
+  assessedAt: string | null;
+};
+
 export type PlaceFilters = {
   query: string;
   areas: string[];

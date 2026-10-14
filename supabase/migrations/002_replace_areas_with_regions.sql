@@ -28,6 +28,10 @@ on conflict (id) do update set
   parent_id = excluded.parent_id,
   sort_order = excluded.sort_order;
 
+-- Fresh installs already use regions; only legacy databases have areas to move.
+do $$
+begin
+if to_regclass('public.areas') is not null then
 insert into public.regions (id, name, slug, region_type, parent_id, sort_order)
 select distinct lower(replace(country, ' ', '-')), country, lower(replace(country, ' ', '-')), 'country', null, 1
 from public.areas
@@ -37,6 +41,9 @@ insert into public.regions (id, name, slug, region_type, parent_id, sort_order)
 select distinct lower(replace(province, ' ', '-')), province, lower(replace(province, ' ', '-')), 'province', lower(replace(country, ' ', '-')), 1
 from public.areas
 on conflict (id) do nothing;
+end if;
+end;
+$$;
 
 insert into public.regions (id, name, slug, region_type, parent_id, sort_order) values
   ('city-of-tshwane', 'City of Tshwane Metropolitan Municipality', 'city-of-tshwane', 'municipality', 'gauteng', 1),
@@ -48,6 +55,9 @@ on conflict (id) do update set
   parent_id = excluded.parent_id,
   sort_order = excluded.sort_order;
 
+do $$
+begin
+if to_regclass('public.areas') is not null then
 insert into public.regions (id, name, slug, region_type, parent_id, sort_order)
 select id, name, slug, 'suburb_area', 'pretoria', row_number() over (order by name)
 from public.areas
@@ -57,14 +67,26 @@ on conflict (id) do update set
   region_type = excluded.region_type,
   parent_id = excluded.parent_id,
   sort_order = excluded.sort_order;
+end if;
+end;
+$$;
 
 alter table public.places
   add column if not exists region_id text references public.regions(id);
 
+do $$
+begin
+if exists (
+  select 1 from information_schema.columns
+  where table_schema = 'public' and table_name = 'places' and column_name = 'area_id'
+) then
 update public.places
 set region_id = area_id
 where region_id is null
   and area_id is not null;
+end if;
+end;
+$$;
 
 alter table public.places
   alter column region_id set not null;

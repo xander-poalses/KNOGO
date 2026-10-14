@@ -2,8 +2,10 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mockPlaces } from "@knogo/core";
 import { ConfirmScreen } from "./ConfirmScreen";
+import { ReportAssessmentReceipt } from "../components/ReportAssessmentReceipt";
 
-const mocks = vi.hoisted(() => ({ session: null as object | null, read: vi.fn(), write: vi.fn(), clear: vi.fn(), submit: vi.fn(), places: [] as any[], placeId: "", loading: false }));
+const mocks = vi.hoisted(() => ({ session: null as object | null, read: vi.fn(), write: vi.fn(), clear: vi.fn(), submit: vi.fn(), assessment: vi.fn(), places: [] as any[], placeId: "", loading: false }));
+vi.mock("../supabase", () => ({ supabaseApi: { readReportAssessment: mocks.assessment } }));
 vi.mock("../storage", () => ({ mobileStorage: { readPendingReport: mocks.read, writePendingReport: mocks.write, clearPendingReport: mocks.clear } }));
 vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ places: mocks.places, loading: mocks.loading, addConfirmations: mocks.submit, authLoading: false, hasSupabaseConfig: true, session: mocks.session }) }));
 vi.mock("expo-router", () => ({ useLocalSearchParams: () => ({ placeId: mocks.placeId }), useRouter: () => ({ replace: vi.fn() }) }));
@@ -33,15 +35,108 @@ beforeEach(() => {
   mocks.loading = false;
   mocks.session = null;
   mocks.read.mockResolvedValue(null); mocks.write.mockResolvedValue(undefined);
+  mocks.clear.mockResolvedValue(undefined);
+  mocks.assessment.mockResolvedValue({ reportId: "report-1", state: "queued", risk: null, model: null, assessedAt: null });
 });
-afterEach(cleanup);
+afterEach(() => { cleanup(); vi.useRealTimers(); });
 function draft(createdAt = new Date().toISOString()) {
   return { placeId: mocks.placeId, createdAt, reportSource: "phone", answers: [{ type: "open_status", value: "open" }, { type: "kitchen_status", value: "yes" }, { type: "busy_level", value: "quiet" }] };
 }
 function next() { fireEvent.click(screen.getByRole("button", { name: "Continue" })); }
 function answer(label: string) { fireEvent.click(screen.getByRole("radio", { name: label })); next(); }
 
+describe("report assessment polling", () => {
+  it("stops after six reads and leaves a manual retry", async () => {
+    vi.useFakeTimers();
+    render(<ReportAssessmentReceipt reportId="report-1" />);
+    await act(async () => {});
+    for (let check = 0; check < 5; check++) {
+      await act(async () => { await vi.advanceTimersByTimeAsync(5_000); });
+    }
+    await act(async () => { await vi.advanceTimersByTimeAsync(60_000); });
+    expect(mocks.assessment).toHaveBeenCalledTimes(6);
+    expect(screen.getByRole("button", { name: "Check review" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Check review" }));
+    await act(async () => {});
+    expect(mocks.assessment).toHaveBeenCalledTimes(7);
+  });
+  it("stops polling when the review completes", async () => {
+    vi.useFakeTimers();
+    mocks.assessment.mockResolvedValueOnce({ reportId: "report-1", state: "queued" })
+      .mockResolvedValue({ reportId: "report-1", state: "complete", risk: "low", model: "gemini-test", assessedAt: "2026-10-11T10:00:00Z" });
+    render(<ReportAssessmentReceipt reportId="report-1" />);
+    await act(async () => {});
+    await act(async () => { await vi.advanceTimersByTimeAsync(5_000); });
+    expect(screen.getByText("Gemini review complete")).toBeTruthy();
+    expect(screen.getByText("No pattern flagged. This does not prove the report.")).toBeTruthy();
+    await act(async () => { await vi.advanceTimersByTimeAsync(60_000); });
+    expect(mocks.assessment).toHaveBeenCalledTimes(2);
+    expect(screen.queryByRole("button", { name: "Check review" })).toBeNull();
+  });
+  it.each(["expired", "unavailable"])("does not poll a %s receipt", async state => {
+    vi.useFakeTimers();
+    mocks.assessment.mockResolvedValue({ reportId: "report-1", state });
+    render(<ReportAssessmentReceipt reportId="report-1" />);
+    await act(async () => {});
+    await act(async () => { await vi.advanceTimersByTimeAsync(60_000); });
+    expect(mocks.assessment).toHaveBeenCalledOnce();
+    expect(screen.queryByText("Gemini review complete")).toBeNull();
+  });
+  it("replaces the scheduled poll when manually checking", async () => {
+    vi.useFakeTimers();
+    render(<ReportAssessmentReceipt reportId="report-1" />);
+    await act(async () => {});
+    fireEvent.click(screen.getByRole("button", { name: "Check review" }));
+    await act(async () => {});
+    await act(async () => { await vi.advanceTimersByTimeAsync(5_000); });
+    expect(mocks.assessment).toHaveBeenCalledTimes(3);
+  });
+  it("ignores a response received after unmount and schedules no more reads", async () => {
+    vi.useFakeTimers();
+    let finish!: (value: unknown) => void;
+    mocks.assessment.mockReturnValue(new Promise(resolve => { finish = resolve; }));
+    const view = render(<ReportAssessmentReceipt reportId="report-1" />);
+    view.unmount();
+    await act(async () => { finish({ reportId: "report-1", state: "queued" }); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(60_000); });
+    expect(mocks.assessment).toHaveBeenCalledOnce();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+});
+
 describe("report account hand-off", () => {
+  it("keeps the submitted report ID and shows its queued review without claiming Gemini ran", async () => {
+    mocks.session = { userId: "tester" }; mocks.read.mockResolvedValue(draft());
+    mocks.submit.mockResolvedValue({ reportId: "report-1", outcome: "pending" });
+    render(<ConfirmScreen/>);
+    fireEvent.click(await screen.findByRole("button", { name: "Submit check" }));
+    await screen.findByText("Waiting for review");
+    expect(mocks.assessment).toHaveBeenCalledWith("report-1");
+    expect(screen.queryByText("Gemini review complete")).toBeNull();
+    expect(mocks.submit).toHaveBeenCalledOnce();
+  });
+  it("shows a provider assessment with its limits and keeps raw model data out of the screen", async () => {
+    mocks.session = { userId: "tester" }; mocks.read.mockResolvedValue(draft());
+    mocks.submit.mockResolvedValue({ reportId: "report-1", outcome: "pending" });
+    mocks.assessment.mockResolvedValue({ reportId: "report-1", state: "complete", risk: "high", model: "gemini-3.5-flash-lite", assessedAt: "2026-10-09T12:00:00Z" });
+    render(<ConfirmScreen/>);
+    fireEvent.click(await screen.findByRole("button", { name: "Submit check" }));
+    await screen.findByText("Gemini review complete");
+    expect(screen.getByText("More community checks needed. This is not a verdict on your report.")).toBeTruthy();
+    expect(screen.queryByText("high")).toBeNull();
+  });
+  it("keeps the report saved when its assessment fails and retries only the read", async () => {
+    mocks.session = { userId: "tester" }; mocks.read.mockResolvedValue(draft());
+    mocks.submit.mockResolvedValue({ reportId: "report-1", outcome: "pending" });
+    mocks.assessment.mockRejectedValueOnce(new Error("Offline"));
+    render(<ConfirmScreen/>);
+    fireEvent.click(await screen.findByRole("button", { name: "Submit check" }));
+    await screen.findByText("Review could not load. Your report is saved.");
+    fireEvent.click(screen.getByRole("button", { name: "Check review" }));
+    await screen.findByText("Waiting for review");
+    expect(mocks.submit).toHaveBeenCalledOnce();
+    expect(mocks.clear).toHaveBeenCalledOnce();
+  });
   it("returns sign-in to review and requires a separate submit action", async () => {
     mocks.read.mockResolvedValue(draft()); render(<ConfirmScreen/>);
     fireEvent.click(await screen.findByRole("button", { name: "Sign in to submit" }));
@@ -80,13 +175,21 @@ describe("report account hand-off", () => {
     expect(screen.getByRole("radio", { name: "Yes, open" }).getAttribute("aria-checked")).toBe("true");
   });
   it("allows optional checks to be skipped without inventing answers", async () => {
-    mocks.read.mockResolvedValue(draft()); render(<ConfirmScreen/>);
-    await screen.findByRole("button", { name: "Sign in to submit" });
+    mocks.session = { userId: "tester" };
+    mocks.read.mockResolvedValue({ ...draft(), answers: [...draft().answers,
+      { type: "walk_ins", value: "no" }, { type: "card_machine", value: "cash_only" }, { type: "backup_power", value: "limited" }] });
+    mocks.submit.mockResolvedValue({ reportId: "report-1", outcome: "pending" });
+    render(<ConfirmScreen/>);
+    await screen.findByRole("button", { name: "Submit check" });
     fireEvent.click(screen.getByRole("button", { name: "Add more checks" }));
     for (let index = 0; index < 3; index++) fireEvent.click(screen.getByRole("button", { name: "Did not check" }));
     expect(screen.getByText("Review your check")).toBeTruthy();
     expect(screen.queryByText("Are walk-ins welcome?")).toBeNull();
     expect(mocks.submit).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Submit check" }));
+    await waitFor(() => expect(mocks.submit).toHaveBeenCalledWith(mocks.placeId, draft().answers, "phone", ""));
+    expect(mocks.write).toHaveBeenCalledWith(expect.objectContaining({ answers: draft().answers }));
+    expect(mocks.submit).toHaveBeenCalledOnce();
   });
   it("keeps reporting available when draft storage cannot be read", async () => {
     mocks.read.mockRejectedValueOnce(new Error("Storage unavailable"));

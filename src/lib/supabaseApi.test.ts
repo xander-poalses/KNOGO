@@ -24,6 +24,29 @@ const authResponse = {
 
 afterEach(() => { vi.restoreAllMocks(); vi.useRealTimers(); });
 
+describe("report assessment receipts", () => {
+  const reportId = "10000000-0000-0000-0000-000000000001";
+  const session: SupabaseSession = { accessToken: "access", refreshToken: "refresh", userId: "user-1", email: "person@example.test", expiresAt: Math.floor(Date.now() / 1000) + 3600 };
+  it("reads the receipt with an account session", async () => {
+    const { api } = createHarness(session);
+    const receipt = { reportId, state: "complete", risk: "low", model: "gemini-3.5-flash-lite", assessedAt: "2026-10-09T12:00:00Z" };
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(response(receipt));
+    expect(await api.readReportAssessment(reportId)).toEqual(receipt);
+    expect(fetchMock).toHaveBeenCalledWith("https://test.supabase.co/rest/v1/rpc/read_report_assessment", expect.objectContaining({ method: "POST", body: JSON.stringify({ p_report_id: reportId }), headers: expect.objectContaining({ Authorization: "Bearer access" }) }));
+  });
+  it("does not read a receipt without sign-in", async () => {
+    const { api } = createHarness();
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+    await expect(api.readReportAssessment(reportId)).rejects.toThrow("Sign in");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+  it.each([null, { reportId, state: "made-up" }, { reportId, state: "complete", risk: "low", model: null, assessedAt: null }, { reportId: "other", state: "queued", risk: null, model: null, assessedAt: null }])("rejects unavailable or malformed receipts: %j", async value => {
+    const { api } = createHarness(session);
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(response(value));
+    await expect(api.readReportAssessment(reportId)).rejects.toThrow("assessment");
+  });
+});
+
 describe("Supabase API authentication", () => {
   it("requests recovery with a redirect but never stores an account session", async () => {
     const { api, storage } = createHarness();
@@ -34,7 +57,7 @@ describe("Supabase API authentication", () => {
     expect(storage.write).not.toHaveBeenCalled();
   });
   it("updates the password using the session and PUT", async () => {
-    const { api } = createHarness({ accessToken: "access", refreshToken: "refresh", userId: "user-1", expiresAt: Math.floor(Date.now() / 1000) + 3600 });
+    const { api } = createHarness({ accessToken: "access", refreshToken: "refresh", userId: "user-1", email: "person@example.test", expiresAt: Math.floor(Date.now() / 1000) + 3600 });
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(response({ id: "user-1" }));
     await api.updatePassword("new-password");
     expect(fetchMock).toHaveBeenCalledWith("https://test.supabase.co/auth/v1/user", expect.objectContaining({ method: "PUT", body: JSON.stringify({ password: "new-password" }), headers: expect.objectContaining({ Authorization: "Bearer access" }) }));

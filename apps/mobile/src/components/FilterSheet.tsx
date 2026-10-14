@@ -58,7 +58,7 @@ export function FilterSheet({
   };
 
   return (
-    <StagedModal visible={visible} onRequestClose={onClose}>
+    <StagedModal accessibilityLabel={areasOnly ? "Choose areas" : cuisinesOnly ? "Choose cuisines" : "Filters"} visible={visible} onRequestClose={onClose}>
       <View style={[styles.overlay, { paddingTop: 16 + insets.top }]}>
       <View accessibilityViewIsModal style={styles.modal}>
         <View style={styles.head}>

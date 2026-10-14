@@ -12,6 +12,7 @@ import { fonts, shadows, sizes, space, useTheme, useThemeStyles, type ThemeColou
 import { captureError, captureEvent } from "../telemetry";
 import { mobileStorage } from "../storage";
 import { FeedbackToast } from "../components/FeedbackToast";
+import { ReportAssessmentReceipt } from "../components/ReportAssessmentReceipt";
 
 type CheckStep = {
   type: ConfirmationType;
@@ -53,6 +54,7 @@ function VenueReportForm() {
   const draftEdited = useRef(false);
   const [done, setDone] = useState(Boolean(callbackOutcome));
   const [outcome, setOutcome] = useState<ReportOutcome>(callbackOutcome ?? "pending");
+  const [reportId, setReportId] = useState<string | null>(null);
   useEffect(() => {
     let active = true;
     void mobileStorage.readPendingReport().then(draft => {
@@ -111,6 +113,7 @@ function VenueReportForm() {
     const result = await addConfirmations(place.id, answers, reportSource, sourceUrl);
     await mobileStorage.clearPendingReport().catch(() => undefined);
     setOutcome(result.outcome);
+    setReportId(result.reportId);
     setDone(true);
   }, "Could not save this check.");
 
@@ -122,7 +125,7 @@ function VenueReportForm() {
         ? "The checks include opposing reports. KNOGO keeps both sources visible rather than choosing a side."
         : "Thanks for being a lookout. Your check helps the community. It may need checks from others before the status changes.";
     const resultSource = reportSource ?? callbackSource;
-    return <Page contentContainerStyle={styles.centerPage}><BackButton label="Back to place" /><View style={styles.done}><Check color={colours.primary} size={46} /><Text style={styles.title}>{title}</Text><Text style={styles.helper}>{message}</Text>{resultSource ? <Text style={styles.unverified}>Checked by {resultSource === "in_person" ? "a person at the venue" : resultSource === "phone" ? "phone" : "an online source"}.</Text> : null}<ActionButton label="Back to place" tone="green" onPress={() => router.replace({ pathname: "/restaurants/[placeId]", params: { placeId: place.id } })} /></View></Page>;
+    return <Page contentContainerStyle={styles.centerPage}><BackButton label="Back to place" /><View style={styles.done}><Check color={colours.primary} size={46} /><Text style={styles.title}>{title}</Text><Text style={styles.helper}>{message}</Text>{resultSource ? <Text style={styles.unverified}>Checked by {resultSource === "in_person" ? "a person at the venue" : resultSource === "phone" ? "phone" : "an online source"}.</Text> : null}{hasSupabaseConfig && session && reportId ? <ReportAssessmentReceipt key={`${session.userId}:${reportId}`} reportId={reportId} /> : null}<ActionButton label="Back to place" tone="green" onPress={() => router.replace({ pathname: "/restaurants/[placeId]", params: { placeId: place.id } })} /></View></Page>;
   }
 
   const current = steps[step];
@@ -140,7 +143,7 @@ function VenueReportForm() {
     <Page contentContainerStyle={styles.surveyPage}>
       <View style={styles.survey}>
         <View style={styles.surveyHeading}><BackButton label="Back to place" iconOnly/><Text style={styles.kicker}>{place.name}</Text></View>
-        <View accessibilityRole="progressbar" accessibilityLabel="Report progress" accessibilityValue={{ min: 1, max: total, now: progressStep, text: `Step ${progressStep} of ${total}` }} style={styles.progressTrack}>
+        <View accessibilityRole="progressbar" accessibilityLabel="Report progress" aria-valuemin={1} aria-valuemax={total} aria-valuenow={progressStep} aria-valuetext={`Step ${progressStep} of ${total}`} style={styles.progressTrack}>
           <View style={[styles.progressFill, { width: `${progressStep / total * 100}%` }]} />
         </View>
         <Text accessibilityLiveRegion="polite" style={styles.helper}>Step {progressStep} of {total}</Text>
@@ -194,9 +197,9 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   progressFill: { height: "100%", borderRadius: 3, backgroundColor: colours.primary },
   radioRing: { width: 20, height: 20, borderRadius: 10, borderWidth: 1, borderColor: colours.controlBorder },
   reviewRow: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: space.sm, paddingVertical: space.xs, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: colours.border },
-  flex: { flex: 1, backgroundColor: colours.background }, centerPage: { justifyContent: "center" },
+  flex: { flex: 1, backgroundColor: colours.background }, centerPage: { justifyContent: "flex-start" },
   card: { width: "100%", maxWidth: 560, alignSelf: "center", padding: 18, gap: space.md, borderWidth: 1, borderColor: colours.border, borderRadius: 8, backgroundColor: colours.surface, ...shadows.floating },
-  done: { width: "100%", maxWidth: 560, alignSelf: "center", alignItems: "center", gap: space.md },
+  done: { flexGrow: 1, justifyContent: "center", width: "100%", maxWidth: 560, alignSelf: "center", alignItems: "center", gap: space.md },
   kicker: { color: colours.primary, fontFamily: fonts.extraBold, fontSize: 13 }, title: { paddingBottom: 4, color: colours.text, fontFamily: fonts.extraBold, fontSize: 32, lineHeight: 37 }, helper: { color: colours.muted, fontFamily: fonts.regular, fontSize: 14, lineHeight: 20 }, unverified: { color: colours.muted, fontFamily: fonts.semibold, fontSize: 12, textAlign: "center" },
   input: { minHeight: 52, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colours.control, borderWidth: 1, borderColor: colours.controlBorder, color: colours.text, fontFamily: fonts.regular, fontSize: 15 }, codeInput: { minHeight: 60, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colours.control, borderWidth: 1, borderColor: colours.controlBorder, color: colours.text, fontFamily: fonts.extraBold, fontSize: 28, textAlign: "center" },
   error: { color: colours.closed, fontFamily: fonts.extraBold, fontSize: 13, lineHeight: 18 }, progress: { minHeight: 30, flexDirection: "row", alignItems: "center", gap: 8 }, dot: { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: colours.control, borderWidth: 1, borderColor: colours.border }, dotActive: { backgroundColor: colours.primary, borderColor: colours.primary }, dotText: { color: colours.muted, fontFamily: fonts.extraBold, fontSize: 11 }, dotTextActive: { color: colours.background },

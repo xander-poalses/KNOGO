@@ -9,7 +9,7 @@ export function FeedbackToast({ message, onDismiss }: { message: string | null; 
   const styles = useThemeStyles(createStyles);
   return <View accessibilityLiveRegion="polite">
     {message ? <View style={styles.toast}>
-      <CircleAlert color={colours.closed} size={20} accessibilityElementsHidden />
+      <CircleAlert color={colours.closed} size={20} aria-hidden />
       <Text accessibilityRole="alert" style={styles.message}>{message}</Text>
       <Pressable accessibilityRole="button" accessibilityLabel="Dismiss notification" onPress={onDismiss} style={styles.dismiss}><X color={colours.text} size={18}/></Pressable>
     </View> : null}

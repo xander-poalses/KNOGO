@@ -29,12 +29,13 @@ Pitch: https://docs.google.com/presentation/d/18Fr0PjLR-n4Z3PlgLj2EydsXB89LjRv0q
 The pitch was read on 8 October. Slide 6 names three roles: visitor (reads without
 an account), community reporter (submits evidence), and venue representative
 (posts updates and disputes reports). Slide 12 is titled "Proposed ER Diagram";
-its diagram still needs visual inspection before comparing entities and links.
+its diagram was visually inspected on 9 October. The schema comparison is in
+`docs/DV300_MILESTONE_EVIDENCE.md`; it records differences, not ERD parity.
 
 The user confirms the frontend was designed through code, not Figma. Use app
 captures, theme tokens and the pitch's brand/wireframe slides as design evidence.
-The agreement names Figma/screens; whether code-based captures satisfy that item
-needs lecturer acceptance. Do not claim a Figma deliverable exists.
+On 11 October the user verified that screenshots count instead of Figma.
+Capture and check the app screens; do not claim a Figma deliverable exists.
 
 ## Constraints
 
@@ -54,6 +55,10 @@ needs lecturer acceptance. Do not claim a Figma deliverable exists.
   inspection alone; record what was tested and what remains untested.
 
 ## Scope
+
+Hosted exception approved 11 October: apply the report migrations and deploy
+report-risk with Gemini disabled. This is backend preparation, not app release
+or approval to send user data to Google. App deployment remains deferred.
 
 ### Must
 
@@ -101,18 +106,18 @@ or working-tree state and environment for evidence.
 
 | Requirement | Weight | Acceptance Check | Evidence | Status |
 | --- | ---: | --- | --- | --- |
-| Project management | 5% | Repository, README and commit history exist; board has a prioritised backlog. | Repo link, history, board capture. | Not assessed |
-| Scope confirmation | 5% | Must / Nice / Future list is frozen; changes since pitch have reasons. | Scope list and pitch comparison. | Not assessed |
-| UI design | 10% | App screens apply KNOGO branding and address pitch feedback; confirm acceptance of code-based design evidence. | App captures, theme tokens and pitch design slides; no Figma claim. | Needs verification |
-| Frontend | 15% | Navigate home, account, place/report, AI result and trip flow; check layout at phone and desktop widths. | Demo and captures. | Not assessed |
-| Backend/API | 10% | Backend runs and UI calls at least one MVP endpoint; routes are documented. | Demo and route list or Postman collection. | Not assessed |
-| Database | 10% | Schema is compared with ERD; create/read works with persisted report data. | ERD, schema and reload demo. | Not assessed |
-| Authentication/roles | 5% | Signup, login and logout work; pitch roles restrict actions server-side. | Test-account demo and access checks. | Not assessed |
-| Gemini integration | 20% | User report input reaches Gemini through the backend and its response appears in KNOGO; keys stay server-side. | End-to-end demo and implementation references. | Not assessed |
-| AI reliability | 5% | Prompt/request documented; loading, failure and output validation demonstrated. | Prompt notes, tests and failure demo. | Not assessed |
-| Testing | 5% | Core flow checked; bug log exists; someone outside the project tried the flow. | Test results, bug log and usability notes. | Not assessed |
-| Risks/challenges | 5% | Pitch risks compared with what occurred, resolutions and remaining blockers. | Risk notes and verbal update. | Not assessed |
-| Weeks 3-4 plan | 5% | Remaining work prioritised through 28 October, including tests, refinement and deployment. | Board or roadmap. | Not assessed |
+| Project management | 5% | Repository, README and commit history exist; board has a prioritised backlog. | README/history inspected; dated board reviewed and captured on 11 October, with owners, priorities and proof limits. | Demonstrated |
+| Scope confirmation | 5% | Must / Nice / Future list is frozen; changes since pitch have reasons. | Must/Nice/Future retained; source-linked pitch comparison reviewed on 11 October in evidence. Added trip planning and deferred delivery/maps/deployment are stated, with remaining AI schema differences. | Demonstrated |
+| UI design | 10% | App screens apply KNOGO branding and address pitch feedback; confirm acceptance of code-based design evidence. | Pitch brand/wireframe comparison, inspected home/browse/filter/settings/status/report/trip captures and feedback changes recorded. Screenshots accepted; no Figma or WCAG-conformance claim. | Demonstrated |
+| Frontend | 15% | Navigate home, account, place/report, AI result and trip flow; check layout at phone and desktop widths. | Browser account, report, status and trip checks recorded on 11 October; widths/captures in evidence. Gemini result and remaining accessibility checks pending. | Needs verification |
+| Backend/API | 10% | Backend runs and UI calls at least one MVP endpoint; routes are documented. | 11 October Docker report submission from browser; receipt capture and API list in evidence. Hosted trip endpoint also exercised from UI. | Demonstrated |
+| Database | 10% | Schema is compared with ERD; create/read works with persisted report data. | ERD comparison recorded; 11 October browser report persisted, survived reload and appeared with source/time in status sheet; database query confirmed it. | Demonstrated |
+| Authentication/roles | 5% | Signup, login and logout work; pitch roles restrict actions server-side. | Browser signup/email return, session reload and logout passed on 11 October. Docker role test proves visitor/reporter denial and representative updates/disputes with rolled-back fixtures. No SMS delivery claim. | Demonstrated |
+| Gemini integration | 20% | User report input reaches Gemini through the backend and its response appears in KNOGO; keys stay server-side. | Implementation/tests exist; provider terms/access/quota checks and actual response pending. | Blocked |
+| AI reliability | 5% | Prompt/request documented; loading, failure and output validation demonstrated. | Prompt notes, adapter/worker/polling tests exist; provider failure/recovery capture pending. | Needs verification |
+| Testing | 5% | Core flow checked; bug log exists; someone outside the project tried the flow. | 658 suite tests, database checks and bug log; tester arranged, feedback pending. | Needs verification |
+| Risks/challenges | 5% | Pitch risks compared with what occurred, resolutions and remaining blockers. | Four pitch technical risks compared with implementation, tests and remaining runtime gaps on 11 October. Verbal rehearsal pending. | Needs verification |
+| Weeks 3-4 plan | 5% | Remaining work prioritised through 28 October, including tests, refinement and deployment. | Dated roadmap through 28 October reviewed and captured on 11 October; deployment remains approval/cost gated. | Demonstrated |
 | Deployment stretch | 0% | Deferred for this goal; record the absence of a deployment. | No launch claim. | Deferred |
 
 Weights total 100%. The planning evidence must include deployment for final
@@ -180,10 +185,11 @@ provider response satisfies the AI demonstration requirement.
 
 ## User Actions When Needed
 
-- Confirm whether app captures and code-based design evidence satisfy the design
-  item. The pitch link, roles and meaning of "40%" are already established.
+- Screenshots instead of Figma are accepted, as confirmed on 11 October. The
+  pitch link, roles and meaning of "40%" are already established.
 - Complete provider sign-in, credentials entry or terms acceptance if required.
-- Arrange an outside tester and provide their observations.
+- An outside tester is arranged for 11 or 12 October. Provide their observations
+  after they test; the arrangement alone is not testing evidence.
 - Install the APK and test device behaviour if the build is available.
 
 The agent must first check what it can do before assigning a task to the user.
@@ -217,3 +223,5 @@ Append entries as work proceeds:
 | Date | Requirement | Check / Evidence Path | Environment | Outcome / Next Action |
 | --- | --- | --- | --- | --- |
 | 8 October 2026 | Milestone planning | This document | Repository | Checklist created; implementation audit pending. |
+| 11 October 2026 | Continuation | DV300_MILESTONE_PROGRESS.md, DV300_MILESTONE_EVIDENCE.md, DV300_TESTER_GUIDE.md, README.md | Worktree; tests/in-memory PostgreSQL | Screenshots accepted; tester arranged; 651 suite tests pass; provider and runtime demo gates remain. |
+| 11 October 2026 | Runtime and trip/UI proof | docs/evidence, DV300_MILESTONE_EVIDENCE.md | Docker accounts/reports; existing hosted trip endpoint; browser | Report reload, route/fuel inputs/result and offline retry passed. Two accessibility regressions fixed; 653 suite tests pass. Gemini, callback/role demo, tester feedback and rehearsal remain. |

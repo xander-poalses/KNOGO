@@ -1,4 +1,4 @@
-import type { ConfirmationType, Place, PlaceGroup, ReportSource, ReportSubmissionResult } from "../types/place";
+import type { ConfirmationType, Place, PlaceGroup, ReportAssessment, ReportSource, ReportSubmissionResult } from "../types/place";
 import {
   mapSupabaseConfirmation,
   mapSupabasePlace,
@@ -339,6 +339,21 @@ export function createSupabaseApi(config: {
     } satisfies ReportSubmissionResult;
   }
 
+  async function readReportAssessment(reportId: string): Promise<ReportAssessment> {
+    const session = await getValidSession();
+    if (!session) throw new Error("Sign in to view your report assessment.");
+    const value = await request<ReportAssessment | null>("rpc/read_report_assessment", { method: "POST", body: JSON.stringify({ p_report_id: reportId }) }, session.accessToken);
+    if (!value || value.reportId !== reportId || !["queued", "reviewing", "complete", "unavailable", "expired"].includes(value.state)) {
+      throw new Error("Your report assessment is not available.");
+    }
+    if (value.state === "complete" ?
+      !["low", "medium", "high", "unknown"].includes(value.risk ?? "") || typeof value.model !== "string" || !/^gemini-[a-z0-9.-]{1,80}$/.test(value.model) || typeof value.assessedAt !== "string" || !Number.isFinite(Date.parse(value.assessedAt)) :
+      value.risk !== null || value.model !== null || value.assessedAt !== null) {
+      throw new Error("KNOGO could not read the report assessment.");
+    }
+    return { reportId: value.reportId, state: value.state, risk: value.risk, model: value.model, assessedAt: value.assessedAt };
+  }
+
   async function readVenueAccess(placeId: string): Promise<VenueAccess> {
     const session = await getValidSession();
     if (!session) throw new Error("Sign in before managing a venue.");
@@ -462,6 +477,7 @@ export function createSupabaseApi(config: {
     fetchPlace,
     fetchPlaceGroups,
     submitConfirmations,
+    readReportAssessment,
     readVenueAccess,
     startVenueClaim,
     verifyVenueClaim,

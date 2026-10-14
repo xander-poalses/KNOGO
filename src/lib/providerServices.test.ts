@@ -5,6 +5,24 @@ import { createTripApi } from "@knogo/core";
 const rows=[{actor_id:"account-secret",venue_id:"venue-secret",time_bucket:6000,method:"phone",answers:[{type:"open_status",value:"closed"}]}];
 const response=(value:unknown,status=200)=>new Response(JSON.stringify(value),{status});
 describe("provider safeguards",()=>{
+ it.each(['', 'not-an-account-id', '00000000-0000-0000-0000-000000000001'])("blocks context outside the test account before reserving or sending (%s)",async testActorId=>{
+  const fetcher=vi.fn(),reserve=vi.fn(async()=>true);
+  const result=await assessReportRisk(rows,{testActorId,key:"key",pseudonymSecret:"secret",freeTierConfirmed:true,reserve,fetcher});
+  expect(result).toMatchObject({risk:"unknown",outcome:"disabled"});
+  expect(reserve).not.toHaveBeenCalled();expect(fetcher).not.toHaveBeenCalled();
+ });
+ it("allows only test-account context and blocks a mixed context",async()=>{
+  const testActorId='00000000-0000-0000-0000-000000000001';
+  const fixture={...rows[0],actor_id:testActorId,report_id:'test-report'};
+  const fetcher=vi.fn(async()=>response({candidates:[{content:{parts:[{text:JSON.stringify({risk:'low',reasons:['insufficient_context']})}]}}]}));
+  const reserve=vi.fn(async()=>true);
+  const config={testActorId,targetReportId:'test-report',key:'key',pseudonymSecret:'secret',freeTierConfirmed:true,reserve,fetcher};
+  expect((await assessReportRisk([fixture,rows[0]],config)).outcome).toBe('disabled');
+  expect(fetcher).not.toHaveBeenCalled();expect(reserve).not.toHaveBeenCalled();
+  expect((await assessReportRisk([fixture],config)).outcome).toBe('assessed');
+  expect(fetcher).toHaveBeenCalledOnce();
+  expect(String(fetcher.mock.calls[0])).not.toContain(testActorId);
+ });
  it("does not call Gemini when disabled or at quota",async()=>{
   const fetcher=vi.fn();const reserve=vi.fn(async()=>false);
   expect((await assessReportRisk(rows,{freeTierConfirmed:false,reserve,fetcher})).outcome).toBe("disabled");
@@ -36,7 +54,7 @@ describe("provider safeguards",()=>{
  it("identifies the target using a pseudonym and does not approve an absent target",async()=>{
   const fetcher=vi.fn(async(_url:RequestInfo|URL,_init?:RequestInit)=>response({candidates:[{content:{parts:[{text:JSON.stringify({risk:"low",reasons:["no_pattern_detected"]})}]}}]}));
   const config={targetReportId:"report-secret",key:"key",pseudonymSecret:"secret",freeTierConfirmed:true,reserve:vi.fn(async()=>true),fetcher};
-  expect(await assessReportRisk(rows,config)).toMatchObject({risk:"unknown",reasons:["insufficient_context"]});
+  expect(await assessReportRisk(rows,config)).toMatchObject({risk:"unknown",reasons:["insufficient_context"],outcome:"malformed"});
   expect(fetcher).not.toHaveBeenCalled();
   expect(config.reserve).not.toHaveBeenCalled();
   await assessReportRisk([{...rows[0],report_id:"report-secret"}],config);

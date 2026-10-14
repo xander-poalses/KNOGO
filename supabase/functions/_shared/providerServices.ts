@@ -38,11 +38,12 @@ export async function requestTrip(body: Record<string, unknown>, config: { orsKe
 
 const reasons = ["timing_cluster","repeated_pattern","cross_venue_burst","source_concentration","insufficient_context","no_pattern_detected"];
 type RiskRow = { report_id?:string;actor_id:string;venue_id:string;time_bucket:number;method:string;answers:Array<{type:string;value:string}> };
-export async function assessReportRisk(rows: RiskRow[], config: { key?: string; model?: string; targetReportId?: string; pseudonymSecret?: string; freeTierConfirmed: boolean; reserve: Reserve; fetcher?:typeof fetch }) {
+export async function assessReportRisk(rows: RiskRow[], config: { key?: string; model?: string; targetReportId?: string; testActorId?: string; pseudonymSecret?: string; freeTierConfirmed: boolean; reserve: Reserve; fetcher?:typeof fetch }) {
   const fallback=(outcome:string)=>({risk:"unknown",reasons:[] as string[],outcome,model:config.model??"gemini-3.5-flash-lite"});
   if (!config.key || !config.pseudonymSecret || !config.freeTierConfirmed) return fallback("disabled");
   try {
-    if (config.targetReportId && !rows.some(row=>row.report_id===config.targetReportId)) return {...fallback("assessed"),reasons:["insufficient_context"]};
+    if (config.testActorId !== undefined && (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(config.testActorId) || rows.some(row=>row.actor_id!==config.testActorId))) return fallback("disabled");
+    if (config.targetReportId && !rows.some(row=>row.report_id===config.targetReportId)) return {...fallback("malformed"),reasons:["insufficient_context"]};
     const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(config.pseudonymSecret),{name:"HMAC",hash:"SHA-256"},false,["sign"]);
     const pseudonym=async (value:string)=>Array.from(new Uint8Array(await crypto.subtle.sign("HMAC",key,new TextEncoder().encode(value)))).map((byte)=>byte.toString(16).padStart(2,"0")).join("");
     const allowedAnswers: Record<string,string[]>={open_status:["open","closed"],kitchen_status:["yes","no"],busy_level:["quiet","normal","busy","packed"],walk_ins:["yes","no"],card_machine:["yes","no","cash_only"],backup_power:["normal","limited","closed"]};
