@@ -436,7 +436,23 @@ try {
   await db.exec('set role authenticated');
   assert.equal(await receipt(), null);
   await db.exec('reset role');
-  console.log('PASS: report trust/RLS, provider limits, risk queue, venue claims, blocking, inactive venues, author-only assessment receipts and anonymous-account boundaries.');
+  await db.exec(await readFile(new URL('../supabase/migrations/20261014093834_scoped_report_risk_claim.sql', import.meta.url), 'utf8'));
+  await db.exec('delete from knogo_private.report_risk_jobs');
+  await db.exec("insert into public.places(id) values ('risk-test-fixture')");
+  await db.exec("insert into public.report_batches(id,place_id,user_id,report_source) values ('66666666-6666-4666-8666-666666666666','validation','00000000-0000-0000-0000-000000000002','phone'),('77777777-7777-4777-8777-777777777777','risk-test-fixture','00000000-0000-0000-0000-000000000003','phone'),('88888888-8888-4888-8888-888888888888','risk-test-fixture','00000000-0000-0000-0000-000000000002','phone')");
+  const scopedClaim = () => db.query("select * from public.claim_report_risk_job('00000000-0000-0000-0000-000000000002','risk-test-fixture')");
+  await db.exec('set role anon');
+  await assert.rejects(scopedClaim(), /permission denied/);
+  await db.exec('set role authenticated');
+  await assert.rejects(scopedClaim(), /permission denied/);
+  await db.exec('set role service_role');
+  await assert.rejects(db.query("select * from public.claim_report_risk_job(null,'risk-test-fixture')"), /scope required/);
+  assert.equal((await scopedClaim()).rows[0].report_id, '88888888-8888-4888-8888-888888888888');
+  assert.equal((await scopedClaim()).rows.length, 0);
+  await db.exec('reset role');
+  const untouched = (await db.query("select state,attempts from knogo_private.report_risk_jobs where report_id in ('66666666-6666-4666-8666-666666666666','77777777-7777-4777-8777-777777777777')")).rows;
+  assert.deepEqual(untouched, [{ state: 'waiting', attempts: 0 }, { state: 'waiting', attempts: 0 }]);
+  console.log('PASS: report trust/RLS, provider limits, risk queue, venue claims, blocking, inactive venues, author-only assessment receipts, anonymous-account boundaries and scoped worker claims.');
 } catch (error) {
   console.error(error.message);
   if (error.detail) console.error(error.detail);

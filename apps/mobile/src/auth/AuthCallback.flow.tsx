@@ -3,8 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
 import AuthCallbackScreen from "../../app/auth/callback";
 
-const mocks = vi.hoisted(() => ({ finish: vi.fn(), replace: vi.fn(), url: "knogo://auth/callback?code=test", complete: vi.fn(), submit: vi.fn() }));
-vi.mock("expo-linking", () => ({ useURL: () => mocks.url }));
+const mocks = vi.hoisted(() => ({ finish: vi.fn(), replace: vi.fn(), url: "knogo://auth/callback?code=test", initialUrl: undefined as string | null | undefined, complete: vi.fn(), submit: vi.fn() }));
+vi.mock("expo-linking", () => ({ useURL: () => mocks.initialUrl === undefined ? mocks.url : mocks.initialUrl, useLinkingURL: () => mocks.url }));
 vi.mock("expo-router", () => ({ useRouter: () => ({ replace: mocks.replace }) }));
 vi.mock("react-native", () => ({ StyleSheet: { create: (value: unknown) => value }, Text: ({ children }: { children: ReactNode }) => <span>{children}</span>, View: ({ children }: { children: ReactNode }) => <div>{children}</div> }));
 vi.mock("lucide-react-native", () => ({ AlertCircle: () => null }));
@@ -16,10 +16,19 @@ vi.mock("./googleSignIn", () => ({ completeBrowserAuthPopup: () => ({ type: "dis
 vi.mock("./finishEmailReport", () => ({ finishEmailReport: mocks.finish }));
 vi.mock("../components/PasswordResetForm", () => ({ PasswordResetForm: () => <p>Choose a password</p> }));
 
-beforeEach(() => { vi.resetAllMocks(); mocks.finish.mockResolvedValue({ kind: "account" }); });
+beforeEach(() => { vi.resetAllMocks(); mocks.initialUrl = undefined; mocks.url = "knogo://auth/callback?code=test"; mocks.finish.mockResolvedValue({ kind: "account" }); });
 afterEach(cleanup);
 
 describe("account callback screen", () => {
+  it("finishes a warm-start Google return received before the screen mounts", async () => {
+    mocks.initialUrl = null;
+    mocks.url = "knogo://auth/callback?intent=account&code=warm-return";
+    render(<AuthCallbackScreen/>);
+    await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith("/settings"));
+    expect(mocks.finish).toHaveBeenCalledWith(expect.objectContaining({ url: mocks.url }));
+    expect(mocks.finish).toHaveBeenCalledOnce();
+    expect(mocks.submit).not.toHaveBeenCalled();
+  });
   it.each([[429, /Too many attempts/], [401, /This link has expired/]])("explains callback failure status %s without submitting", async (status, expected) => {
     mocks.finish.mockRejectedValue({ status });
     const view = render(<AuthCallbackScreen/>);

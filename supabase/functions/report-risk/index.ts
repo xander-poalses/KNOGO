@@ -17,10 +17,10 @@ Deno.serve(async (req:Request)=>{
   if(!url || !key)throw new Error("Server setup missing.");
   const testActorId=Deno.env.get("RISK_TEST_ACTOR_ID");
   // shortcut: reviews require a test account until production data handling is approved.
-  if(Deno.env.get("GEMINI_FREE_TIER_CONFIRMED")==="true" && !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(testActorId??""))return jsonResponse({error:"Test account scope missing. Review remains disabled."},503);
+  if(!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(testActorId??""))return jsonResponse({error:"Test account scope missing. Review remains disabled."},503);
   const result=await drainRiskQueue({
    claim:async()=>{
-    const jobs=await serverRpc(url,key,"claim_report_risk_job",{});
+    const jobs=await serverRpc(url,key,"claim_report_risk_job",{p_actor_id:testActorId,p_place_id:"knogo-gemini-test-venue"});
     return Array.isArray(jobs)? (jobs[0] as RiskJob | undefined)??null : null;
    },
    assess:async(id)=>{

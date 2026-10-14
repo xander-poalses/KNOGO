@@ -21,7 +21,7 @@ export default function AuthCallbackScreen() {
   const { addConfirmations, completeEmailLink } = usePlaces();
   const [error, setError] = useState<string | null>(null);
   const [recoveryReady, setRecoveryReady] = useState(false);
-  const callbackUrl = Linking.useURL();
+  const callbackUrl = Linking.useLinkingURL();
   const started = useRef(false);
   const mounted = useRef(false);
   const handlers = useRef({ addConfirmations, completeEmailLink });
@@ -33,7 +33,7 @@ export default function AuthCallbackScreen() {
   }, []);
   useEffect(() => {
     if (popupHandled || callbackUrl) return;
-    const timer = setTimeout(() => setError("No sign-in return was received. Open Settings and sign in with your password."), 10_000);
+    const timer = setTimeout(() => setError("The sign-in return was not received. Return to KNOGO to retry."), 10_000);
     return () => clearTimeout(timer);
   }, [callbackUrl]);
 

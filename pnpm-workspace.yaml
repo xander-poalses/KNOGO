@@ -6,3 +6,6 @@ packages:
 allowBuilds:
   '@sentry/cli': true
   esbuild: true
+
+patchedDependencies:
+  expo-router@57.0.19: patches/expo-router@57.0.19.patch

@@ -3,8 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Place } from "@knogo/core";
 import { BranchMap } from "./BranchMap.native";
 
-const mocks = vi.hoisted(() => ({ environment: "storeClient", reduced: vi.fn(), start: vi.fn(), stop: vi.fn(), loop: vi.fn(), remove: vi.fn(), listener: null as null | ((enabled: boolean) => void) }));
-vi.mock("expo-constants", () => ({ default: { get executionEnvironment() { return mocks.environment; } }, ExecutionEnvironment: { StoreClient: "storeClient" } }));
+const mocks = vi.hoisted(() => ({ environment: "storeClient", platform: "android", mapsKey: "", reduced: vi.fn(), start: vi.fn(), stop: vi.fn(), loop: vi.fn(), remove: vi.fn(), listener: null as null | ((enabled: boolean) => void) }));
+vi.mock("expo-constants", () => ({ default: { get executionEnvironment() { return mocks.environment; }, get expoConfig() { return { android: { config: { googleMaps: { apiKey: mocks.mapsKey } } } }; } }, ExecutionEnvironment: { StoreClient: "storeClient" } }));
 vi.mock("react-native-maps", () => ({ default: () => <div data-testid="native-map" />, Marker: () => null }));
 vi.mock("../theme", () => ({ fonts: {}, useTheme: () => ({ colours: {} }), useThemeStyles: (factory: any) => factory({}) }));
 vi.mock("./Ui", () => ({ Skeleton: ({ height }: any) => <div data-testid="skeleton" style={{ height }} /> }));
@@ -12,7 +12,7 @@ vi.mock("react-native", async () => {
   const { createElement } = await import("react");
   const box = ({ children, accessibilityLabel, style }: any) => createElement("div", { "aria-label": accessibilityLabel, "data-height": Array.isArray(style) ? undefined : style?.height }, children);
   return {
-    View: box, Text: box, StyleSheet: { create: (styles: unknown) => styles },
+    View: box, Text: box, StyleSheet: { create: (styles: unknown) => styles }, Platform: { get OS() { return mocks.platform; } },
     AccessibilityInfo: { isReduceMotionEnabled: mocks.reduced, addEventListener: (_event: string, listener: (enabled: boolean) => void) => { mocks.listener = listener; return { remove: mocks.remove }; } },
     Animated: { View: box, Value: class { setValue() {} }, timing: vi.fn(), sequence: vi.fn(), loop: mocks.loop }
   };
@@ -20,7 +20,7 @@ vi.mock("react-native", async () => {
 
 const branches = [{ id: "branch", latitude: -25.8, longitude: 28.3 }] as Place[];
 beforeEach(() => {
-  vi.clearAllMocks(); mocks.environment = "storeClient"; mocks.listener = null;
+  vi.clearAllMocks(); mocks.environment = "storeClient"; mocks.platform = "android"; mocks.mapsKey = ""; mocks.listener = null;
   mocks.reduced.mockResolvedValue(false); mocks.loop.mockReturnValue({ start: mocks.start, stop: mocks.stop });
 });
 afterEach(cleanup);
@@ -67,10 +67,25 @@ describe("Expo Go map placeholder", () => {
     mocks.listener?.(true); resolve(false); await pending; await Promise.resolve();
     expect(mocks.start).not.toHaveBeenCalled();
   });
-  it("leaves the native map in development builds", () => {
+  it("leaves the native map in Android builds configured with a Maps key", () => {
     mocks.environment = "bare";
+    mocks.mapsKey = "test-maps-key";
     render(<BranchMap branches={branches} onSelect={vi.fn()} />);
     expect(screen.getByTestId("native-map")).toBeTruthy(); expect(screen.queryByTestId("skeleton")).toBeNull();
+  });
+  it.each(["", "   "])("does not mount the Android map without a key (%j)", (key) => {
+    mocks.environment = "bare";
+    mocks.mapsKey = key;
+    render(<BranchMap branches={branches} onSelect={vi.fn()} />);
+    expect(screen.queryByTestId("native-map")).toBeNull();
+    expect(screen.queryByTestId("skeleton")).toBeNull();
+    expect(screen.queryByText("Loading map...")).toBeNull();
+  });
+  it("keeps iOS maps available without an Android key", () => {
+    mocks.environment = "bare";
+    mocks.platform = "ios";
+    render(<BranchMap branches={branches} onSelect={vi.fn()} />);
+    expect(screen.getByTestId("native-map")).toBeTruthy();
   });
   it("does not show a placeholder for branches without coordinates", () => {
     render(<BranchMap branches={[]} onSelect={vi.fn()} />);

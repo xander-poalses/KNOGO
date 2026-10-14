@@ -1,7 +1,7 @@
 import { getMapRegion, type Place } from "@knogo/core";
 import Constants, { ExecutionEnvironment } from "expo-constants";
 import { useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { ExpoGoSkeleton } from "./ExpoGoSkeleton";
 import { fonts, useTheme, useThemeStyles, type ThemeColours } from "../theme";
@@ -20,14 +20,17 @@ export function BranchMap({ branches, selectedId, onSelect }: BranchMapProps) {
   const [mapReady, setMapReady] = useState(false);
   const [mapFailed, setMapFailed] = useState(false);
   const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+  // Adding this key also requires rebuilding the APK to embed it in AndroidManifest.
+  const missingAndroidKey = Platform.OS === "android" && !Constants.expoConfig?.android?.config?.googleMaps?.apiKey?.trim();
+  const mapUnavailable = isExpoGo || missingAndroidKey;
 
   useEffect(() => {
-    if (isExpoGo) return;
+    if (mapUnavailable) return;
     setMapReady(false);
     setMapFailed(false);
     timeoutRef.current = setTimeout(() => setMapFailed(true), 20000);
     return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
-  }, [isExpoGo]);
+  }, [mapUnavailable]);
 
   const handleMapLoaded = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -42,6 +45,7 @@ export function BranchMap({ branches, selectedId, onSelect }: BranchMapProps) {
 
   if (!validBranches.length) return null;
   if (isExpoGo) return <ExpoGoSkeleton label="Branch map unavailable in Expo Go" height={310} />;
+  if (missingAndroidKey) return null;
   if (mapFailed) return null;
 
   return (

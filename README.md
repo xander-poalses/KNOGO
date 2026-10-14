@@ -2,64 +2,139 @@
 
 Know before you go.
 
-KNOGO combines community service reports with trip fuel estimates. People can
-check a place, leave an observation with its source, and plan the fuel budget
-before leaving. Reports are evidence, not guarantees. Gemini assesses reporting
-patterns, not whether a venue is open or a person is telling the truth.
+KNOGO helps people check whether a place is open, serving and functioning before
+making the trip. Opening hours can say a business is open while its doors are
+closed, its kitchen has stopped serving or a disruption has affected its service.
+KNOGO brings community observations, their sources and trip fuel estimates into
+the decision to leave home.
 
-Built for the DV300 milestone on 14 October 2026. Deployment and shop pricing
-are on hold. This branch is work in progress, not a release.
+The project covers businesses and services people visit in person. Restaurants,
+bars and fast-food outlets are the starting scope, with other categories forming
+part of the product direction.
 
-## Run The App
+Created by Xander Poalses at Open Window for DV300 and UX300.
 
-Use Node.js and the pnpm version in `package.json` (`12.3.4`). The milestone
-checks ran with Node `22.15.0` on Windows. From the repository root:
+<!-- Add Xander's mockups and photos here when supplied. Include alt text. -->
+
+## Features
+
+- Discover places by category, area and search.
+- Browse venue groups and choose a branch.
+- View opening hours, service information and community reports.
+- Submit observations with a visit, phone call or online source.
+- Save places for another visit.
+- Estimate trip fuel costs using route information and vehicle preferences.
+- Review report assessments.
+- Manage account access and appearance settings.
+
+Accounts, reports, routing and AI need backend and provider configuration.
+The browser preview below uses mock data to explore the interface.
+
+## How reporting works
+
+KNOGO treats reports as evidence. The trust rules consider report age,
+agreement, account history and assessment results. Opposing evidence remains
+visible, and venue disputes do not delete community reports.
+
+Google Gemini assesses reporting patterns for signs of coordination or abuse.
+It does not determine whether a venue is open or whether a person is telling the
+truth. Application rules control the outcome. An unavailable or inconclusive
+assessment cannot establish a community closure.
+
+The trust implementation requires its backend migrations and worker setup.
+See [community rules](docs/COMMUNITY_RULES.md) for thresholds and deployment caveats.
+
+## Technology
+
+| Layer | Technology |
+| --- | --- |
+| Android app | Expo, React Native and Expo Router |
+| Browser interfaces | React Native Web and a separate React/Vite app |
+| Language | TypeScript |
+| Accounts and storage | Supabase Auth and PostgreSQL |
+| Backend services | Supabase database functions and Edge Functions |
+| Report assessment | Google Gemini |
+| Typography and icons | DM Sans and Lucide |
+
+## Get started
+
+Use Git, Node.js and pnpm `12.3.4`, as specified in `package.json`.
+The project has been run on Windows with Node.js `22.15.0`.
+These commands use PowerShell.
+
+### Browser preview
 
 ```powershell
+git clone https://github.com/xander-poalses/KNOGO.git
+cd KNOGO
 pnpm install --frozen-lockfile
-```
-
-For a browser preview with mock data and no backend/provider calls:
-
-```powershell
 $env:EXPO_PUBLIC_USE_MOCK_DATA = 'true'
 pnpm --dir apps/mobile exec expo start --web --localhost --port 8083
 ```
 
-Use the URL printed by Expo. If the port is occupied, choose another. This
-preview is not proof of authentication, stored reports, routing or Gemini.
+Open the URL printed by Expo to explore the mobile interface in your browser.
+Choose another port if `8083` is occupied. Mock mode does not exercise accounts,
+report submissions, route providers or AI.
 
-For backend tests, use `apps/mobile/.env.example` as the configuration shape
-for an ignored `.env.local`. Set the backend URL and publishable key for the
-testing environment, and set `EXPO_PUBLIC_USE_MOCK_DATA=false`. Remove the
-shell mock override or open another terminal. Restart Expo after changing env.
-Never use invented reports against the hosted catalogue.
+### Android app
 
-The browser runs the Expo mobile UI. The separate Vite web app lives in `src`;
-`pnpm dev` starts that app, not the Expo settings/report screens.
+Install KNOGO's development APK, then run from the repository root:
 
-For Expo Go, `pnpm mobile` starts Metro on the LAN. Your phone must be able to
-reach Metro and the backend. `127.0.0.1` on the phone is the phone itself, not
-your PC. Google sign-in with KNOGO's callback scheme requires a development
-build; a browser or Expo Go preview does not prove that device flow.
+```powershell
+pnpm mobile
+```
 
-## Testing Backend
+Keep your phone and PC on the same Wi-Fi and open the development server in
+KNOGO. Use the development build rather than Expo Go. The APK needs Metro to
+run; it is not a standalone release.
 
-The milestone uses Supabase through Docker on the PC, with Mailpit for email
-confirmation. It is a database of its own, not a copy of the hosted users or
-reports. No SMTP purchase or billing activation is needed for that inbox.
+See [Android build and device setup](apps/mobile/README.md) for APK build
+commands, SDK requirements, maps and Google sign-in configuration.
 
-Setup is not yet a one-command replay: catalogue seeds are needed between some
-older migrations. Do not assume `supabase db reset` recreates the milestone
-state, and never reset the hosted database. After the Docker update on
-11 October, the test containers and account/report API checks passed again.
+### Backend configuration
 
-Use `supabase/seed_milestone_test.sql` only in the test backend. Keep provider
-keys, worker secrets and service-role keys server-side. The app receives only
-the publishable key. `.env.local`, credentials, logs and test artifacts are
-ignored by Git.
+Create `apps/mobile/.env.local` from
+[`apps/mobile/.env.example`](apps/mobile/.env.example). Set the backend URL,
+publishable key and `EXPO_PUBLIC_USE_MOCK_DATA=false`.
 
-## Checks
+If you used the browser preview, remove its shell override before restarting Expo:
+
+```powershell
+Remove-Item Env:EXPO_PUBLIC_USE_MOCK_DATA -ErrorAction SilentlyContinue
+```
+
+Use the publishable key in the app. Keep provider keys, worker secrets and
+service-role keys on the server. Do not commit `.env.local` or credentials.
+
+A phone cannot reach your PC through `127.0.0.1`: that address points to the
+phone itself. Use a backend URL the device can reach.
+
+Backend setup is documented by service:
+
+- [Accounts and authentication](docs/ACCOUNT_SETUP.md)
+- [Reports and database checks](docs/CHECKIN_SETUP_AND_QA.md)
+- [Gemini assessment worker](docs/RISK_QUEUE_SETUP.md)
+- [Trip estimates](docs/ZERO_COST_TRIP_SETUP.md)
+- [Fuel data](docs/FUEL_DATA_SETUP.md)
+
+The migration history needs catalogue seeds between some migrations.
+`supabase db reset` alone does not reproduce the development database.
+Use a test database for fixtures and avoid resetting the hosted database.
+
+### Vite web app
+
+The repository also contains a React/Vite app in `src`:
+
+```powershell
+pnpm dev
+```
+
+This starts the Vite interface. Use the Expo browser command to explore
+the mobile account, report and settings screens.
+
+## Development checks
+
+Run from the repository root:
 
 ```powershell
 pnpm test
@@ -69,48 +144,32 @@ pnpm typecheck:mobile
 pnpm exec tsc -b
 ```
 
-On 11 October: 254 core/browser tests and 404 mobile tests passed. Root and
-mobile TypeScript passed. These checks do not prove provider access, Android,
-email delivery on the hosted service or WCAG conformance.
+These cover application logic, mobile flows and TypeScript. Device behaviour,
+provider access and backend integration require their own checks.
+See the [tester guide](docs/DV300_TESTER_GUIDE.md) for tasks and observations.
 
-Database checks use an installed PGlite module, selected by
-`KNOGO_PGLITE_MODULE`, and never connect to the hosted project:
-
-```powershell
-node scripts/region-migration-qa.mjs
-node scripts/checkin-database-qa.mjs
-node scripts/trip-database-qa.mjs
-```
-
-`scripts/milestone-local-qa.mjs` is a Docker API integration test. It refuses
-any backend other than `http://127.0.0.1:54321`, uses invented accounts and
-requires the test fixtures and Mailpit. Do not change that guard for hosted QA.
-
-## Project Layout
+## Project structure
 
 | Folder | Purpose |
 | --- | --- |
-| `apps/mobile` | Expo app: accounts, places, reporting, trips and settings |
-| `packages/core` | Shared types, validation, trust rules, API clients and fuel arithmetic |
-| `src` | Vite web app |
-| `supabase/migrations` | Database structure, permissions and RPCs |
-| `supabase/functions` | Trip, report-risk and venue-claim server handlers |
-| `scripts` | Catalogue tools and database/API QA |
-| `docs` | Setup, milestone evidence, work board and remaining gates |
+| `apps/mobile` | Expo app, device configuration and mobile setup |
+| `packages/core` | Types, validation, trust rules, API clients and fuel calculations |
+| `src` | React/Vite interface |
+| `supabase/migrations` | Database structure, permissions and functions |
+| `supabase/functions` | Trip, report assessment and venue-claim handlers |
+| `scripts` | Catalogue tools and verification scripts |
+| `docs` | Service setup, design decisions and project evidence |
+| `data/place-imports` | Catalogue imports and their documentation |
 
-## Milestone Evidence
+## Author and credits
 
-- [Goal and acceptance checks](docs/DV300_MILESTONE_GOAL.md)
-- [Execution ledger](docs/DV300_MILESTONE_PROGRESS.md)
-- [Evidence, ERD comparison, API list and work board](docs/DV300_MILESTONE_EVIDENCE.md)
-- [Tester tasks and observation template](docs/DV300_TESTER_GUIDE.md)
-- [Community rules](docs/COMMUNITY_RULES.md)
-- [Account setup](docs/ACCOUNT_SETUP.md)
-- [Risk worker setup](docs/RISK_QUEUE_SETUP.md)
+Xander Poalses, student number 241322, Open Window.
 
-Screenshots count instead of Figma, as confirmed on 11 October. Report and trip
-captures are in `docs/evidence`. The trip demo used the existing hosted endpoint;
-account/report tests used Docker. Outside-user feedback, Gemini setup, remaining
-device/accessibility checks and the rehearsal remain gates.
-No mock response counts as the Gemini demonstration. No spending, merge or
-deployment follows from this README.
+Developed for DV300 and UX300. DV300 lecturer: Tsungai Katsuro.
+The project uses Expo, React Native, Supabase, Google Gemini, DM Sans and Lucide.
+Dependency versions are recorded in the workspace manifests and lockfile.
+
+## Licence
+
+This repository does not include a project licence. Third-party dependencies
+and assets retain their own licences and ownership.
