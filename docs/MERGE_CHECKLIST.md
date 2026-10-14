@@ -5,6 +5,18 @@ deploy, push, archive the worktree or enable Gemini.
 
 ## Checks Passed
 
+## Merge Result: 14 October
+
+User authorised code integration before the remaining assessment gates were
+complete. Worktree commit 16310fa merged into main as 92b366c without conflicts.
+From the original KNOGO folder, 262 core/server and 414 mobile tests passed,
+as did mobile/root TypeScript. The four pre-existing BranchMap/skeleton/lockfile
+files are unchanged. No push or worktree cleanup was performed. Current
+previews and ignored test configuration may still reside in the worktree;
+move/recheck those before archiving it. Gemini remains unverified end to end.
+
+### Verification Before Merge
+
 - Milestone worktree: 254 core/browser tests and 404 mobile flow tests.
 - Milestone worktree: mobile TypeScript and root/shared TypeScript build.
 - Original checkout: mobile TypeScript and eight BranchMap flow tests.

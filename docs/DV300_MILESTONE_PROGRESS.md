@@ -327,6 +327,16 @@ Ruling: the goal document is a milestone spec, not an executable per-file implem
 - Port 8081 was unavailable. Started the worktree Expo web preview with process-only hosted URL/publishable key, mock data off, dotenv off and CI mode. No saved environment file or server secret was read or changed. The user signs in and submits only at knogo-gemini-test-venue; port 8083 remains the Docker account/report test backend.
 - Gemini remains disabled while the test report is submitted. No Google request, worker credential retrieval or credential-page browser access occurred.
 
+## Main Merge Verified: 14 October
+
+- User authorised merging the worktree into main. Main was clean at 0971769; its BranchMap, ExpoGoSkeleton and lockfile changes did not overlap the worktree files.
+- Worktree verification passed: 262 core/server tests, 406 mobile tests and mobile/root TypeScript. Checked the staged file list and credential patterns before committing; ignored environment files and test-runtime artifacts were excluded. A pattern in an unchanged baseline SVG was embedded image data, not a new credential.
+- Committed the 55 worktree files as 16310fa and merged into main as 92b366c without conflicts. The merge does not enable Gemini, deploy code or claim milestone completion.
+- Verification from the original KNOGO folder passed: 262 core/server tests, 414 mobile tests including eight BranchMap tests, and mobile/root TypeScript. Existing React test/deprecation warnings remain.
+- SHA-256 checks confirm BranchMap.native.tsx, BranchMap.flow.tsx, ExpoGoSkeleton.tsx and pnpm-lock.yaml are byte-identical to their pre-merge main versions. No worktree path dependency was found in tracked app/shared/script/SQL code.
+- No push, worktree archive, ignored configuration copy, credential-page access, hosted database change or provider request. Worktree runtime/configuration cleanup remains separate from the merge; current previews may still run from that folder.
+- Gemini end-to-end proof, outside-user feedback and the device/accessibility limits remain unchanged. This code integration was approved before those assessment gates were complete.
+
 ## Remaining Gates
 
 No real Gemini request, outside-user feedback, Android test, full migration replay, accessibility conformance claim or rehearsal yet. Goal remains incomplete.
