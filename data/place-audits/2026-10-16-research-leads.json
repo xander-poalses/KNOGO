@@ -1,0 +1,425 @@
+{
+  "status": "failed",
+  "notice": "This agent run stopped at its credit limit (maxCredits) before finishing. `partial` is an INCOMPLETE best-effort result, not a finished answer; tell the user it is incomplete. Agent message: Incomplete: the evidence supports only a partial directory and does not establish the requested 30-40 currently listed branches across all categories as of 2026-10-16. To continue, call firecrawl_agent with threadId \"01a144ad-c4e0-754d-bc5e-77984cc1b4d1\" and a prompt to finish the task (the follow-up resumes from this partial), or start a new run with a higher maxCredits.",
+  "jobId": "01a144ad-c4b0-71dc-9cda-9487bd4dcc0c",
+  "records": [
+    {
+      "name": "Nu Metro Menlyn Park",
+      "category": "entertainment",
+      "place_type": "cinema",
+      "group": "Nu Metro",
+      "group_url": "https://numetro.co.za/",
+      "region": "Menlyn",
+      "address": "Menlyn Park Shopping Centre, Atterbury Road, Menlyn, Pretoria",
+      "coordinates": null,
+      "coordinate_source": null,
+      "phone": "087 055 0898",
+      "official_branch_url": "https://www.menlynpark.co.za/stores/numetro/",
+      "source_urls": [
+        "https://www.menlynpark.co.za/stores/numetro/",
+        "https://numetro.co.za/"
+      ],
+      "opening_hours": {
+        "monday_thursday": "09:00-20:00",
+        "friday_saturday": "09:00-21:00",
+        "sunday_public_holidays": "09:00-18:00"
+      },
+      "service_details": "Cinema; listed by Menlyn Park as Nu Metro, store code UF 12.",
+      "booking_links": [
+        "https://numetro.co.za/"
+      ],
+      "missing_fields": [
+        "coordinates",
+        "street-number address"
+      ],
+      "ambiguity": "Published hours are tenant listing hours, not necessarily Menlyn Park mall hours."
+    },
+    {
+      "name": "Ster-Kinekor Brooklyn Commercial",
+      "category": "entertainment",
+      "place_type": "cinema",
+      "group": "Ster-Kinekor",
+      "group_url": "https://www.sterkinekor.com/",
+      "region": "Brooklyn",
+      "address": "Brooklyn Mall, Fehrsen St, Nieuw Muckleneuk, Pretoria, 0181",
+      "coordinates": null,
+      "coordinate_source": null,
+      "phone": "0861 668 437",
+      "official_branch_url": "https://www.sterkinekor.com/cinemas/brooklyn-commercial",
+      "source_urls": [
+        "https://www.sterkinekor.com/cinemas/brooklyn-commercial",
+        "https://www.brooklynmall.co.za/happenings/"
+      ],
+      "opening_hours": {
+        "monday": "12:00-22:00",
+        "tuesday": "12:00-22:00",
+        "wednesday": "12:00-22:00",
+        "thursday": "12:00-22:00",
+        "friday": "12:00-22:00",
+        "saturday": "10:00-22:00",
+        "sunday": "10:00-20:00"
+      },
+      "service_details": "Cinema with 10 screens; online booking and e-tickets.",
+      "booking_links": [
+        "https://www.sterkinekor.com/cinemas/brooklyn-commercial"
+      ],
+      "missing_fields": [
+        "coordinates"
+      ],
+      "ambiguity": null
+    },
+    {
+      "name": "Barnyard Theatre Menlyn",
+      "category": "entertainment",
+      "place_type": "theatre",
+      "group": "The Barnyard Theatre",
+      "group_url": "https://www.barnyardtheatre.co.za/",
+      "region": "Menlyn",
+      "address": "Menlyn Park Shopping Centre, Atterbury Road, Menlyn, Pretoria",
+      "coordinates": null,
+      "coordinate_source": null,
+      "phone": "012 880 2727",
+      "official_branch_url": "https://www.barnyardtheatre.co.za/menlyn/",
+      "source_urls": [
+        "https://www.barnyardtheatre.co.za/menlyn/",
+        "https://www.barnyardtheatre.co.za/menlyn.aspx"
+      ],
+      "opening_hours": {
+        "booking_lines": "10:00-17:00"
+      },
+      "service_details": "400-seat theatre venue; theatre-manager, corporate-event and fundraising bookings are listed.",
+      "booking_links": [
+        "https://www.barnyardtheatre.co.za/menlyn/"
+      ],
+      "missing_fields": [
+        "coordinates",
+        "public venue opening hours"
+      ],
+      "ambiguity": "The published 10:00-17:00 time is identified as booking-line hours."
+    },
+    {
+      "name": "Game",
+      "category": "shops",
+      "place_type": "department_store",
+      "group": null,
+      "group_url": null,
+      "region": "Menlyn",
+      "address": "Atterbury Rd & Lois Ave, Menlyn Park, Pretoria, 0063",
+      "coordinates": null,
+      "coordinate_source": null,
+      "phone": "086 142 6060",
+      "official_branch_url": "https://www.menlynpark.co.za/stores/game/",
+      "source_urls": [
+        "https://www.menlynpark.co.za/stores/game/",
+        "https://www.menlynpark.co.za/contact-us/"
+      ],
+      "opening_hours": {
+        "monday_thursday": "09:00-20:00",
+        "friday_saturday": "09:00-21:00",
+        "sunday_public_holidays": "09:00-18:00"
+      },
+      "service_details": null,
+      "booking_links": [],
+      "missing_fields": [
+        "coordinates",
+        "tenant-specific opening hours"
+      ],
+      "ambiguity": "The page publishes centre trading-hour labels rather than separately identified tenant hours."
+    },
+    {
+      "name": "Dis-Chem Pharmacies",
+      "category": "shops",
+      "place_type": "pharmacy",
+      "group": null,
+      "group_url": null,
+      "region": "Menlyn",
+      "address": "Atterbury Rd & Lois Ave, Menlyn Park, Pretoria, 0063",
+      "coordinates": null,
+      "coordinate_source": null,
+      "phone": "012 003 0108",
+      "official_branch_url": "https://www.menlynpark.co.za/stores/dis-chem-pharmacy/",
+      "source_urls": [
+        "https://www.menlynpark.co.za/stores/dis-chem-pharmacy/",
+        "https://www.menlynpark.co.za/contact-us/"
+      ],
+      "opening_hours": {
+        "monday_thursday": "09:00-20:00",
+        "friday_saturday": "09:00-21:00",
+        "sunday_public_holidays": "09:00-18:00"
+      },
+      "service_details": null,
+      "booking_links": [],
+      "missing_fields": [
+        "coordinates",
+        "tenant-specific opening hours"
+      ],
+      "ambiguity": "The page publishes centre trading-hour labels rather than separately identified tenant hours."
+    },
+    {
+      "name": "Pick 'n Pay",
+      "category": "shops",
+      "place_type": "supermarket",
+      "group": null,
+      "group_url": null,
+      "region": "Menlyn",
+      "address": "Atterbury Rd & Lois Ave, Menlyn Park, Pretoria, 0063",
+      "coordinates": null,
+      "coordinate_source": null,
+      "phone": "087 750 2967",
+      "official_branch_url": "https://www.menlynpark.co.za/stores/pick-n-pay/",
+      "source_urls": [
+        "https://www.menlynpark.co.za/stores/pick-n-pay/",
+        "https://www.menlynpark.co.za/contact-us/"
+      ],
+      "opening_hours": {
+        "monday_thursday": "09:00-20:00",
+        "friday_saturday": "09:00-21:00",
+        "sunday_public_holidays": "09:00-18:00"
+      },
+      "service_details": null,
+      "booking_links": [],
+      "missing_fields": [
+        "coordinates",
+        "tenant-specific opening hours"
+      ],
+      "ambiguity": "The page publishes centre trading-hour labels rather than separately identified tenant hours."
+    },
+    {
+      "name": "Home Affairs Menlyn Office",
+      "category": "public_services",
+      "place_type": "home_affairs_office",
+      "group": "Department of Home Affairs",
+      "group_url": "https://www.dha.gov.za/",
+      "region": "Menlyn",
+      "address": "Menlyn Park Shopping Centre, Parking Level 3, Atterbury Road Entrance, Tshwane",
+      "coordinates": null,
+      "coordinate_source": null,
+      "phone": null,
+      "official_branch_url": "https://www.gov.za/news/media-advisories/government-activities/minister-aaron-motsoaledi-opens-new-home-affairs-office",
+      "source_urls": [
+        "https://www.gov.za/news/media-advisories/government-activities/minister-aaron-motsoaledi-opens-new-home-affairs-office"
+      ],
+      "opening_hours": null,
+      "service_details": "ID and passport application and collection services.",
+      "booking_links": [],
+      "missing_fields": [
+        "phone",
+        "opening hours",
+        "coordinates"
+      ],
+      "ambiguity": "The official evidence is a 6 March 2023 opening announcement and does not establish current operating hours."
+    },
+    {
+      "name": "Shere Regional Walk-in Centre",
+      "category": "public_services",
+      "place_type": "municipal_walk_in_centre",
+      "group": "City of Tshwane",
+      "group_url": "https://www.tshwane.gov.za/",
+      "region": "Shere",
+      "address": "43 Struben Road, Shere AH",
+      "coordinates": null,
+      "coordinate_source": null,
+      "phone": "012 358 9999",
+      "official_branch_url": "https://www.tshwane.gov.za/?page_id=8940",
+      "source_urls": [
+        "https://www.tshwane.gov.za/?page_id=8940"
+      ],
+      "opening_hours": null,
+      "service_details": "Listed as a Region 6 customer-care walk-in centre.",
+      "booking_links": [],
+      "missing_fields": [
+        "opening hours",
+        "coordinates"
+      ],
+      "ambiguity": null
+    },
+    {
+      "name": "Garsfontein Post Office",
+      "category": "public_services",
+      "place_type": "post_office",
+      "group": "South African Post Office",
+      "group_url": "https://www.postoffice.co.za/",
+      "region": "Garsfontein",
+      "address": "465 Winnfred Yell Street, Garsfontein",
+      "coordinates": null,
+      "coordinate_source": null,
+      "phone": "012 348 1253/4",
+      "official_branch_url": "https://www.postoffice.co.za/",
+      "source_urls": [
+        "https://www.postoffice.co.za/"
+      ],
+      "opening_hours": null,
+      "service_details": "Renewals service listed in the Gauteng SAPO MVL branches table.",
+      "booking_links": [],
+      "missing_fields": [
+        "opening hours",
+        "coordinates"
+      ],
+      "ambiguity": null
+    },
+    {
+      "name": "Silver Lakes Post Office",
+      "category": "public_services",
+      "place_type": "post_office",
+      "group": "South African Post Office",
+      "group_url": "https://www.postoffice.co.za/",
+      "region": "Silver Lakes",
+      "address": "Silver Oaks Mall, Pretoria East",
+      "coordinates": null,
+      "coordinate_source": null,
+      "phone": null,
+      "official_branch_url": "https://www.postoffice.co.za/",
+      "source_urls": [
+        "https://www.postoffice.co.za/newsroom/pressreleases/2022/silver-lakes-offers-welcome-venue-for-car-license-payments"
+      ],
+      "opening_hours": null,
+      "service_details": "Vehicle-licence renewals; the cited release says the licence disk is issued immediately.",
+      "booking_links": [],
+      "missing_fields": [
+        "street address",
+        "phone",
+        "opening hours",
+        "coordinates"
+      ],
+      "ambiguity": "Evidence is a 18 January 2022 South African Post Office newsroom release and does not independently establish current status."
+    },
+    {
+      "name": "Engen Menlyn Quick Stop North",
+      "category": "automotive",
+      "place_type": "fuel_station",
+      "group": "Engen",
+      "group_url": "https://www.engen.co.za/",
+      "region": "Menlyn",
+      "address": null,
+      "coordinates": null,
+      "coordinate_source": null,
+      "phone": null,
+      "official_branch_url": "https://www.engen.co.za/",
+      "source_urls": [
+        "https://www.engen.co.za/"
+      ],
+      "opening_hours": null,
+      "service_details": "Official Engen locator page identifies the branch name.",
+      "booking_links": [],
+      "missing_fields": [
+        "address",
+        "phone",
+        "opening hours",
+        "coordinates"
+      ],
+      "ambiguity": "Scraped locator content did not expose the branch details beyond the name."
+    },
+    {
+      "name": "Engen Gerhaldo Vulstasie",
+      "category": "automotive",
+      "place_type": "fuel_station",
+      "group": "Engen",
+      "group_url": "https://www.engen.co.za/",
+      "region": "Garsfontein",
+      "address": null,
+      "coordinates": null,
+      "coordinate_source": null,
+      "phone": null,
+      "official_branch_url": "https://www.engen.co.za/",
+      "source_urls": [
+        "https://www.engen.co.za/"
+      ],
+      "opening_hours": null,
+      "service_details": "Official Engen locator page identifies the branch name.",
+      "booking_links": [],
+      "missing_fields": [
+        "address",
+        "phone",
+        "opening hours",
+        "coordinates"
+      ],
+      "ambiguity": "Scraped locator content did not expose the branch details beyond the name."
+    },
+    {
+      "name": "Virgin Active Menlyn",
+      "category": "sport_outdoors",
+      "place_type": "gym",
+      "group": "Virgin Active",
+      "group_url": "https://www.virginactive.co.za/",
+      "region": "Menlyn",
+      "address": "241 Serene Rd, Garsfontein Extension 8, Pretoria, 0001",
+      "coordinates": null,
+      "coordinate_source": null,
+      "phone": "012 493 2863",
+      "official_branch_url": "https://www.virginactive.co.za/",
+      "source_urls": [
+        "https://www.virginactive.co.za/"
+      ],
+      "opening_hours": {
+        "published_current_day": "05:00-21:00"
+      },
+      "service_details": "Gym with heated lap and leisure pools, squash, Club-V, functional training and other facilities.",
+      "booking_links": [
+        "https://www.virginactive.co.za/join-gym?gym_name=Menlyn&gym_id=108"
+      ],
+      "missing_fields": [
+        "day-specific weekly hours",
+        "coordinates"
+      ],
+      "ambiguity": "The source labels the displayed time as 'Today' rather than assigning it to a named weekday."
+    },
+    {
+      "name": "Virgin Active Menlyn Maine",
+      "category": "sport_outdoors",
+      "place_type": "gym",
+      "group": "Virgin Active",
+      "group_url": "https://www.virginactive.co.za/",
+      "region": "Menlyn Maine",
+      "address": "Level 1, Suite 1, Menlyn Maine Precinct, cnr Aramist and Dallas Avenues, Waterkloof Glen Ext 2, Pretoria, 0181",
+      "coordinates": null,
+      "coordinate_source": null,
+      "phone": "012 493 2609",
+      "official_branch_url": "https://www.virginactive.co.za/",
+      "source_urls": [
+        "https://www.virginactive.co.za/"
+      ],
+      "opening_hours": {
+        "published_current_day": "04:30-21:00"
+      },
+      "service_details": "Gym with heated lap pool, functional training, Ride Studio, Mind Body Studio and other facilities.",
+      "booking_links": [
+        "https://virginactive.typeform.com/book-a-tour",
+        "https://www.virginactive.co.za/join-gym?gym_name=Menlyn%20Maine&gym_id=109",
+        "https://www.virginactive.co.za/bookings"
+      ],
+      "missing_fields": [
+        "day-specific weekly hours",
+        "coordinates"
+      ],
+      "ambiguity": "The source labels the displayed time as 'Today' rather than assigning it to a named weekday."
+    },
+    {
+      "name": "Menlyn Maine Central Square",
+      "category": "shops",
+      "place_type": "shopping_centre",
+      "group": null,
+      "group_url": null,
+      "region": "Menlyn Maine",
+      "address": "180 Amarand Ave, Waterkloof Glen, Pretoria, 0063",
+      "coordinates": null,
+      "coordinate_source": null,
+      "phone": null,
+      "official_branch_url": "https://www.centralsquare.co.za/",
+      "source_urls": [
+        "https://www.centralsquare.co.za/",
+        "https://www.centralsquare.co.za/store-directory/"
+      ],
+      "opening_hours": {
+        "monday_saturday": "09:00-18:00",
+        "sunday_public_holidays": "09:00-17:00"
+      },
+      "service_details": "Shopping and lifestyle centre with fashion, home, health, grocery, dining and leisure tenants.",
+      "booking_links": [],
+      "missing_fields": [
+        "coordinates",
+        "phone"
+      ],
+      "ambiguity": "Restaurants are stated to open later, but no tenant-specific restaurant hours are given."
+    }
+  ]
+}

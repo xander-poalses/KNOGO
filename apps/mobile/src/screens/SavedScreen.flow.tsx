@@ -16,6 +16,8 @@ afterEach(cleanup);
 describe("saved layouts", () => {
   it("uses a phone list and exposes removal", () => {
     const view = render(<SavedScreen/>);
+    expect(screen.getAllByText("Saved places")).toHaveLength(1);
+    expect(screen.queryByText("Your places.")).toBeNull();
     expect(view.container.querySelector("main")?.getAttribute("data-columns")).toBe("1");
     expect(screen.queryByRole("button", { name: "Show grid" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Remove from saved" }));

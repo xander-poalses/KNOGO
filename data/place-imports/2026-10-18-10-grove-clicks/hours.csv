@@ -1,0 +1,4 @@
+place_id,hours_type,day_of_week,open_time,close_time,is_closed,sort_order,source_url,source_checked_at
+clicks-the-grove,opening,Mon-Fri,09:00,19:00,false,1,https://clicks.co.za/store/The-Grove/1574,2026-10-18
+clicks-the-grove,opening,Sat,09:00,18:00,false,6,https://clicks.co.za/store/The-Grove/1574,2026-10-18
+clicks-the-grove,opening,Sun,09:00,16:00,false,7,https://clicks.co.za/store/The-Grove/1574,2026-10-18

@@ -5,7 +5,9 @@ import {
   getPlaceActionLinks,
   getPlaceOutlook,
   getWeeklyHours,
+  isFoodCategory,
   trustClaimLabel,
+  type ConfirmationType,
   type PlaceActionLink,
   type TrustClaim,
 } from "@knogo/core";
@@ -57,9 +59,14 @@ export function PlaceDetailScreen() {
   const [reportRefreshError, setReportRefreshError] = useState(false);
   const [actionsOpen, setActionsOpen] = useState(false);
   const [practicalOpen, setPracticalOpen] = useState(false);
+  const [listingOpen, setListingOpen] = useState(false);
+  const [informationError, setInformationError] = useState<string | null>(null);
   const [sheet, setSheet] = useState<
     "status" | "hours" | "trip" | "details" | null
   >(null);
+  useEffect(() => {
+    setPracticalOpen(false); setListingOpen(false); setInformationError(null);
+  }, [placeId, sheet]);
   const [now, setNow] = useState(() => new Date());
   const place = places.find((item) => item.id === placeId);
   const refreshReports = useCallback(async () => {
@@ -104,32 +111,30 @@ export function PlaceDetailScreen() {
 
   const status = getCurrentStatus(place.currentStatus, now);
   const actions = getPlaceActionLinks(place);
+  const sourceAction = getPlaceActionLinks({ ...place, website: place.sourceUrl }).find(action => action.type === "website");
+  const photoSourceAction = place.imageUrl ? getPlaceActionLinks({ ...place, website: place.imageSourceUrl }).find(action => action.type === "website") : undefined;
+  const hasPhotoCredit = Boolean(place.imageUrl && (place.imageAttribution || place.imageCheckedAt || photoSourceAction));
+  const openInformationLink = (url: string) => {
+    setInformationError(null);
+    void Linking.openURL(url).catch(() => setInformationError("Could not open this link. Try again."));
+  };
   const outlook = getPlaceOutlook(place, now);
   const tradingTone = getOutlookTone(outlook.trading);
   const kitchenTone = getOutlookTone(outlook.kitchen);
-  const practicalChecks: Array<[string, string, boolean | null]> = [
-    [
-      "Walk-ins",
-      trustClaimLabel("walk_ins", status.trust?.claims.walk_ins),
-      status.trust ? status.acceptsWalkIns : null,
-    ],
-    [
-      "Card machine",
-      trustClaimLabel("card_machine", status.trust?.claims.card_machine),
-      status.trust ? status.cardMachineWorking : null,
-    ],
-    [
-      "Power",
-      trustClaimLabel("backup_power", status.trust?.claims.backup_power),
-      status.trust ? status.hasBackupPower : null,
-    ],
+  const reportedOpen = outlook.trading.basis === "report" && outlook.trading.positive === true;
+  const reportedServing = reportedOpen && outlook.kitchen.basis === "report" && outlook.kitchen.positive === true;
+  const reportMinutes = outlook.trading.basis === "report" ? Math.floor((now.getTime() - Date.parse(outlook.trading.detail)) / 60_000) : NaN;
+  const reportAge = Number.isFinite(reportMinutes) && reportMinutes >= 0
+    ? `${String(Math.floor(reportMinutes / 60)).padStart(2, "0")}:${String(reportMinutes % 60).padStart(2, "0")}` : null;
+  const practicalChecks: Array<{ type: ConfirmationType; label: string; state: boolean | null }> = [
+    { type: "walk_ins", label: "Walk-ins", state: status.trust ? status.acceptsWalkIns : null },
+    { type: "card_machine", label: "Card machine", state: status.trust ? status.cardMachineWorking : null },
+    { type: "backup_power", label: "Power", state: status.trust ? status.hasBackupPower : null },
   ];
   if (status.trust && status.busyLevel !== "unknown")
-    practicalChecks.push([
-      "Busy level",
-      trustClaimLabel("busy_level", status.trust.claims.busy_level),
-      null,
-    ]);
+    practicalChecks.push({ type: "busy_level", label: "Busy level", state: null });
+  const hasPrimaryReports = Boolean(status.trust?.claims.open_status?.evidence.length ||
+    (isFoodCategory(place.category) && status.trust?.claims.kitchen_status?.evidence.length));
   return (
     <>
       <Page
@@ -174,11 +179,11 @@ export function PlaceDetailScreen() {
               tradingTone !== "neutral" && { color: colours[tradingTone] },
             ]}
           >
-            {outlook.trading.label}
+            {reportedOpen ? "Open" : outlook.trading.label}
           </Text>
-          {outlook.kitchen.basis === "report" ||
+          {isFoodCategory(place.category) && (outlook.kitchen.basis === "report" ||
           outlook.kitchen.basis === "conflict" ||
-          outlook.trading.positive !== false ? (
+          outlook.trading.positive !== false) ? (
             <View style={styles.kitchenLine}>
               <StatusIcon
                 tone={kitchenTone}
@@ -191,10 +196,11 @@ export function PlaceDetailScreen() {
                   kitchenTone !== "neutral" && { color: colours[kitchenTone] },
                 ]}
               >
-                {outlook.kitchen.label}
+                {reportedServing ? "and Serving" : outlook.kitchen.label}
               </Text>
             </View>
           ) : null}
+          {reportAge ? <Text style={styles.meta} accessibilityLabel={`Reported ${Math.floor(reportMinutes / 60)} hours and ${reportMinutes % 60} minutes ago`}>Reported {reportAge} ago</Text> : null}
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="View recent reports"
@@ -281,29 +287,31 @@ export function PlaceDetailScreen() {
       >
         <View style={styles.reportSummary}>
           {reportRefreshError ? <Notice title="Could not refresh reports" message="Showing the last loaded reports." actionLabel="Try again" onAction={() => void refreshReports()} /> : null}
-          <Text style={styles.reportHeading}>Community reports</Text>
-          <StatusRow
+          <Text style={styles.reportHeading}>Reports</Text>
+          {hasPrimaryReports ? <><StatusRow
             label="Open"
             value={trustClaimLabel("open_status", status.trust?.claims.open_status)}
             state={outlook.trading.basis === "report" ? outlook.trading.positive : null}
             conflict={outlook.trading.basis === "conflict"}
           />
-          <ClaimEvidence claim={status.trust?.claims.open_status} now={now} />
-          <StatusRow
+          <ClaimEvidence label="Open" claim={status.trust?.claims.open_status} now={now} />
+          {isFoodCategory(place.category) ? <><StatusRow
             label="Kitchen serving"
             value={trustClaimLabel("kitchen_status", status.trust?.claims.kitchen_status)}
             state={outlook.kitchen.basis === "report" ? outlook.kitchen.positive : null}
             conflict={outlook.kitchen.basis === "conflict"}
           />
           <ClaimEvidence
+            label="Kitchen serving"
             claim={status.trust?.claims.kitchen_status}
             now={now}
-          />
+          /></> : null}</> : <View style={styles.noReports}><CircleHelp color={colours.muted} size={24}/><Text style={styles.confirmed}>No opening reports</Text></View>}
         </View>
         {outlook.trading.basis !== "report" && outlook.trading.basis !== "conflict" ? (
           <View style={styles.scheduleNote}>
             <Clock3 color={colours.muted} size={20} />
             <View style={styles.toolCopy}>
+              <Text style={styles.summaryLabel}>Listed hours</Text>
               <Text style={styles.practicalTitle}>{outlook.trading.label}</Text>
               <Text style={styles.confirmed}>{outlook.trading.detail}</Text>
             </View>
@@ -311,31 +319,21 @@ export function PlaceDetailScreen() {
         ) : null}
         <View style={styles.practicalSection}>
           <Pressable accessibilityRole="button" accessibilityLabel="Practical checks" accessibilityState={{ expanded: practicalOpen }} aria-expanded={practicalOpen} onPress={() => setPracticalOpen(value => !value)} style={styles.practicalToggle}>
-            <Text style={[styles.practicalTitle, styles.toolCopy]}>Practical checks</Text>
+            <View style={styles.practicalCopy}><Text style={styles.practicalTitle}>Practical checks</Text><Text style={styles.practicalSummary}>{practicalChecks.filter(({ type }) => status.trust?.claims[type]?.evidence.length).length} of {practicalChecks.length} checked</Text></View>
             <ChevronRight color={colours.muted} size={18} style={{ transform: [{ rotate: practicalOpen ? "90deg" : "0deg" }] }} />
           </Pressable>
           {practicalOpen ? <View style={styles.practicalRows}>
-            {practicalChecks.map(([label, value, state], index) => {
-              const claim =
-                status.trust?.claims[
-                  (
-                    [
-                      "walk_ins",
-                      "card_machine",
-                      "backup_power",
-                      "busy_level",
-                    ] as const
-                  )[index]
-                ];
+            {practicalChecks.map(({ type, label, state }) => {
+              const claim = status.trust?.claims[type];
               return (
                 <View key={label}>
                   <StatusRow
                     label={label}
-                    value={value}
+                    value={trustClaimLabel(type, claim)}
                     state={state}
                     conflict={claim?.state === "disagree"}
                   />
-                  <ClaimEvidence claim={claim} now={now} />
+                  <ClaimEvidence label={label} claim={claim} now={now} />
                 </View>
               );
             })}
@@ -358,8 +356,10 @@ export function PlaceDetailScreen() {
       >
         <HoursComparison
           opening={place.openingHours}
-          kitchen={place.kitchenHours}
+          kitchen={isFoodCategory(place.category) ? place.kitchenHours : undefined}
+          supportsKitchen={isFoodCategory(place.category)}
         />
+        {place.dataNotes ? <Text style={styles.confirmed}>{place.dataNotes}</Text> : null}
         <Text style={styles.confirmed}>
           Published schedules are not a check that the place is working now.
         </Text>
@@ -376,7 +376,18 @@ export function PlaceDetailScreen() {
         title="Place information"
         onClose={() => setSheet(null)}
       >
-        <Text style={styles.meta}>{place.address}</Text>
+        <View style={styles.informationSection}>
+          <Text style={styles.reportHeading}>Address</Text>
+          <View style={styles.addressRow}><MapPin color={colours.primary} size={20}/><Text style={styles.address}>{place.address}</Text></View>
+          {actions.filter(action => action.type === "directions").map(action => <Pressable key={action.type} accessibilityRole="button" accessibilityLabel="Get directions" style={styles.actionRow} onPress={() => openInformationLink(action.url)}><Navigation color={colours.primary} size={19}/><Text style={styles.actionText}>Get directions</Text><ExternalLink color={colours.muted} size={16}/></Pressable>)}
+        </View>
+        {actions.some(action => action.type !== "directions") ? <View style={styles.informationSection}>
+          <Text style={styles.reportHeading}>Contact</Text>
+          {actions.filter(action => action.type !== "directions").map(action => <Pressable key={action.type} accessibilityRole="button" accessibilityLabel={action.type === "call" ? `Call ${place.phone}` : action.label} style={styles.actionRow} onPress={() => openInformationLink(action.url)}>
+            {actionIcon(action.type, colours)}<View style={styles.toolCopy}><Text style={styles.actionText}>{action.label}</Text>{action.type === "call" ? <Text style={styles.confirmed}>{place.phone}</Text> : null}</View><ExternalLink color={colours.muted} size={16}/>
+          </Pressable>)}
+        </View> : null}
+        {informationError ? <Text accessibilityRole="alert" style={styles.linkError}>{informationError}</Text> : null}
         {place.groupSlug && place.groupName ? (
           <Pressable
             accessibilityLabel={`View all ${place.groupName} branches`}
@@ -388,12 +399,27 @@ export function PlaceDetailScreen() {
                 params: { groupSlug: place.groupSlug! },
               });
             }}
+            style={styles.actionRow}
           >
-            <Text style={styles.groupLink}>
-              Part of {place.groupName} / View all branches
-            </Text>
+            <View style={styles.toolCopy}><Text style={styles.practicalTitle}>{place.groupName}</Text><Text style={styles.confirmed}>All branches</Text></View><ChevronRight color={colours.muted} size={18}/>
           </Pressable>
         ) : null}
+        {place.dataNotes || place.sourceCheckedAt || sourceAction || hasPhotoCredit ? <View style={styles.informationSection}>
+          <Pressable accessibilityRole="button" accessibilityLabel="About this listing" accessibilityState={{ expanded: listingOpen }} aria-expanded={listingOpen} onPress={() => setListingOpen(value => !value)} style={styles.practicalToggle}>
+            <Text style={[styles.practicalTitle, styles.toolCopy]}>About this listing</Text><ChevronRight color={colours.muted} size={18} style={{ transform: [{ rotate: listingOpen ? "90deg" : "0deg" }] }}/>
+          </Pressable>
+          {listingOpen ? <View style={styles.listingDetails}>
+            {place.sourceCheckedAt ? <Text style={styles.practicalSummary}>Source checked {place.sourceCheckedAt}</Text> : null}
+            {place.dataNotes ? <Text style={styles.confirmed}>{place.dataNotes}</Text> : null}
+            {sourceAction ? <Pressable accessibilityRole="button" accessibilityLabel="View listing source" style={styles.actionRow} onPress={() => openInformationLink(sourceAction.url)}><Globe color={colours.primary} size={18}/><Text style={styles.actionText}>View source</Text><ExternalLink color={colours.muted} size={16}/></Pressable> : null}
+            {hasPhotoCredit ? <>
+              {place.imageAttribution ? <Text style={styles.confirmed}>Photo: {place.imageAttribution}</Text> : null}
+              {place.imageCheckedAt ? <Text style={styles.practicalSummary}>Photo checked {place.imageCheckedAt}</Text> : null}
+              {photoSourceAction ? <Pressable accessibilityRole="button" accessibilityLabel="View photo source" style={styles.actionRow} onPress={() => openInformationLink(photoSourceAction.url)}><Globe color={colours.primary} size={18}/><Text style={styles.actionText}>Photo source</Text><ExternalLink color={colours.muted} size={16}/></Pressable> : null}
+            </> : null}
+          </View> : null}
+        </View> : null}
+        <View style={styles.informationFooter}>
         {place.features.length ? (
           <Section title="Features">
             <View style={styles.features}>
@@ -414,9 +440,9 @@ export function PlaceDetailScreen() {
               params: { placeId: place.id },
             });
           }}
-          style={styles.dataIssue}
+          style={styles.actionRow}
         >
-          <Text style={styles.dataIssueText}>Represent this venue</Text>
+          <Text style={styles.footerLink}>Represent this venue</Text><ChevronRight color={colours.muted} size={16}/>
         </Pressable>
         <Pressable
           accessibilityRole="link"
@@ -427,12 +453,11 @@ export function PlaceDetailScreen() {
               params: { placeId: place.id },
             });
           }}
-          style={styles.dataIssue}
+          style={styles.actionRow}
         >
-          <Text style={styles.dataIssueText}>
-            Report wrong place information
-          </Text>
+          <Text style={styles.footerLink}>Report wrong place information</Text><ChevronRight color={colours.muted} size={16}/>
         </Pressable>
+        </View>
       </PlaceSheet>
       <ActionSheet
         visible={actionsOpen}
@@ -566,7 +591,7 @@ function StatusRow({
       style={styles.checkRow}
     >
       <Text style={styles.checkLabel}>{label}</Text>
-      <StatusIcon tone={tone} colours={colours} />
+      <View style={styles.checkResult}><StatusIcon tone={tone} colours={colours} />
       <Text
         style={[
           styles.checkValue,
@@ -574,30 +599,32 @@ function StatusRow({
         ]}
       >
         {displayValue}
-      </Text>
+      </Text></View>
     </View>
   );
 }
 
-function ClaimEvidence({ claim, now }: { claim?: TrustClaim; now: Date }) {
+function ClaimEvidence({ label, claim, now }: { label: string; claim?: TrustClaim; now: Date }) {
   const styles = useThemeStyles(createStyles);
+  const { colours } = useTheme();
+  const [expanded, setExpanded] = useState(false);
   const evidence =
     claim?.evidence.filter(
       (item) =>
         Date.parse(item.expiresAt) > now.getTime() &&
         Date.parse(item.reportedAt) <= now.getTime(),
-    ) ?? [];
+    ).sort((a, b) => Date.parse(b.reportedAt) - Date.parse(a.reportedAt)) ?? [];
+  if (!evidence.length) return null;
   return (
-    <View>
-      {evidence.map((item) => (
-        <Text key={item.id} style={styles.confirmed}>
-          {item.source === "venue"
-            ? "Verified venue representative"
-            : `Community / ${item.checkedBy?.replaceAll("_", " ") ?? "check method not listed"}`}
-          :
-          {` reports ${item.value.replaceAll("_", " ")} / ${formatRelativeTime(item.reportedAt, now)} / expires ${new Date(item.expiresAt).toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Johannesburg" })}`}
-        </Text>
-      ))}
+    <View style={styles.evidenceDetails}>
+      <Pressable accessibilityRole="button" accessibilityLabel={`${label} report details`} accessibilityState={{ expanded }} aria-expanded={expanded} onPress={() => setExpanded(value => !value)} style={styles.evidenceToggle}>
+        <Text style={styles.evidenceLink}>{evidence.length} {evidence.length === 1 ? "report" : "reports"}</Text><Text style={styles.practicalSummary}>{formatRelativeTime(evidence[0].reportedAt, now)}</Text><ChevronRight color={colours.muted} size={15} style={{ transform: [{ rotate: expanded ? "90deg" : "0deg" }] }}/>
+      </Pressable>
+      {expanded ? evidence.map(item => <View key={item.id} style={styles.evidenceItem}>
+        <View style={styles.evidenceHead}><Text style={styles.practicalTitle}>{item.value.replaceAll("_", " ")}</Text><Text style={styles.practicalSummary}>{formatRelativeTime(item.reportedAt, now)}</Text></View>
+        <Text style={styles.confirmed}>{item.source === "venue" ? "Verified venue representative" : item.checkedBy === "in_person" ? "At the venue" : item.checkedBy === "phone" ? "By phone" : item.checkedBy === "online" ? "Online" : "Check method not listed"}</Text>
+        <Text style={styles.practicalSummary}>Expires at {new Date(item.expiresAt).toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Johannesburg" })} (SA time)</Text>
+      </View>) : null}
     </View>
   );
 }
@@ -625,7 +652,9 @@ function formatHours(hours?: {
 function HoursComparison({
   opening,
   kitchen,
+  supportsKitchen = true,
 }: {
+  supportsKitchen?: boolean;
   opening: Array<{
     day: string;
     openTime: string;
@@ -716,7 +745,7 @@ function HoursComparison({
       {!hasOpening ? (
         <Text style={styles.hoursNote}>Trading hours not published.</Text>
       ) : null}
-      {!hasKitchen ? (
+      {supportsKitchen && !hasKitchen ? (
         <Text style={styles.hoursNote}>Kitchen hours not published.</Text>
       ) : null}
     </View>
@@ -842,8 +871,13 @@ const createStyles = (colours: ThemeColours) =>
       justifyContent: "space-between",
       gap: 6,
     },
-    evidenceDetails: { gap: 8 },
-    reportSummary: { gap: space.xs },
+    evidenceDetails: { paddingBottom: space.sm },
+    evidenceToggle: { minHeight: sizes.touch, flexDirection: "row", alignItems: "center", gap: space.sm },
+    evidenceLink: { flex: 1, color: colours.primary, fontFamily: fonts.medium, fontSize: 13, lineHeight: 20 },
+    evidenceItem: { gap: 3, paddingVertical: space.sm, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colours.border },
+    evidenceHead: { flexDirection: "row", justifyContent: "space-between", gap: space.sm },
+    reportSummary: { gap: 0 },
+    noReports: { minHeight: 80, flexDirection: "row", alignItems: "center", gap: space.sm },
     reportHeading: {
       color: colours.text,
       fontFamily: fonts.semibold,
@@ -854,9 +888,11 @@ const createStyles = (colours: ThemeColours) =>
       flexDirection: "row",
       alignItems: "center",
       gap: space.sm,
-      padding: space.md,
-      borderRadius: radii.surface,
-      backgroundColor: colours.elevated,
+      paddingVertical: space.md,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colours.controlBorder,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colours.border,
     },
     shareCheck: {
       flexDirection: "row",
@@ -978,12 +1014,19 @@ const createStyles = (colours: ThemeColours) =>
       lineHeight: 20,
     },
     checkValue: {
-      flex: 1,
+      flexShrink: 1,
       textAlign: "right",
       fontFamily: fonts.regular,
       fontSize: 14,
       lineHeight: 20,
     },
+    checkResult: { flex: 1.2, minWidth: 0, flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: space.xs },
+    informationSection: { gap: space.xs },
+    informationFooter: { paddingTop: space.sm, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colours.controlBorder },
+    addressRow: { flexDirection: "row", alignItems: "flex-start", gap: space.sm, paddingTop: space.xs },
+    address: { flex: 1, minWidth: 0, color: colours.text, fontFamily: fonts.regular, fontSize: 15, lineHeight: 23 },
+    listingDetails: { gap: space.sm, paddingBottom: space.sm },
+    footerLink: { flex: 1, minWidth: 0, color: colours.muted, fontFamily: fonts.medium, fontSize: 13, lineHeight: 20 },
     practicalSection: {
       borderBottomWidth: StyleSheet.hairlineWidth,
       borderBottomColor: colours.border,
@@ -1065,8 +1108,8 @@ const createStyles = (colours: ThemeColours) =>
       paddingBottom: 10,
       color: colours.text,
       fontFamily: fonts.extraBold,
-      fontSize: 24,
-      lineHeight: 30,
+      fontSize: 18,
+      lineHeight: 25,
     },
     hoursSection: { gap: 0 },
     hoursColumns: {

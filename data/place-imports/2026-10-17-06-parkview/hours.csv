@@ -1,0 +1,13 @@
+place_id,hours_type,day_of_week,open_time,close_time,is_closed,sort_order,source_url,source_checked_at
+parkview-shopping-centre,opening,Mon-Fri,09:00,18:00,false,1,https://parkviewshopping.co.za/contact,2026-10-17
+parkview-shopping-centre,opening,Sat-Sun,09:00,17:00,false,6,https://parkviewshopping.co.za/contact,2026-10-17
+clicks-parkview,opening,Mon-Fri,09:00,18:00,false,1,https://clicks.co.za/store/Parkview/1664,2026-10-17
+clicks-parkview,opening,Sat,09:00,17:00,false,6,https://clicks.co.za/store/Parkview/1664,2026-10-17
+clicks-parkview,opening,Sun,09:00,15:00,false,7,https://clicks.co.za/store/Parkview/1664,2026-10-17
+postnet-woodhill,opening,Mon-Fri,08:00,18:00,false,1,https://www.postnet.co.za/stores/woodhill/5c69211b55c8c661d10beaaa,2026-10-17
+postnet-woodhill,opening,Sat,09:00,14:00,false,6,https://www.postnet.co.za/stores/woodhill/5c69211b55c8c661d10beaaa,2026-10-17
+postnet-woodhill,opening,Sun,,,true,7,https://www.postnet.co.za/stores/woodhill/5c69211b55c8c661d10beaaa,2026-10-17
+wolwespruit-mtb-trail-park,opening,Mon,05:30,18:30,false,1,https://wolwespruit.co.za/,2026-10-17
+wolwespruit-mtb-trail-park,opening,Tue,05:30,21:00,false,2,https://wolwespruit.co.za/,2026-10-17
+wolwespruit-mtb-trail-park,opening,Wed-Fri,05:30,18:30,false,3,https://wolwespruit.co.za/,2026-10-17
+wolwespruit-mtb-trail-park,opening,Sat-Sun,06:00,18:00,false,6,https://wolwespruit.co.za/,2026-10-17

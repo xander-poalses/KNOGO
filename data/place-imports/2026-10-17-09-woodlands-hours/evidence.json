@@ -1,0 +1,1014 @@
+[
+  {
+    "id": "baby-city-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/baby-city",
+    "checked_at": "2026-10-17",
+    "shop": "311",
+    "entrance": "3",
+    "phone": "012 574 0496",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a58-3cbf-745b-a57a-780d088b71c4"
+  },
+  {
+    "id": "bargain-books-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/bargain-books",
+    "checked_at": "2026-10-17",
+    "shop": "75B",
+    "entrance": "1",
+    "phone": "012 997 5148",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a58-5caf-740f-b597-44c9080a9745"
+  },
+  {
+    "id": "cape-union-mart-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/cape-union-mart",
+    "checked_at": "2026-10-17",
+    "shop": "57",
+    "entrance": "4",
+    "phone": "012 997 6960",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a58-7cff-747b-a352-2f221b6de5bc"
+  },
+  {
+    "id": "dis-chem-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/dis-chem",
+    "checked_at": "2026-10-17",
+    "shop": "267",
+    "entrance": "2",
+    "phone": "012 994 9292",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a59-454f-7719-875e-dcd5819f70a2"
+  },
+  {
+    "id": "edgars-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/edgars",
+    "checked_at": "2026-10-17",
+    "shop": "9",
+    "entrance": "4",
+    "phone": "010 593 8385",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a59-67a7-74e2-8773-c70fe3f6ef29"
+  },
+  {
+    "id": "exclusive-books-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/exclusive-books",
+    "checked_at": "2026-10-17",
+    "shop": "25A",
+    "entrance": "4",
+    "phone": "012 997 3323",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a59-889c-70cd-8a11-77fe18c89f25"
+  },
+  {
+    "id": "freedom-of-movement-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/freedom-of-movement",
+    "checked_at": "2026-10-17",
+    "shop": "38",
+    "entrance": "4",
+    "phone": "010 085 3595",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a59-abed-737e-a81f-87e79e159fa0"
+  },
+  {
+    "id": "istore-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/istore",
+    "checked_at": "2026-10-17",
+    "shop": "35",
+    "entrance": "4",
+    "phone": "087 057 5500",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a59-cc94-70c5-8c68-89f18b18c5a3"
+  },
+  {
+    "id": "le-creuset-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/le-creuset",
+    "checked_at": "2026-10-17",
+    "shop": "275 & 276",
+    "entrance": "2",
+    "phone": "012 997 3777",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a5a-2cff-726e-8442-ea33912db527"
+  },
+  {
+    "id": "mr-price-home-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/mr-price-home",
+    "checked_at": "2026-10-17",
+    "shop": "241A",
+    "entrance": "3",
+    "phone": "012 997 1075",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a5a-4f32-778f-b819-605036f082a0"
+  },
+  {
+    "id": "mr-price-sport-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/mr-price-sport",
+    "checked_at": "2026-10-17",
+    "shop": "70C",
+    "entrance": "1",
+    "phone": "087 754 1866",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a5a-7935-754f-a1ee-8e0290dfee01"
+  },
+  {
+    "id": "mr-price-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/mr-price-weekend",
+    "checked_at": "2026-10-17",
+    "shop": "63",
+    "entrance": "1",
+    "phone": "072 391 9120",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a5a-96da-752b-b6a7-2a6fd2504cac"
+  },
+  {
+    "id": "mtn-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/mtn",
+    "checked_at": "2026-10-17",
+    "shop": "2",
+    "entrance": "Pick 'n Pay Entrance",
+    "phone": "083 869 8163",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a5a-b9e1-75bc-a494-1cd6d40efd8e"
+  },
+  {
+    "id": "outdoor-warehouse-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/outdoor-warehouse",
+    "checked_at": "2026-10-17",
+    "shop": "310B",
+    "entrance": "3",
+    "phone": "012 997 2370",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "18:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "18:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "18:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "18:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "18:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "17:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "15:00"
+      }
+    ],
+    "scrape_id": "01a14a5b-4f01-76a5-8e1d-365e1611b543"
+  },
+  {
+    "id": "pep-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/pep",
+    "checked_at": "2026-10-17",
+    "shop": "263B",
+    "entrance": "3",
+    "phone": "012 803 9424",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a5b-6ee3-701b-81a6-461cb8bc1313"
+  },
+  {
+    "id": "pna-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/pna",
+    "checked_at": "2026-10-17",
+    "shop": "7",
+    "entrance": "1",
+    "phone": "012 493 0746",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a5b-b8db-73eb-bff2-ea298227b0c6"
+  },
+  {
+    "id": "telkom-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/telkom",
+    "checked_at": "2026-10-17",
+    "shop": "71B",
+    "entrance": "1",
+    "phone": "012 997 3605",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a5b-d9aa-71bd-8311-ec2242c33c75"
+  },
+  {
+    "id": "the-crazy-store-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/the-crazy-store",
+    "checked_at": "2026-10-17",
+    "shop": "75A",
+    "entrance": "1",
+    "phone": "087 135 8974",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a5c-3cfd-740b-a833-820a78cbd7e3"
+  },
+  {
+    "id": "the-fun-company-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/the-fun-company",
+    "checked_at": "2026-10-17",
+    "shop": "26",
+    "entrance": "4",
+    "phone": "087 164 9459",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "10:00",
+        "close": "23:00"
+      },
+      {
+        "day": "Tue",
+        "open": "10:00",
+        "close": "23:00"
+      },
+      {
+        "day": "Wed",
+        "open": "10:00",
+        "close": "23:00"
+      },
+      {
+        "day": "Thu",
+        "open": "10:00",
+        "close": "23:00"
+      },
+      {
+        "day": "Fri",
+        "open": "10:00",
+        "close": "23:00"
+      },
+      {
+        "day": "Sat",
+        "open": "10:00",
+        "close": "23:00"
+      },
+      {
+        "day": "Sun",
+        "open": "10:00",
+        "close": "22:00"
+      }
+    ],
+    "scrape_id": "01a14a5c-5fc9-77eb-a27a-463097bccb0b"
+  },
+  {
+    "id": "vodacom-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/vodacom-shop",
+    "checked_at": "2026-10-17",
+    "shop": "66A & 67",
+    "entrance": "1",
+    "phone": "012 997 5281",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a5c-815e-764e-bfb2-2fe659a789ec"
+  },
+  {
+    "id": "woolworths-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/woolworths",
+    "checked_at": "2026-10-17",
+    "shop": "46",
+    "entrance": "2 & 4",
+    "phone": "012 997 9100",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a5c-a36f-74ec-9144-eb067b6d31b7"
+  },
+  {
+    "id": "yuppiechef-woodlands",
+    "url": "https://woodlandsboulevard.co.za/shop/yuppiechef",
+    "checked_at": "2026-10-17",
+    "shop": "281",
+    "entrance": "3",
+    "phone": "012 414 0204",
+    "schedule": [
+      {
+        "day": "Mon",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Tue",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Wed",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Thu",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Fri",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sat",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      {
+        "day": "Sun",
+        "open": "09:00",
+        "close": "17:00"
+      }
+    ],
+    "scrape_id": "01a14a5c-cc25-745e-96ba-10b7e1aefa20"
+  }
+]

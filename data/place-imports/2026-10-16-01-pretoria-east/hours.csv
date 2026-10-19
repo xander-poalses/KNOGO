@@ -1,0 +1,10 @@
+place_id,hours_type,day_of_week,open_time,close_time,is_closed,sort_order,source_url,source_checked_at
+shell-lynnwood-motors,opening,Mon-Sun,00:00,23:59,false,1,https://find.shell.com/za/fuel/10042610-lynnwood-motors/en_US,2026-10-16
+shell-glenwood,opening,Mon-Sun,00:00,23:59,false,1,https://find.shell.com/za/fuel/10043157-glenwood-service-station/en_US,2026-10-16
+shell-moreleta-motors,opening,Mon-Sun,00:00,23:59,false,1,https://find.shell.com/za/fuel/10042717-moreleta-motors/en_US,2026-10-16
+supa-quick-menlyn,opening,Mon-Fri,07:30,17:00,false,1,https://www.supaquick.com/tyre-fitment-centres/gauteng/menlyn,2026-10-16
+supa-quick-menlyn,opening,Sat,08:00,13:00,false,6,https://www.supaquick.com/tyre-fitment-centres/gauteng/menlyn,2026-10-16
+supa-quick-menlyn,opening,Sun,,,true,7,https://www.supaquick.com/tyre-fitment-centres/gauteng/menlyn,2026-10-16
+builders-warehouse-woodlands,opening,Mon-Fri,07:00,18:00,false,1,https://woodlandsboulevard.co.za/shop/builders-warehouse,2026-10-16
+builders-warehouse-woodlands,opening,Sat,07:00,17:00,false,6,https://woodlandsboulevard.co.za/shop/builders-warehouse,2026-10-16
+builders-warehouse-woodlands,opening,Sun,08:00,16:00,false,7,https://woodlandsboulevard.co.za/shop/builders-warehouse,2026-10-16

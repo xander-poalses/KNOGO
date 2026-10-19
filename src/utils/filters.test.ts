@@ -14,6 +14,18 @@ function reported(place: Place, answers: Array<[ConfirmationType, string]>, expi
 }
 
 describe("filterPlaces", () => {
+  it("filters by place type and matches any selected service tag", () => {
+    const shop = { ...mockPlaces[0], id: "shop", category: "shops" as const, placeType: "hardware_store", cuisine: ["Tools", "Building supplies"] };
+    const workshop = { ...shop, id: "workshop", category: "automotive" as const, placeType: "vehicle_repair_workshop", cuisine: ["Repairs"] };
+    expect(filterPlaces([shop, workshop], { ...base, placeTypes: ["hardware_store"] }).map(p => p.id)).toEqual(["shop"]);
+    expect(filterPlaces([shop, workshop], { ...base, tags: ["Repairs", "Tools"] })).toHaveLength(2);
+    expect(filterPlaces([shop, workshop], { ...base, placeTypes: ["hardware_store"], tags: ["Repairs"] })).toHaveLength(0);
+  });
+  it("uses legacy category as the type when a place has no place type", () => {
+    const place = { ...mockPlaces[0], placeType: undefined };
+    expect(filterPlaces([place], { ...base, placeTypes: [place.category] })).toHaveLength(1);
+    expect(filterPlaces([place], { ...base, placeTypes: ["fuel_station"] })).toHaveLength(0);
+  });
   it("filters by area", () => {
     const results = filterPlaces(mockPlaces, { ...base, areas: ["Hazelwood"] });
     expect(results).toHaveLength(1);

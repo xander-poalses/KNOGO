@@ -1,0 +1,49 @@
+{
+  "place": {
+    "id": "home-affairs-fnb-the-grove",
+    "name": "Home Affairs at FNB The Grove",
+    "slug": "home-affairs-fnb-the-grove",
+    "tags": [
+      "Home Affairs",
+      "Smart ID",
+      "Passport",
+      "Government services"
+    ],
+    "phone": "087 345 3355",
+    "address": "Shop U20, FNB, The Grove Mall, corner Lynnwood Road and Simon Vermooten Road, Equestria, Pretoria",
+    "map_url": "https://www.google.com/maps/dir/?api=1&destination=-25.7662976%2C28.3247035",
+    "website": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "features": [],
+    "group_id": "home-affairs",
+    "latitude": -25.7662976,
+    "logo_url": null,
+    "menu_url": null,
+    "image_url": null,
+    "is_active": true,
+    "longitude": 28.3247035,
+    "region_id": "equestria",
+    "created_at": "2026-10-16T12:59:17.690379+00:00",
+    "data_notes": "Home Affairs counter within FNB, not a stand-alone office. Counter hours and appointment conditions have not been verified; check with the counter before travelling. Coordinates mark the mall, not the counter entrance.",
+    "place_type": "home_affairs_counter",
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "updated_at": "2026-10-16T12:59:32.468799+00:00",
+    "category_id": "public_services",
+    "logo_checked_at": null,
+    "logo_source_url": null,
+    "service_details": {
+      "shop": "U20",
+      "host_business": "FNB",
+      "information_url": "https://www.fnb.co.za/ways-to-bank/branch.html",
+      "shopping_centre": "The Grove Mall",
+      "information_note": "FNB search excerpt lists Lynnwood (Grove Mall) among participating Smart ID and passport branches. Full FNB page could not be fetched; eligibility and hours remain unverified.",
+      "coordinate_source": "https://www.thegrovemall.co.za/the-grove-mall---contact",
+      "coordinate_precision": "shopping_centre"
+    },
+    "image_checked_at": null,
+    "image_source_url": null,
+    "image_attribution": null,
+    "source_checked_at": "2026-10-16"
+  },
+  "record_hash": "24c7b869c4e57b3946d6cf44d0f3533e",
+  "status_hash": "c9b09fece347f542d7dd3a9a02c39e59"
+}

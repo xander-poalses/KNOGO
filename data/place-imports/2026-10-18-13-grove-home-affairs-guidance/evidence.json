@@ -1,0 +1,25 @@
+{
+  "source_url": "https://www.fnb.co.za/ways-to-bank/branch.html",
+  "checked_at": "2026-10-18",
+  "scrape_id": "01a15010-6b65-7645-a4ae-f2c3b9f78b47",
+  "participating_branch": "FNB Lynnwood (Grove Mall)",
+  "service_guidance": {
+    "source_url": "https://www.fnb.co.za/ways-to-bank/branch.html",
+    "checked_at": "2026-10-18",
+    "standard_application": "Register and pay through eHomeAffairs, approve payment through the FNB App or online banking, then book the branch appointment.",
+    "appointment": "Smart ID and passport application/renewal visits require a date and time booked through eHomeAffairs.",
+    "payment": "Application payments are approved through the FNB App or online banking, not cash or in-branch debit/credit card payment.",
+    "fnb_account": "FNB's qualifying criteria require an active, funded FNB transactional account. Check the operator's criteria for the application.",
+    "collection": "Wait for an SMS before collecting the document; FNB asks for original identity documents at collection.",
+    "documents": "FNB asks for original identity documents for the standard application. Its replacement guidance contains conflicting document statements; confirm the requirements for your service.",
+    "replacement_scope": "FNB describes Smart ID replacement without an appointment at selected branches, but this section does not identify Grove individually. Confirm branch eligibility; do not assume walk-in access for passport/new-ID applications.",
+    "hours": "FNB says participating branches can be visited Monday-Saturday during branch operating hours. Exact Grove counter times and holiday changes are not given.",
+    "fees": "Refer to the Department of Home Affairs tariff page linked through its website; no fee amount stored.",
+    "eHomeAffairs_help": "0800 60 11 90 (Department of Home Affairs call centre, not the Grove counter)"
+  },
+  "hours_status": "Exact weekly counter times not published; no opening rows inferred",
+  "source_conflicts": [
+    "Smart ID replacement text asks for original identity documents, while an icon caption says no documentation needed. Do not resolve by guessing.",
+    "Replacement walk-in section says selected branches, but does not list Grove separately."
+  ]
+}

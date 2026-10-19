@@ -1,10 +1,11 @@
 import type { ConfirmationAnswer, ConfirmationType, ReportOutcome, ReportSource } from "@knogo/core";
-import { reportValidationError } from "@knogo/core";
+import { isFoodCategory, reportValidationError } from "@knogo/core";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Check, ChevronRight } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { AccountForm } from "../components/AccountForm";
+import { PlaceSheet } from "../components/PlaceSheet";
 import { HapticPressable as Pressable } from "../components/HapticPressable";
 import { ActionButton, Chip, BackButton, Notice, Page } from "../components/Ui";
 import { usePlaces } from "../state/PlacesContext";
@@ -42,7 +43,7 @@ function VenueReportForm() {
   const router = useRouter();
   const { places, loading: placesLoading, addConfirmations, authLoading, hasSupabaseConfig, session } = usePlaces();
   const place = places.find((item) => item.id === placeId);
-  const [awaitingEmail, setAwaitingEmail] = useState(false);
+  const supportsKitchen = !place || isFoodCategory(place.category);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState(-1);
   const [answers, setAnswers] = useState<ConfirmationAnswer[]>([]);
@@ -61,11 +62,11 @@ function VenueReportForm() {
       if (!active || done || draftEdited.current || !draft || draft.placeId !== placeId) return;
       const age = Date.now() - Date.parse(draft.createdAt);
       if (!Number.isFinite(age) || age < 0 || age >= 4 * 60 * 60 * 1000) return;
-      setAnswers(draft.answers); setReportSource(draft.reportSource); setSourceUrl(draft.sourceUrl ?? "");
+      setAnswers(draft.answers.filter(answer => supportsKitchen || answer.type !== "kitchen_status")); setReportSource(draft.reportSource); setSourceUrl(draft.sourceUrl ?? "");
       setStep(6);
     }).catch(() => undefined);
     return () => { active = false; };
-  }, [placeId]);
+  }, [placeId, supportsKitchen]);
 
   if (!place) return <Page><BackButton label="Back to explore" /><Notice title={placesLoading ? "Loading place" : "Place not found"} loading={placesLoading} /></Page>;
   if (authLoading) return <Page><BackButton label="Back to place" /><Notice title="Checking your account" loading /></Page>;
@@ -87,16 +88,14 @@ function VenueReportForm() {
     }
   };
 
-  if (hasSupabaseConfig && !session && awaitingEmail) {
+  if (hasSupabaseConfig && !session && !done) {
     return (
         <Page contentContainerStyle={styles.centerPage}>
           <BackButton label="Back to place" />
-          <View style={styles.card}>
-            <Text style={styles.kicker}>Sign in to submit</Text>
-            <Text style={styles.helper}>Your answers are saved on this device. Sign in, then review your report.</Text>
-            <AccountForm reportPlaceId={place.id} onAuthenticated={() => setAwaitingEmail(false)}/>
-            <ActionButton label="Back to my answers" tone="light" disabled={busy} onPress={() => setAwaitingEmail(false)} />
-          </View>
+          <PlaceSheet visible title="Leave a report" onClose={() => router.replace({ pathname: "/restaurants/[placeId]", params: { placeId: place.id } })}>
+            <Text style={styles.helper}>Sign in or create an account to report on {place.name}.</Text>
+            <AccountForm reportPlaceId={place.id} onAuthenticated={() => setError(null)}/>
+          </PlaceSheet>
         </Page>
     );
   }
@@ -106,10 +105,6 @@ function VenueReportForm() {
     if (validationError) throw new Error(validationError);
     if (!reportSource) throw new Error("Choose how you checked this place.");
     await mobileStorage.writePendingReport({ placeId: place.id, answers, reportSource, sourceUrl: sourceUrl.trim() || undefined, createdAt: new Date().toISOString() });
-    if (hasSupabaseConfig && !session) {
-      setAwaitingEmail(true);
-      return;
-    }
     const result = await addConfirmations(place.id, answers, reportSource, sourceUrl);
     await mobileStorage.clearPendingReport().catch(() => undefined);
     setOutcome(result.outcome);
@@ -123,9 +118,9 @@ function VenueReportForm() {
       ? `Your observation about ${place.name} is recorded. It is not proof of availability.`
       : outcome === "conflict"
         ? "The checks include opposing reports. KNOGO keeps both sources visible rather than choosing a side."
-        : "Thanks for being a lookout. Your check helps the community. It may need checks from others before the status changes.";
+        : "Other checks may be needed before the status changes.";
     const resultSource = reportSource ?? callbackSource;
-    return <Page contentContainerStyle={styles.centerPage}><BackButton label="Back to place" /><View style={styles.done}><Check color={colours.primary} size={46} /><Text style={styles.title}>{title}</Text><Text style={styles.helper}>{message}</Text>{resultSource ? <Text style={styles.unverified}>Checked by {resultSource === "in_person" ? "a person at the venue" : resultSource === "phone" ? "phone" : "an online source"}.</Text> : null}{hasSupabaseConfig && session && reportId ? <ReportAssessmentReceipt key={`${session.userId}:${reportId}`} reportId={reportId} /> : null}<ActionButton label="Back to place" tone="green" onPress={() => router.replace({ pathname: "/restaurants/[placeId]", params: { placeId: place.id } })} /></View></Page>;
+    return <Page contentContainerStyle={styles.centerPage}><BackButton label="Back to place" iconOnly /><View style={styles.done}><Check color={colours.primary} size={46} /><Text style={styles.title}>{title}</Text><Text style={styles.helper}>{message}</Text>{resultSource ? <Text style={styles.unverified}>Checked by {resultSource === "in_person" ? "a person at the venue" : resultSource === "phone" ? "phone" : "an online source"}.</Text> : null}{hasSupabaseConfig && session && reportId ? <ReportAssessmentReceipt key={`${session.userId}:${reportId}`} reportId={reportId} /> : null}<ActionButton label="Back to place" tone="green" onPress={() => router.replace({ pathname: "/restaurants/[placeId]", params: { placeId: place.id } })} /></View></Page>;
   }
 
   const current = steps[step];
@@ -135,8 +130,9 @@ function VenueReportForm() {
   };
   const requiredComplete = answers.length > 0;
   const optionalAnswered = current && answers.some((answer) => answer.type === current.type);
-  const total = showOptional ? 8 : 5;
-  const progressStep = step === 6 ? total : step + 2;
+  const total = (showOptional ? 8 : 5) - (supportsKitchen ? 0 : 1);
+  const progressStep = step === 6 ? total : step + 2 - (!supportsKitchen && step > 1 ? 1 : 0);
+  const nextStep = step === 2 || step === 5 ? 6 : step === 0 && !supportsKitchen ? 2 : step + 1;
   const sourceReady = reportSource !== null && (reportSource !== "online" || /^https?:\/\/[^\s/]+\.[^\s/]+/i.test(sourceUrl.trim()));
 
   return (
@@ -149,8 +145,7 @@ function VenueReportForm() {
         <Text accessibilityLiveRegion="polite" style={styles.helper}>Step {progressStep} of {total}</Text>
         {step === -1 ? <>
         <Text accessibilityRole="header" style={styles.questionTitle}>How did you check?</Text>
-        <Text style={styles.helper}>Be a meerkat lookout. Share what you checked; skip the rest.</Text>
-        {hasSupabaseConfig && !session ? <Text style={styles.helper}>You can answer first. Sign-in is needed to submit.</Text> : null}
+        <Text style={styles.helper}>Share what you checked; skip the rest.</Text>
         <View accessibilityRole="radiogroup" accessibilityLabel="Check method" style={styles.sourceOptions}>{([['in_person', 'At the venue'], ['phone', 'By phone'], ['online', 'Online']] as Array<[ReportSource, string]>).map(([value, label]) => <Chip key={value} role="radio" label={label} selected={reportSource === value} disabled={busy} onPress={() => { draftEdited.current = true; setReportSource(value); setError(null); }} />)}</View>
         {reportSource === "online" ? <TextInput accessibilityLabel="Source website address" editable={!busy} style={styles.input} value={sourceUrl} onChangeText={(value) => { draftEdited.current = true; setSourceUrl(value); setError(null); }} placeholder="https://source-page.example" placeholderTextColor={colours.muted} autoCapitalize="none" autoCorrect={false} keyboardType="url" /> : null}
         <ActionButton label="Continue" tone="green" disabled={busy || !sourceReady} onPress={() => setStep(0)} />
@@ -162,7 +157,7 @@ function VenueReportForm() {
             const question = steps.find(item => item.type === answer.type);
             return <Pressable key={answer.type} accessibilityRole="button" accessibilityLabel={`Edit ${question?.question}`} onPress={() => setStep(steps.findIndex(item => item.type === answer.type))} style={styles.reviewRow}><View style={{ flex: 1 }}><Text style={styles.helper}>{question?.question}</Text><Text style={styles.optionText}>{question?.options.find(option => option.value === answer.value)?.label}</Text></View><ChevronRight color={colours.muted} size={18}/></Pressable>;
           })}
-          <ActionButton label={busy ? "Submitting..." : hasSupabaseConfig && !session ? "Sign in to submit" : "Submit check"} tone="green" loading={busy} disabled={!requiredComplete || !sourceReady} onPress={() => void submit()}/>
+          <ActionButton label={busy ? "Submitting..." : "Submit check"} tone="green" loading={busy} disabled={!requiredComplete || !sourceReady} onPress={() => void submit()}/>
           {!showOptional ? <ActionButton label="Add more checks" tone="light" onPress={() => { setShowOptional(true); setStep(3); }}/>:null}
         </> : <>
         <Text accessibilityRole="header" style={styles.questionTitle}>{current.question}</Text>
@@ -173,14 +168,13 @@ function VenueReportForm() {
           })}
         </View>
         <View style={styles.questionNavigation}>
-          <View style={styles.navigationButton}><ActionButton label="Back" tone="light" disabled={busy} onPress={() => setStep(step - 1)}/></View>
-          <View style={styles.navigationButton}><ActionButton label={step === 2 || step === 5 ? "Review check" : "Continue"} tone="green" disabled={busy || !optionalAnswered} onPress={() => setStep(step === 2 || step === 5 ? 6 : step + 1)} /></View>
+          <View style={styles.navigationButton}><ActionButton label="Back" tone="light" disabled={busy} onPress={() => setStep(step === 2 && !supportsKitchen ? 0 : step - 1)}/></View>
+          <View style={styles.navigationButton}><ActionButton label={step === 2 || step === 5 ? "Review check" : "Continue"} tone="green" disabled={busy || !optionalAnswered} onPress={() => setStep(nextStep)} /></View>
         </View>
-        <ActionButton label="Did not check" tone="light" disabled={busy} onPress={() => { draftEdited.current = true; setAnswers(value => value.filter(answer => answer.type !== current.type)); setStep(step === 2 || step === 5 ? 6 : step + 1); }} />
+        <ActionButton label="Did not check" tone="light" disabled={busy} onPress={() => { draftEdited.current = true; setAnswers(value => value.filter(answer => answer.type !== current.type)); setStep(nextStep); }} />
         {requiredComplete && step !== 2 && step !== 5 ? <ActionButton label="Review report" tone="light" disabled={busy} onPress={() => setStep(6)} /> : null}
         </>}
         <FeedbackToast message={error} onDismiss={() => setError(null)}/>
-        {busy ? <Text style={styles.saving}>Saving check...</Text> : null}
       </View>
     </Page>
   );

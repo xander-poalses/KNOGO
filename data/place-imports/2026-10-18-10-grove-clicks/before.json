@@ -1,0 +1,46 @@
+{
+  "place": {
+    "id": "clicks-the-grove",
+    "name": "Clicks The Grove",
+    "slug": "clicks-the-grove",
+    "tags": [
+      "Pharmacy",
+      "Health",
+      "Beauty"
+    ],
+    "phone": "012 807 4020",
+    "address": "Shop L21, The Grove Mall, corner Lynnwood Road and Simon Vermooten Road, Equestria, Pretoria",
+    "map_url": "https://www.google.com/maps/dir/?api=1&destination=-25.7662976%2C28.3247035",
+    "website": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "features": [],
+    "group_id": "clicks",
+    "latitude": -25.7662976,
+    "logo_url": null,
+    "menu_url": null,
+    "image_url": null,
+    "is_active": true,
+    "longitude": 28.3247035,
+    "region_id": "equestria",
+    "created_at": "2026-10-16T12:55:21.998392+00:00",
+    "data_notes": "Tenant hours are not published in the directory. Coordinates mark the shopping centre, not this shop's doorway. Check the branch for its service hours.",
+    "place_type": "pharmacy",
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "updated_at": "2026-10-16T12:55:52.902122+00:00",
+    "category_id": "shops",
+    "logo_checked_at": null,
+    "logo_source_url": null,
+    "service_details": {
+      "shop": "L21",
+      "shopping_centre": "The Grove Mall",
+      "coordinate_source": "https://www.thegrovemall.co.za/the-grove-mall---contact",
+      "coordinate_precision": "shopping_centre"
+    },
+    "image_checked_at": null,
+    "image_source_url": null,
+    "image_attribution": null,
+    "source_checked_at": "2026-10-16"
+  },
+  "record_hash": "fac752bfebf750a320c31b884c603871",
+  "status_hash": "d4f58974a9f4e887e7fa10dc3bac8121",
+  "opening_days": 0
+}

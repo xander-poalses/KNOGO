@@ -17,45 +17,47 @@ export default function TabsLayout() {
   return (
     <Tabs
       tabBar={({ state, descriptors, navigation }) => (
-        <View style={[styles.tabBar, { bottom: 12 + insets.bottom, left: (windowWidth - tabWidth) / 2, width: tabWidth }]}>
-          {state.routes.map((route, index) => {
-            const focused = state.index === index;
-            const options = descriptors[route.key].options;
-            const label = typeof options.title === "string" ? options.title : route.name;
-            const Icon = route.name === "index"
-              ? Home
-              : route.name === "restaurants"
-                ? Compass
-                : route.name === "saved"
-                  ? Heart
-                  : Settings;
+        <View style={[styles.tabDock, { paddingBottom: 12 + insets.bottom }]}>
+          <View style={[styles.tabBar, { width: tabWidth }]}>
+            {state.routes.map((route, index) => {
+              const focused = state.index === index;
+              const options = descriptors[route.key].options;
+              const label = typeof options.title === "string" ? options.title : route.name;
+              const Icon = route.name === "index"
+                ? Home
+                : route.name === "restaurants"
+                  ? Compass
+                  : route.name === "saved"
+                    ? Heart
+                    : Settings;
 
-            return (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityState={focused ? { selected: true } : {}}
-                key={route.key}
-                onLongPress={() => navigation.emit({ type: "tabLongPress", target: route.key })}
-                onPress={() => {
-                  const event = navigation.emit({
-                    type: "tabPress",
-                    target: route.key,
-                    canPreventDefault: true
-                  });
+              return (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityState={focused ? { selected: true } : {}}
+                  key={route.key}
+                  onLongPress={() => navigation.emit({ type: "tabLongPress", target: route.key })}
+                  onPress={() => {
+                    const event = navigation.emit({
+                      type: "tabPress",
+                      target: route.key,
+                      canPreventDefault: true
+                    });
 
-                  if (!event.defaultPrevented && route.name === "restaurants") {
-                    router.replace("/restaurants");
-                  } else if (!focused && !event.defaultPrevented) {
-                    navigation.navigate(route.name, route.params);
-                  }
-                }}
-                style={[styles.tabItem, focused && styles.tabItemActive]}
-              >
-                <Icon color={focused ? colours.background : colours.muted} size={21} strokeWidth={2.2} />
-                <Text adjustsFontSizeToFit minimumFontScale={0.75} numberOfLines={1} style={[styles.tabLabel, focused && styles.tabLabelActive]}>{label}</Text>
-              </Pressable>
-            );
-          })}
+                    if (!event.defaultPrevented && route.name === "restaurants") {
+                      router.replace("/restaurants");
+                    } else if (!focused && !event.defaultPrevented) {
+                      navigation.navigate(route.name, route.params);
+                    }
+                  }}
+                  style={[styles.tabItem, focused && styles.tabItemActive]}
+                >
+                  <Icon color={focused ? colours.background : colours.muted} size={21} strokeWidth={2.2} />
+                  <Text adjustsFontSizeToFit minimumFontScale={0.75} numberOfLines={1} style={[styles.tabLabel, focused && styles.tabLabelActive]}>{label}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
       )}
       screenOptions={{
@@ -72,8 +74,21 @@ export default function TabsLayout() {
 }
 
 const createStyles = (colours: ThemeColours) => StyleSheet.create({
-  tabBar: {
+  tabDock: {
     position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    paddingTop: 12,
+    backgroundColor: colours.background,
+    shadowColor: colours.background,
+    shadowOffset: { width: 0, height: -8 },
+    shadowOpacity: 1,
+    shadowRadius: 16,
+    elevation: 10
+  },
+  tabBar: {
     height: 66,
     padding: 5,
     flexDirection: "row",

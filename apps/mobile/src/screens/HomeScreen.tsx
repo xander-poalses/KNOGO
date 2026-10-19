@@ -49,7 +49,6 @@ export function HomeScreen() {
     <View style={styles.page}>
       <View style={styles.intro}>
         <Text accessibilityRole="header" style={styles.title}>Know before you go</Text>
-        <Text style={styles.introCopy}>See community checks and estimate your trip's fuel cost before you leave.</Text>
         <Pressable accessibilityRole="button" accessibilityLabel="Search KNOGO" accessibilityHint="Opens the search field" onPress={() => setSearchOpen(true)} style={({ pressed }) => [styles.searchBox, pressed && styles.pressed]}>
           <Search color={colours.text} size={22} /><Text numberOfLines={1} style={[styles.input, !query && styles.placeholder]}>{query || "Search names, areas or cuisines"}</Text><View style={styles.searchArrow}><ArrowRight color={colours.background} size={21} /></View>
         </Pressable>

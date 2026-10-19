@@ -1,0 +1,4 @@
+id,slug,name,category_id,description,website,source_url,source_checked_at
+shell,shell,Shell,automotive,Shell-branded fuel stations. Operators may differ by branch.,https://www.shell.co.za/,https://find.shell.com/za/fuel/10042610-lynnwood-motors/en_US,2026-10-16
+supa-quick,supa-quick,Supa Quick,automotive,Tyre and fitment centres.,https://www.supaquick.com/,https://www.supaquick.com/tyre-fitment-centres/gauteng/menlyn,2026-10-16
+builders-warehouse,builders-warehouse,Builders Warehouse,shops,Building materials and home improvement stores.,https://www.builders.co.za/,https://woodlandsboulevard.co.za/shop/builders-warehouse,2026-10-16

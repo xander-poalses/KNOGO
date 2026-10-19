@@ -14,6 +14,7 @@ export * from "./tripApi";
 export * from "./placeOutlook";
 export * from "./types/place";
 export * from "./utils/filters";
+export * from "./utils/categories";
 export * from "./utils/discovery";
 export * from "./utils/placeActions";
 export * from "./utils/status";

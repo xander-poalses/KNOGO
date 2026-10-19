@@ -1,9 +1,9 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { mockPlaces, emptyFuelPreferences } from "@knogo/core";
+import { mockPlaces, emptyFuelPreferences, type FuelPreferences } from "@knogo/core";
 import { TripPlanner } from "./TripPlanner";
 
-const mocks = vi.hoisted(() => ({ route: vi.fn(), search: vi.fn(), permission: vi.fn(), location: vi.fn(), save: vi.fn(), refresh: vi.fn() }));
+const mocks = vi.hoisted(() => ({ route: vi.fn(), search: vi.fn(), permission: vi.fn(), location: vi.fn(), save: vi.fn(), refresh: vi.fn(), preferences: null as FuelPreferences | null }));
 // Entrance sequencing has its own tests; these tests exercise trip state.
 vi.mock("./StagedModal", async () => {
   const { Modal } = await import("react-native");
@@ -17,7 +17,7 @@ vi.mock("../theme", () => ({
   fonts: {}, radii: {}, sizes: {}, space: {},
   useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({})
 }));
-vi.mock("../state/FuelContext", () => ({ useFuel: () => ({ preferences: emptyFuelPreferences, save: mocks.save, prices: null, refreshPrices: mocks.refresh }) }));
+vi.mock("../state/FuelContext", () => ({ useFuel: () => ({ preferences: mocks.preferences ?? emptyFuelPreferences, save: mocks.save, prices: null, refreshPrices: mocks.refresh }) }));
 vi.mock("./DeparturePicker", async () => {
   const { createElement } = await import("react");
   return { DeparturePicker: () => createElement("span", null, "Date picker") };
@@ -45,6 +45,7 @@ vi.mock("react-native", async () => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.preferences = null;
   mocks.permission.mockResolvedValue({ status: "granted" });
   mocks.location.mockResolvedValue({ coords: { latitude: -25.78, longitude: 28.27 } });
   mocks.route.mockResolvedValue({ outbound: { distanceMetres: 8000, durationSeconds: 900 }, attribution: "openrouteservice" });
@@ -54,6 +55,33 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("trip planner flow", () => {
+  it("calculates rand cost from saved consumption and pump price without a price feed", async () => {
+    mocks.preferences = { ...emptyFuelPreferences, consumptionLPer100Km: 7.5, priceOverrideZarPerLitre: 23 };
+    render(<TripPlanner place={mockPlaces[0]}/>);
+    fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
+    expect(await screen.findByText("R 13.80")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Add fuel details for a cost" })).toBeNull();
+  });
+  it("recalculates the existing route after saving decimal-comma fuel inputs", async () => {
+    mocks.save.mockImplementationOnce(async (value: FuelPreferences) => { mocks.preferences = value; });
+    render(<TripPlanner place={mockPlaces[0]}/>);
+    fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
+    await screen.findByRole("button", { name: "Open directions" });
+    fireEvent.click(screen.getByRole("button", { name: "Add fuel details for a cost" }));
+    fireEvent.change(screen.getByLabelText("Car fuel use in litres per 100 kilometres"), { target: { value: "7,5" } });
+    fireEvent.change(screen.getByLabelText("Fuel price in rand per litre"), { target: { value: "23" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save fuel details" }));
+    expect(await screen.findByText("R 13.80")).toBeTruthy();
+    expect(mocks.route).toHaveBeenCalledOnce();
+  });
+  it("shows drive time once when no fuel cost is available", async () => {
+    render(<TripPlanner place={mockPlaces[0]}/>);
+    fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
+    await screen.findByText("15 min");
+    expect(screen.getAllByText("15 min")).toHaveLength(1);
+    expect(screen.queryByText("15 min drive")).toBeNull();
+    expect(screen.getByText("8.0 km away")).toBeTruthy();
+  });
   it("keeps fuel edits when returning through Back without saving", async () => {
     render(<TripPlanner place={mockPlaces[0]}/>);
     fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));

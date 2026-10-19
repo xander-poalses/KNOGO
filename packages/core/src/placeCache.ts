@@ -1,5 +1,6 @@
 import type { Place, PlaceGroup } from "./types/place";
 import { parseTrustSnapshot } from "./trust";
+import { placeCategoryIds } from "./types/place";
 
 export const PLACE_CACHE_SCHEMA_VERSION = 1;
 export const PLACE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
@@ -19,13 +20,12 @@ export type ParsedPlaceDataCache = {
 const object = (value: unknown): value is Record<string, unknown> => Boolean(value && typeof value === "object" && !Array.isArray(value));
 const strings = (value: unknown): value is string[] => Array.isArray(value) && value.every(item => typeof item === "string");
 const optionalText = (value: unknown) => value === undefined || typeof value === "string";
-const categories = ["restaurant", "quick_bites", "bar", "pharmacy", "cafe", "hardware", "vet", "petrol_station", "government_office"];
 const features = ["outdoor_seating", "family_friendly", "wheelchair_accessible", "backup_power", "card_payments", "late_night", "walk_ins", "takeaway", "bar", "halaal_friendly", "vegan_options", "pet_friendly"];
 const hours = (value: unknown) => Array.isArray(value) && value.every(item => object(item) &&
   typeof item.day === "string" && typeof item.openTime === "string" && typeof item.closeTime === "string" && typeof item.isClosed === "boolean");
 const identity = (value: Record<string, unknown>) => ["id", "name", "slug", "category"].every(key => typeof value[key] === "string" && value[key] !== "") &&
-  categories.includes(String(value.category)) && strings(value.cuisine) && strings(value.features) && value.features.every(feature => features.includes(feature));
-const optionalFields = ["groupId", "groupSlug", "groupName", "description", "phone", "website", "menuUrl", "imageUrl", "imageSourceUrl", "imageAttribution", "imageCheckedAt", "logoUrl", "logoSourceUrl", "logoCheckedAt"];
+  placeCategoryIds.some(category => category === value.category) && strings(value.cuisine) && strings(value.features) && value.features.every(feature => features.includes(feature));
+const optionalFields = ["groupId", "groupSlug", "groupName", "description", "phone", "website", "menuUrl", "imageUrl", "imageSourceUrl", "imageAttribution", "imageCheckedAt", "logoUrl", "logoSourceUrl", "logoCheckedAt", "placeType", "sourceUrl", "sourceCheckedAt", "dataNotes"];
 
 function validStatus(value: unknown) {
   if (!object(value)) return false;

@@ -42,13 +42,15 @@ export async function finishEmailReport(input: {
     if (new URL(input.url).searchParams.get("intent") === "account") return { kind: "account" as const };
   } catch { /* Link validity is checked by completeEmailLink. */ }
   const draft = await input.readDraft();
-  if (!draft) return { kind: "account" as const };
   try {
     const callback = new URL(input.url);
     if (callback.searchParams.get("intent") === "review") {
-      return callback.searchParams.get("placeId") === draft.placeId
-        ? { kind: "recheck" as const, draft } : { kind: "account" as const };
+      const placeId = callback.searchParams.get("placeId");
+      if (!placeId || !/^[a-z0-9][a-z0-9_-]{0,199}$/.test(placeId)) return { kind: "account" as const };
+      return placeId === draft?.placeId
+        ? { kind: "recheck" as const, draft } : { kind: "report" as const, placeId };
     }
   } catch { /* Link validity is checked by completeEmailLink. */ }
+  if (!draft) return { kind: "account" as const };
   return { kind: "recheck" as const, draft };
 }

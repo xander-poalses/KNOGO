@@ -1,0 +1,105 @@
+{
+  "total_places": 164,
+  "active_places": 159,
+  "groups": 97,
+  "database_bytes": 14363795,
+  "missing_hours": 44,
+  "branches": [
+    {
+      "id": "pna-castle-gate",
+      "active": true,
+      "status": {
+        "source": "unknown",
+        "is_open": null,
+        "place_id": "pna-castle-gate",
+        "busy_level": "unknown",
+        "updated_at": "2026-10-16T13:07:43.23553+00:00",
+        "accepts_walk_ins": null,
+        "confidence_score": 0,
+        "has_backup_power": null,
+        "last_confirmed_at": null,
+        "signal_confirmed_at": {},
+        "card_machine_working": null,
+        "is_service_available": null
+      },
+      "opening_days": 7
+    },
+    {
+      "id": "pna-hazeldean",
+      "active": true,
+      "status": {
+        "source": "unknown",
+        "is_open": null,
+        "place_id": "pna-hazeldean",
+        "busy_level": "unknown",
+        "updated_at": "2026-10-18T17:23:56.639645+00:00",
+        "accepts_walk_ins": null,
+        "confidence_score": 0,
+        "has_backup_power": null,
+        "last_confirmed_at": null,
+        "signal_confirmed_at": {},
+        "card_machine_working": null,
+        "is_service_available": null
+      },
+      "opening_days": 7
+    },
+    {
+      "id": "pna-menlyn",
+      "active": true,
+      "status": {
+        "source": "unknown",
+        "is_open": null,
+        "place_id": "pna-menlyn",
+        "busy_level": "unknown",
+        "updated_at": "2026-10-18T17:23:56.639645+00:00",
+        "accepts_walk_ins": null,
+        "confidence_score": 0,
+        "has_backup_power": null,
+        "last_confirmed_at": null,
+        "signal_confirmed_at": {},
+        "card_machine_working": null,
+        "is_service_available": null
+      },
+      "opening_days": 7
+    },
+    {
+      "id": "pna-the-grove",
+      "active": true,
+      "status": {
+        "source": "unknown",
+        "is_open": null,
+        "place_id": "pna-the-grove",
+        "busy_level": "unknown",
+        "updated_at": "2026-10-16T12:55:52.902122+00:00",
+        "accepts_walk_ins": null,
+        "confidence_score": 0,
+        "has_backup_power": null,
+        "last_confirmed_at": null,
+        "signal_confirmed_at": {},
+        "card_machine_working": null,
+        "is_service_available": null
+      },
+      "opening_days": 7
+    },
+    {
+      "id": "pna-woodlands",
+      "active": true,
+      "status": {
+        "source": "unknown",
+        "is_open": null,
+        "place_id": "pna-woodlands",
+        "busy_level": "unknown",
+        "updated_at": "2026-10-16T13:14:09.077475+00:00",
+        "accepts_walk_ins": null,
+        "confidence_score": 0,
+        "has_backup_power": null,
+        "last_confirmed_at": null,
+        "signal_confirmed_at": {},
+        "card_machine_working": null,
+        "is_service_available": null
+      },
+      "opening_days": 7
+    }
+  ],
+  "growth_bytes": 393216
+}

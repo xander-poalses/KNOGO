@@ -4,8 +4,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const PLACE_FEATURES = new Set(["outdoor_seating", "family_friendly", "wheelchair_accessible", "backup_power", "card_payments", "late_night", "walk_ins", "takeaway", "bar", "halaal_friendly", "vegan_options", "pet_friendly"]);
-export const CATEGORIES = new Set(["restaurant", "quick_bites", "bar", "pharmacy", "cafe", "hardware", "vet", "petrol_station", "government_office"]);
-export const REGIONS = new Set(["menlyn", "brooklyn", "hazelwood", "lynnwood", "faerie-glen", "moreleta-park", "garsfontein", "waterkloof", "silver-lakes", "olympus", "rietvalleirand", "equestria", "hazeldean", "erasmuskloof", "shere"]);
+export const CATEGORIES = new Set(["restaurant", "quick_bites", "bar", "pharmacy", "cafe", "hardware", "vet", "petrol_station", "government_office", "food_drink", "shops", "automotive", "public_services", "entertainment", "sport_outdoors"]);
+export const REGIONS = new Set(["menlyn", "brooklyn", "hazelwood", "lynnwood", "faerie-glen", "moreleta-park", "garsfontein", "waterkloof", "silver-lakes", "olympus", "rietvalleirand", "equestria", "hazeldean", "erasmuskloof", "erasmus-park", "shere", "die-wilgers"]);
 export const HOURS_TYPES = new Set(["opening", "kitchen"]);
 export const DAYS = new Map([["Mon", 1], ["Tue", 2], ["Wed", 3], ["Thu", 4], ["Fri", 5], ["Sat", 6], ["Sun", 7]]);
 
@@ -91,15 +91,30 @@ export function validateBatch(batch) {
     }));
   }
 
-  for (const [key, values] of [["id", duplicateValues(batch.places, "id")], ["slug", duplicateValues(batch.places, "slug")], ["address", duplicateValues(batch.places, "address")]]) {
+  for (const [key, values] of [["id", duplicateValues(batch.places, "id")], ["slug", duplicateValues(batch.places, "slug")]]) {
     for (const value of values) errors.push(`places.csv: duplicate ${key} '${value}'`);
   }
   for (const [key, values] of [["id", duplicateValues(batch.groups, "id")], ["slug", duplicateValues(batch.groups, "slug")]]) {
     for (const value of values) errors.push(`groups.csv: duplicate ${key} '${value}'`);
   }
   for (const value of duplicateValues(batch.places.filter((row) => row.phone), "phone")) errors.push(`places.csv: duplicate phone '${value}'`);
-  const coordinateValues = batch.places.map((row) => ({ coordinate: `${row.latitude},${row.longitude}` }));
-  for (const value of duplicateValues(coordinateValues, "coordinate")) errors.push(`places.csv: duplicate coordinates '${value}'`);
+  for (const field of ["address", "coordinates"]) {
+    const locationRows = new Map();
+    for (const row of batch.places) {
+      const key = field === "address" ? row.address?.trim().toLowerCase() : `${row.latitude},${row.longitude}`;
+      locationRows.set(key, [...(locationRows.get(key) ?? []), row]);
+    }
+    for (const [location, rows] of locationRows) {
+      if (rows.length < 2) continue;
+      const centres = rows.map(row => {
+        try {
+          const details = JSON.parse(row.service_details || "{}");
+          return details.coordinate_precision === "shopping_centre" && validUrl(details.coordinate_source) && row.data_notes ? details.shopping_centre : null;
+        } catch { return null; }
+      });
+      if (!centres[0] || !centres.every(centre => centre === centres[0])) errors.push(`places.csv: duplicate ${field} '${location}' need a shared documented shopping-centre pin`);
+    }
+  }
 
   batch.places.forEach((row, index) => {
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(row.id ?? "")) errors.push(issue("places.csv", index, "id", "must be kebab-case"));
@@ -114,7 +129,16 @@ export function validateBatch(batch) {
     if (!row.phone && !row.website) errors.push(issue("places.csv", index, "phone/website", "requires at least one contact field"));
     for (const field of ["website", "menu_url", "image_url", "image_source_url", "logo_url", "logo_source_url", "source_url", "map_url"]) if (row[field] && !validUrl(row[field])) errors.push(issue("places.csv", index, field, "must be an http(s) URL"));
     if (!validDate(row.source_checked_at ?? "")) errors.push(issue("places.csv", index, "source_checked_at", "must use YYYY-MM-DD"));
-    if (!splitList(row.tags).length) errors.push(issue("places.csv", index, "tags", "must contain at least one cuisine tag"));
+    if (!splitList(row.tags).length) errors.push(issue("places.csv", index, "tags", "must contain at least one search tag"));
+    if (row.place_type && !/^[a-z][a-z0-9_]{0,79}$/.test(row.place_type)) errors.push(issue("places.csv", index, "place_type", "must use snake_case"));
+    if (["shops", "automotive", "public_services", "entertainment", "sport_outdoors"].includes(row.category_id) && !row.place_type) errors.push(issue("places.csv", index, "place_type", "is required for expansion categories"));
+    if (row.hours_status && !["unpublished", "partial", "complete"].includes(row.hours_status)) errors.push(issue("places.csv", index, "hours_status", "must be unpublished, partial or complete"));
+    if (row.service_details) {
+      try {
+        const details = JSON.parse(row.service_details);
+        if (!details || typeof details !== "object" || Array.isArray(details)) throw new Error();
+      } catch { errors.push(issue("places.csv", index, "service_details", "must be a JSON object")); }
+    }
     for (const feature of splitList(row.features)) if (!PLACE_FEATURES.has(feature)) errors.push(issue("places.csv", index, "features", `contains unsupported value '${feature}'`));
     if (row.image_url && !row.image_source_url) errors.push(issue("places.csv", index, "image_source_url", "is required when image_url is set"));
     if (row.image_url && !row.image_attribution) errors.push(issue("places.csv", index, "image_attribution", "is required when image_url is set"));
@@ -156,7 +180,16 @@ export function validateBatch(batch) {
     if (!validDate(row.source_checked_at ?? "")) errors.push(issue("hours.csv", index, "source_checked_at", "must use YYYY-MM-DD"));
     if (row.hours_type === "opening") openingDays.set(row.place_id, (openingDays.get(row.place_id) ?? 0) + 1);
   });
-  for (const placeId of placeIds) if (openingDays.get(placeId) !== 7) errors.push(`hours.csv: ${placeId} requires exactly seven opening days after ranges are expanded`);
+  for (const row of batch.places) {
+    const days = openingDays.get(row.id) ?? 0;
+    if (row.hours_status === "unpublished") {
+      if (days !== 0) errors.push(`hours.csv: ${row.id} is marked unpublished but has opening hours`);
+      if (!row.data_notes) errors.push(`places.csv: ${row.id} needs data_notes explaining unpublished hours`);
+    } else if (row.hours_status === "partial") {
+      if (days < 1 || days > 6) errors.push(`hours.csv: ${row.id} needs one to six published opening days`);
+      if (!row.data_notes) errors.push(`places.csv: ${row.id} needs data_notes explaining partial hours`);
+    } else if (days !== 7) errors.push(`hours.csv: ${row.id} requires exactly seven opening days after ranges are expanded`);
+  }
 
   return { errors, warnings };
 }
@@ -192,11 +225,20 @@ export async function loadBatch(folder) {
 
 export function generateImportSql(batch, batchName) {
   const statements = [`-- Generated KNOGO import: ${batchName}`, "begin;"];
-  for (const row of batch.groups) statements.push(`insert into public.place_groups (id, slug, name, category_id, description, website, image_url, logo_url, logo_source_url, logo_checked_at, features, tags, is_active) values (${sqlString(row.id)}, ${sqlString(row.slug)}, ${sqlString(row.name)}, ${sqlString(row.category_id)}, ${sqlString(row.description)}, ${sqlString(row.website)}, ${sqlString(row.image_url)}, ${sqlString(row.logo_url)}, ${sqlString(row.logo_source_url)}, ${sqlString(row.logo_checked_at)}, ${sqlArray(row.features)}, ${sqlArray(row.tags)}, false) on conflict (id) do update set slug = excluded.slug, name = excluded.name, category_id = excluded.category_id, description = excluded.description, website = excluded.website, image_url = excluded.image_url, logo_url = excluded.logo_url, logo_source_url = excluded.logo_source_url, logo_checked_at = excluded.logo_checked_at, features = excluded.features, tags = excluded.tags, updated_at = now();`);
-  for (const row of batch.places) statements.push(`insert into public.places (id, slug, name, group_id, category_id, region_id, address, latitude, longitude, phone, website, menu_url, image_url, image_source_url, image_attribution, image_checked_at, logo_url, logo_source_url, logo_checked_at, features, tags, is_active) values (${sqlString(row.id)}, ${sqlString(row.slug)}, ${sqlString(row.name)}, ${sqlString(row.group_id)}, ${sqlString(row.category_id)}, ${sqlString(row.region_id)}, ${sqlString(row.address)}, ${Number(row.latitude)}, ${Number(row.longitude)}, ${sqlString(row.phone)}, ${sqlString(row.website)}, ${sqlString(row.menu_url)}, ${sqlString(row.image_url)}, ${sqlString(row.image_source_url)}, ${sqlString(row.image_attribution)}, ${sqlString(row.image_checked_at)}, ${sqlString(row.logo_url)}, ${sqlString(row.logo_source_url)}, ${sqlString(row.logo_checked_at)}, ${sqlArray(row.features)}, ${sqlArray(row.tags)}, false) on conflict (id) do update set slug = excluded.slug, name = excluded.name, group_id = excluded.group_id, category_id = excluded.category_id, region_id = excluded.region_id, address = excluded.address, latitude = excluded.latitude, longitude = excluded.longitude, phone = excluded.phone, website = excluded.website, menu_url = excluded.menu_url, image_url = excluded.image_url, image_source_url = excluded.image_source_url, image_attribution = excluded.image_attribution, image_checked_at = excluded.image_checked_at, logo_url = excluded.logo_url, logo_source_url = excluded.logo_source_url, logo_checked_at = excluded.logo_checked_at, features = excluded.features, tags = excluded.tags, updated_at = now();`);
-  const importedIds = batch.places.map((row) => sqlString(row.id)).join(", ");
-  statements.push(`delete from public.place_hours where place_id in (${importedIds});`);
-  for (const row of expandHoursRows(batch.hours)) statements.push(`insert into public.place_hours (place_id, hours_type, day_of_week, open_time, close_time, is_closed, sort_order) values (${sqlString(row.place_id)}, ${sqlString(row.hours_type)}, ${sqlString(row.day_of_week)}, ${sqlString(row.open_time)}, ${sqlString(row.close_time)}, ${parseBoolean(row.is_closed)}, ${Number(row.sort_order)});`);
+  const upsert = (table, values, preserve = []) => {
+    const columns = Object.keys(values);
+    statements.push(`insert into public.${table} (${columns.join(", ")}, is_active) values (${Object.values(values).join(", ")}, false) on conflict (id) do update set ${columns.filter(column => column !== "id").map(column => `${column} = ${preserve.includes(column) ? `coalesce(excluded.${column}, ${table}.${column})` : `excluded.${column}`}`).join(", ")}, updated_at = now();`);
+  };
+  for (const row of batch.groups) upsert("place_groups", {
+    ...Object.fromEntries(["id", "slug", "name", "category_id", "description", "website", "image_url", "logo_url", "logo_source_url", "logo_checked_at", "source_url", "source_checked_at"].map(key => [key, sqlString(row[key])])),
+    features: sqlArray(row.features), tags: sqlArray(row.tags)
+  }, ["description", "website", "image_url", "logo_url", "logo_source_url", "logo_checked_at"]);
+  for (const row of batch.places) upsert("places", {
+    ...Object.fromEntries(["id", "slug", "name", "group_id", "category_id", "region_id", "address", "phone", "website", "menu_url", "image_url", "image_source_url", "image_attribution", "image_checked_at", "logo_url", "logo_source_url", "logo_checked_at", "place_type", "source_url", "source_checked_at", "map_url", "data_notes"].map(key => [key, sqlString(row[key])])),
+    latitude: Number(row.latitude), longitude: Number(row.longitude), features: sqlArray(row.features), tags: sqlArray(row.tags), service_details: `${sqlString(row.service_details || "{}")}::jsonb`
+  }, ["image_url", "image_source_url", "image_attribution", "image_checked_at", "logo_url", "logo_source_url", "logo_checked_at", "phone", "menu_url"]);
+  // Unknown days stay absent; updating evidence must not erase other published hours.
+  for (const row of expandHoursRows(batch.hours)) statements.push(`insert into public.place_hours (place_id, hours_type, day_of_week, open_time, close_time, is_closed, sort_order, source_url, source_checked_at) values (${sqlString(row.place_id)}, ${sqlString(row.hours_type)}, ${sqlString(row.day_of_week)}, ${sqlString(row.open_time)}, ${sqlString(row.close_time)}, ${parseBoolean(row.is_closed)}, ${Number(row.sort_order)}, ${sqlString(row.source_url)}, ${sqlString(row.source_checked_at)}) on conflict (place_id, hours_type, day_of_week) do update set open_time = excluded.open_time, close_time = excluded.close_time, is_closed = excluded.is_closed, sort_order = excluded.sort_order, source_url = excluded.source_url, source_checked_at = excluded.source_checked_at;`);
   statements.push("commit;", "");
   return statements.join("\n");
 }

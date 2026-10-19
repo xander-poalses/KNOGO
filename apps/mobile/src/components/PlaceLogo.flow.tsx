@@ -1,27 +1,20 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { PlaceLogo } from "./PlaceLogo";
-const mocks = vi.hoisted(() => ({ load: vi.fn() }));
+
+const mocks = vi.hoisted(() => ({ load: vi.fn(), image: vi.fn(() => null) }));
 vi.mock("../logoAsset", () => ({ loadJpegLogo: mocks.load }));
-vi.mock("../theme", () => ({ fonts: {}, useTheme: () => ({ colours: { surface: "surface" } }), useThemeStyles: () => ({}) }));
-vi.mock("expo-image", () => ({ Image: ({ accessibilityLabel, source, onError }: any) => <button aria-label={accessibilityLabel} data-source={source.uri} onClick={onError}/> }));
-vi.mock("react-native", () => ({ StyleSheet: { create: (v: unknown) => v }, View: ({ children, style }: any) => <div data-background={Array.isArray(style) ? style[1]?.backgroundColor : undefined}>{children}</div>, Text: ({ children }: any) => <span>{children}</span> }));
-beforeEach(() => { vi.resetAllMocks(); mocks.load.mockResolvedValue("data:image/jpeg;base64,bytes"); });
-afterEach(cleanup);
-describe("place logo rendering", () => {
-  it("uses the supplied JPEG URL and falls back after decoding fails", async () => {
-    const view = render(<PlaceLogo id="test" name="Example" uri="https://example.com/logo.jpg"/>);
-    const logo = await screen.findByRole("button", { name: "Example logo" });
-    expect(mocks.load).toHaveBeenCalledWith("https://example.com/logo.jpg");
-    expect(logo.getAttribute("data-source")).toBe("data:image/jpeg;base64,bytes");
-    fireEvent.click(logo);
-    expect(screen.getByText("E")).toBeTruthy();
-    expect(view.container.querySelector("[data-background]")?.getAttribute("data-background")).toBe("surface");
-  });
-  it("uses a surface fallback when validation rejects the image", async () => {
-    mocks.load.mockRejectedValue(new Error("Must be JPEG"));
-    render(<PlaceLogo id="test" name="Example" uri="https://example.com/logo.png"/>);
-    await screen.findByText("E");
-    expect(screen.queryByRole("button", { name: "Example logo" })).toBeNull();
+vi.mock("expo-image", () => ({ Image: mocks.image }));
+vi.mock("../theme", () => ({ fonts: {}, useThemeStyles: () => ({}) }));
+vi.mock("react-native", () => ({ StyleSheet: { create: (v: unknown) => v }, View: ({ children }: any) => <div>{children}</div>, Text: ({ children }: any) => <span>{children}</span> }));
+
+afterEach(() => { cleanup(); vi.clearAllMocks(); });
+describe("place initials", () => {
+  it.each(["Cappuccinos", "Example", "  example"])("uses an initial without loading a venue logo (%s)", name => {
+    const legacyData = { name, uri: "https://example.com/logo.jpg" };
+    render(<PlaceLogo {...legacyData} />);
+    expect(screen.getByText(name.trim()[0].toUpperCase())).toBeTruthy();
+    expect(mocks.load).not.toHaveBeenCalled();
+    expect(mocks.image).not.toHaveBeenCalled();
   });
 });

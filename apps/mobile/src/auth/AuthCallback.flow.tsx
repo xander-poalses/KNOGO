@@ -45,6 +45,7 @@ describe("account callback screen", () => {
   it.each([
     [{ kind: "account" }, "/settings"],
     [{ kind: "venue", placeId: "venue-a" }, { pathname: "/venue/[placeId]", params: { placeId: "venue-a" } }],
+    [{ kind: "report", placeId: "venue-a" }, { pathname: "/confirm/[placeId]", params: { placeId: "venue-a" } }],
     [{ kind: "recheck", draft: { placeId: "venue-a" } }, { pathname: "/confirm/[placeId]", params: { placeId: "venue-a" } }]
   ])("returns to the intended screen (%j)", async (result, destination) => {
     mocks.finish.mockResolvedValue(result);

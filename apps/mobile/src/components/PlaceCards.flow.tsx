@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({ push: vi.fn() }));
 vi.mock("expo-router", () => ({ useRouter: () => ({ push: mocks.push }) }));
 vi.mock("lucide-react-native", () => ({ ChevronRight: () => null, Clock3: () => null, Heart: () => null, MapPin: () => null }));
 vi.mock("./PlaceLogo", () => ({ PlaceLogo: () => null }));
+vi.mock("./PlaceImage", () => ({ PlaceImage: ({ name, uri }: any) => uri ? <img alt={`${name} photo`} src={uri}/> : null }));
 vi.mock("../theme", () => ({
   fonts: {}, radii: {}, space: {},
   useTheme: () => ({ colours: {} }),
@@ -32,6 +33,11 @@ function withClaim(claim: TrustClaim): Place {
 }
 
 describe("trust claims across discovery cards", () => {
+  it.each(["list", "grid"] as const)("uses the branch photo, not its legacy logo, in %s", layout => {
+    const place = { ...base, imageUrl: "https://example.com/place.jpg", logoUrl: "https://example.com/logo.jpg" };
+    render(<ExplorePlaceTile place={place} width={320} layout={layout} saved={false} onToggleSaved={vi.fn()}/>);
+    expect(screen.getByRole("img", { name: `${place.name} photo` }).getAttribute("src")).toBe(place.imageUrl);
+  });
   it.each(["list", "grid"] as const)("has no save action in Explore %s", layout => {
     render(<ExplorePlaceTile place={base} width={320} layout={layout} saved onToggleSaved={vi.fn()}/>);
     expect(screen.queryByRole("button", { name: /save/i })).toBeNull();

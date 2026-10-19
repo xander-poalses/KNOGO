@@ -5,6 +5,8 @@ import { closesAfter } from "./time";
 export const defaultFilters: PlaceFilters = {
   query: "",
   areas: [],
+  placeTypes: [],
+  tags: [],
   openNow: false,
   openAfter: "none",
   kitchenServing: false,
@@ -35,6 +37,7 @@ export function filterPlaces(places: Place[], filters: PlaceFilters, now = new D
         place.groupName ?? "",
         place.area,
         place.address,
+        place.placeType ?? "",
         ...place.cuisine,
         ...place.features,
         ...categoryTerms
@@ -43,6 +46,8 @@ export function filterPlaces(places: Place[], filters: PlaceFilters, now = new D
     }
 
     if (filters.areas.length > 0 && !filters.areas.includes(place.area)) return false;
+    if (filters.placeTypes?.length && !filters.placeTypes.includes(place.placeType ?? place.category)) return false;
+    if (filters.tags?.length && !filters.tags.some(tag => place.cuisine.includes(tag))) return false;
     if (filters.openNow && (!hasTrust || status.isOpen !== true)) return false;
     if (filters.openAfter !== "none" && !closesAfter(place.openingHours, filters.openAfter)) return false;
     if (filters.kitchenServing && (!hasTrust || status.isKitchenServing !== true)) return false;

@@ -1,0 +1,122 @@
+{
+  "checked_at": "2026-10-18",
+  "places": [
+    {
+      "id": "hot-spot-cycles",
+      "slug": "hot-spot-cycles",
+      "name": "Hot Spot Cycles",
+      "group_id": "",
+      "category_id": "shops",
+      "place_type": "bicycle_shop",
+      "region_id": "faerie-glen",
+      "address": "Shop 3B, Atterbury Decor Centre, Windsor Road entrance at Atterbury Road, Faerie Glen, Pretoria, 0081",
+      "latitude": -25.791607566,
+      "longitude": 28.310121893,
+      "phone": "012 993 5231",
+      "website": "https://hotspotcycles.co.za/pages/contact",
+      "features": "",
+      "tags": "Bicycles|Cycling|Accessories|Padel equipment",
+      "source_url": "https://hotspotcycles.co.za/pages/contact",
+      "map_url": "https://www.waze.com/live-map/directions/hotspot-cycles-windsor-rd-faerie-glen,-pretoria?to=place.w.18548230.185547837.7032509",
+      "source_checked_at": "2026-10-18",
+      "hours_status": "complete",
+      "data_notes": "Use the Windsor Road entrance. Operator lists shop 3B, Atterbury Decor Centre; a supplier search excerpt gives shop 2, Atterbury Lifestyle Centre, so confirm the shop before travelling. Waze supplies the business pin, not a verified doorway. Holiday hours differ from the weekly schedule.",
+      "service_details": {
+        "shop": "3B",
+        "shopping_centre": "Atterbury Decor Centre",
+        "entrance": "Windsor Road at Atterbury Road",
+        "coordinate_source": "https://www.waze.com/live-map/directions/hotspot-cycles-windsor-rd-faerie-glen,-pretoria?to=place.w.18548230.185547837.7032509",
+        "coordinate_precision": "third_party_business_pin",
+        "branch_email": "info@hotspotcycles.co.za",
+        "alternate_phone": "012 993 4642",
+        "mobile_phone": "082 315 2991",
+        "public_holiday_hours": "Closed except when the holiday falls on Saturday; confirm that day's hours.",
+        "hours_scope": "store",
+        "inventory_source": "https://hotspotcycles.co.za/",
+        "services": [
+          "Bicycle sales",
+          "Cycling accessories",
+          "Padel equipment"
+        ],
+        "grouping_note": "One published business location; no chain group inferred from product brands.",
+        "supplier_search_excerpt_conflict": {
+          "source": "https://bicyclepower.co.za/dealer-profiles/hot-spot-cycles/",
+          "address": "Shop 2, Atterbury Lifestyle Centre",
+          "verification": "Search excerpt only; operator contact page preferred."
+        }
+      }
+    },
+    {
+      "id": "lynnwood-cyclery",
+      "slug": "lynnwood-cyclery",
+      "name": "Lynnwood Cyclery",
+      "group_id": "",
+      "category_id": "shops",
+      "place_type": "bicycle_shop",
+      "region_id": "die-wilgers",
+      "address": "Shop 1A, Willow Way Centre, Lynnwood Road, Pretoria East, 0184",
+      "latitude": -25.7652286,
+      "longitude": 28.3146425,
+      "phone": "012 348 3132",
+      "website": "https://www.lynnwoodcyclery.co.za/",
+      "features": "",
+      "tags": "Bicycles|Cycling|Accessories|Bicycle servicing|Bike fitting",
+      "source_url": "https://www.lynnwoodcyclery.co.za/",
+      "map_url": "https://www.google.com/maps/search/?api=1&query=Google&query_place_id=ChIJ7wUkqztelR4RI2I27Ol5PmU",
+      "source_checked_at": "2026-10-18",
+      "hours_status": "complete",
+      "data_notes": "Shop opening starts at 09:00. The operator separately lists bike drop-off from 07:00; confirm days and workshop bookings. Sunday closed; published holiday hours 09:00-12:00 need confirmation. Coordinates come from the operator's address configuration and are not verified as a doorway. Willow Way Centre is in Die Wilgers; Lynnwood in the business name does not set the suburb.",
+      "service_details": {
+        "shop": "1A",
+        "shopping_centre": "Willow Way Centre",
+        "coordinate_source": "https://www.lynnwoodcyclery.co.za/",
+        "coordinate_precision": "operator_address_configuration",
+        "coordinate_context": "Shopify business address configuration matches the visible Willow Way Centre address.",
+        "locality_source": "https://www.waze.com/en-AU/live-map/directions/superspar-willow-way-centre,-lynnwood-rd-(m6)-die-wilgers,-pretoria?to=place.w.18548230.185613375.4788885",
+        "branch_email": "gert@lynnwoodcyclery.co.za",
+        "whatsapp": "063 626 6533",
+        "bike_drop_off": "From 07:00; days and workshop acceptance need confirmation. Not general shop opening.",
+        "public_holiday_hours": "09:00-12:00; confirm before travelling.",
+        "hours_scope": "store",
+        "services": [
+          "Bicycle sales",
+          "Bicycle servicing",
+          "Bike fitting"
+        ],
+        "grouping_note": "Specialized concept store/dealer; do not infer a chain group from the bicycle manufacturer."
+      }
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://hotspotcycles.co.za/pages/contact",
+      "scrape_id": "01a15046-1089-744f-ad52-cefdcb5f43c3",
+      "role": "Hot Spot address/contact/hours"
+    },
+    {
+      "url": "https://hotspotcycles.co.za/",
+      "role": "Published bicycle/accessory/padel inventory"
+    },
+    {
+      "url": "https://www.waze.com/live-map/directions/hotspot-cycles-windsor-rd-faerie-glen,-pretoria?to=place.w.18548230.185547837.7032509",
+      "scrape_id": "01a15047-67b1-702c-9ed8-d42bcda3d771",
+      "role": "Hot Spot business coordinates"
+    },
+    {
+      "url": "https://www.lynnwoodcyclery.co.za/",
+      "scrape_id": "01a15046-c935-77d9-9ee0-b188022a6fc8",
+      "role": "Lynnwood Cyclery hours, contacts and services"
+    },
+    {
+      "url": "https://www.lynnwoodcyclery.co.za/",
+      "scrape_id": "01a15046-4605-73e5-bfc0-8c03a9b9d856",
+      "role": "Operator address configuration coordinates"
+    },
+    {
+      "url": "https://www.waze.com/en-AU/live-map/directions/superspar-willow-way-centre,-lynnwood-rd-(m6)-die-wilgers,-pretoria?to=place.w.18548230.185613375.4788885",
+      "scrape_id": "01a15049-023e-722c-b4cb-a53f718df0fd",
+      "role": "Willow Way Centre locality, not the shop pin"
+    }
+  ],
+  "excluded": "Customer reviews, personal reviewer details, images and source open-now labels were not stored."
+}

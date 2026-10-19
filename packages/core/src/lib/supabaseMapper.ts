@@ -11,12 +11,17 @@ import type {
   StatusSource
 } from "../types/place";
 import { parseTrustSnapshot } from "../trust";
+import { placeCategoryIds } from "../types/place";
 
 export type SupabasePlaceRow = {
   id: string;
   slug: string;
   name: string;
   category_id: string;
+  place_type?: string | null;
+  source_url?: string | null;
+  source_checked_at?: string | null;
+  data_notes?: string | null;
   region_id: string;
   address: string;
   latitude: number;
@@ -97,23 +102,11 @@ export type SupabaseConfirmationRow = {
   user_id: string;
 };
 
-const placeCategories: PlaceCategory[] = [
-  "restaurant",
-  "quick_bites",
-  "bar",
-  "pharmacy",
-  "cafe",
-  "hardware",
-  "vet",
-  "petrol_station",
-  "government_office"
-];
-
 const busyLevels: BusyLevel[] = ["quiet", "normal", "busy", "packed", "unknown"];
 const statusSources: StatusSource[] = ["official", "community", "business", "estimated", "unknown"];
 
 function coerceCategory(value: string): PlaceCategory {
-  return placeCategories.includes(value as PlaceCategory) ? (value as PlaceCategory) : "restaurant";
+  return placeCategoryIds.includes(value as PlaceCategory) ? (value as PlaceCategory) : "restaurant";
 }
 
 function coerceBusyLevel(value: string | null): BusyLevel {
@@ -204,6 +197,10 @@ export function mapSupabasePlace(input: {
     groupSlug: input.group?.slug,
     groupName: input.group?.name,
     category: coerceCategory(input.place.category_id),
+    placeType: input.place.place_type ?? undefined,
+    sourceUrl: input.place.source_url ?? undefined,
+    sourceCheckedAt: input.place.source_checked_at ?? undefined,
+    dataNotes: input.place.data_notes ?? undefined,
     area: input.region?.name ?? input.place.region_id,
     address: input.place.address,
     latitude: input.place.latitude,

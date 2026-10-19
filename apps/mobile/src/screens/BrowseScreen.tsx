@@ -1,8 +1,7 @@
-import { buildDiscoveryItems, defaultFilters, filterPlaces, formatDistance, getCuisineOptions, type PlaceCategory } from "@knogo/core";
-import { Image } from "expo-image";
+import { buildDiscoveryItems, defaultFilters, directoryCategories, filterPlaces, formatDistance, getCuisineOptions, type PlaceCategory } from "@knogo/core";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowRight, ChevronDown, LayoutGrid, List, MapPin, SlidersHorizontal, Store } from "lucide-react-native";
+import { ArrowRight, Bike, Car, ChevronDown, Clapperboard, Landmark, LayoutGrid, List, MapPin, ShoppingBag, SlidersHorizontal, Store, UtensilsCrossed } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
 import { RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { HapticPressable as Pressable } from "../components/HapticPressable";
@@ -15,7 +14,6 @@ import { fonts, radii, space, useTheme, useThemeStyles, type ThemeColours } from
 import { getCheckPresentation } from "../statusPresentation";
 import { contextualFilters } from "../filterContext";
 
-type FoodCategory = Extract<PlaceCategory, "restaurant" | "quick_bites" | "bar">;
 type ExploreLayout = "list" | "grid";
 
 const exploreLayoutKey = "knogo.explore.layout";
@@ -33,11 +31,8 @@ function useExploreLayout() {
   return [width < 768 ? "list" : layout, setLayout] as const;
 }
 
-const categories: Array<{ id: FoodCategory; title: string; body: string; image: string }> = [
-  { id: "restaurant", title: "Restaurants", body: "Sit-down meals, table service and full menus", image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1000&q=85" },
-  { id: "quick_bites", title: "Quick Bites", body: "Fast food, coffee, bakeries, desserts and takeaway", image: "https://images.unsplash.com/photo-1561758033-d89a9ad46330?auto=format&fit=crop&w=1000&q=85" },
-  { id: "bar", title: "Bars", body: "Drinks, social spots and nightlife", image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1000&q=85" }
-];
+const categories = directoryCategories;
+const categoryIcons = [UtensilsCrossed, ShoppingBag, Car, Landmark, Clapperboard, Bike];
 
 export function BrowseScreen() {
   const { colours } = useTheme();
@@ -60,18 +55,19 @@ export function BrowseScreen() {
 
   return (
     <Page contentContainerStyle={styles.pickerPage}>
-      <View style={styles.header}><Text style={styles.eyebrow}>Explore</Text><Text accessibilityRole="header" style={styles.pickerTitle}>Check another way.</Text><Text style={styles.pickerCopy}>Browse live status by place type or location.</Text></View>
+      <View style={styles.header}><Text accessibilityRole="header" style={styles.pickerTitle}>Explore</Text></View>
       <Pressable accessibilityLabel="Check places near me" accessibilityRole="button" accessibilityState={{ busy: locationLoading, disabled: locationLoading }} disabled={locationLoading} onPress={() => void openNearby()} style={({ pressed }) => [styles.nearbyButton, pressed && styles.pressed]}><MapPin color={colours.primary} size={18} /><Text style={styles.nearbyText}>{locationLoading ? "Finding you..." : coordinates ? "Show status near me" : "Check places near me"}</Text></Pressable>
       <View style={styles.rule} />
-      {categories.map((category) => (
+      {categories.map((category, index) => {
+        const Icon = categoryIcons[index];
+        return (
         <Pressable accessibilityLabel={`Check ${category.title}`} accessibilityRole="button" key={category.id} onPress={() => router.push({ pathname: "/restaurants/category/[venueType]", params: { venueType: category.id, q: q ?? "" } })} style={({ pressed }) => [styles.category, pressed && styles.pressed]}>
-          <Image source={{ uri: category.image }} contentFit="cover" recyclingKey={category.id} transition={160} style={styles.categoryImage} />
-          <View style={styles.categoryCopy}>
-            <Text style={styles.live}>Check status</Text><Text style={styles.categoryTitle}>{category.title}</Text>
-            <View style={styles.categoryFoot}><Text style={styles.categoryBody}>{category.body}</Text><ArrowRight color={colours.muted} size={18} /></View>
+          <View style={styles.categoryCopy}><Icon color={colours.primary} size={24} />
+            <Text style={styles.categoryTitle}>{category.title}</Text>
+            <ArrowRight color={colours.muted} size={18} />
           </View>
         </Pressable>
-      ))}
+      ); })}
       {openItems.length ? <View style={styles.statusSection}><View style={styles.statusHead}><View><Text style={styles.statusTitle}>Status now</Text><Text style={styles.statusMeta}>{coordinates ? "Status near your location" : "Community and business updates"}</Text></View><Store color={colours.primary} size={20} /></View><View style={styles.statusGrid}>{openItems.map((item) => item.kind === "group" ? <ExploreGroupTile key={`group-${item.id}`} group={item.group} branches={item.branches} width={tileWidth} layout={width < 768 ? "list" : "grid"} /> : <ExplorePlaceTile key={`place-${item.id}`} place={item.place} width={tileWidth} layout={width < 768 ? "list" : "grid"} saved={isSaved(item.id)} onToggleSaved={(id) => void toggleSaved(id)} />)}</View></View> : null}
     </Page>
   );
@@ -99,7 +95,6 @@ function GlobalSearchResults({ initialQuery }: { initialQuery: string }) {
     <Page refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colours.primary} />}>
       <BackButton label="Back to home" />
       <View style={styles.header}>
-        <Text style={styles.eyebrow}>Search</Text>
         <Text accessibilityRole="header" style={styles.resultText}>Search results</Text>
         <SearchField value={query} onChangeText={setQuery} />
       </View>
@@ -120,15 +115,18 @@ function GlobalSearchResults({ initialQuery }: { initialQuery: string }) {
 export function BrowseResultsScreen() {
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
-  const { venueType, q } = useLocalSearchParams<{ venueType: FoodCategory; q?: string }>();
-  const category = categories.find((item) => item.id === venueType) ?? categories[0];
+  const { venueType, q } = useLocalSearchParams<{ venueType: PlaceCategory; q?: string }>();
+  const legacyFood = [{ id: "restaurant", title: "Restaurants", members: ["restaurant"] }, { id: "quick_bites", title: "Quick Bites", members: ["quick_bites"] }, { id: "bar", title: "Bars", members: ["bar"] }] as const;
+  const category = [...categories, ...legacyFood].find((item) => item.id === venueType) ?? categories[0];
   const { places, placeGroups, isSaved, toggleSaved, loading, refreshing, error, dataSource, lastUpdatedAt, cacheExpired, refresh } = usePlaces();
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [layout, setLayout] = useExploreLayout();
   const { width: viewportWidth } = useWindowDimensions();
   const [filters, setFilters] = useState({ ...defaultFilters, query: q ?? "" });
-  const categoryPlaces = useMemo(() => places.filter((place) => place.category === category.id), [category.id, places]);
-  const filteredPlaces = useMemo(() => filterPlaces(categoryPlaces, contextualFilters(filters, [category.id])), [categoryPlaces, filters, category.id]);
+  useEffect(() => { setFilters({ ...defaultFilters, query: q ?? "" }); }, [category.id, q]);
+  const categoryPlaces = useMemo(() => places.filter((place) => (category.members as readonly PlaceCategory[]).includes(place.category)), [category.id, places]);
+  const serviceCategories = useMemo(() => [...new Set(categoryPlaces.map(place => place.category))], [categoryPlaces]);
+  const filteredPlaces = useMemo(() => filterPlaces(categoryPlaces, contextualFilters(filters, serviceCategories)), [categoryPlaces, filters, serviceCategories]);
   const areas = useMemo(() => [...new Set(categoryPlaces.map((place) => place.area))].sort(), [categoryPlaces]);
   const cuisines = useMemo(() => getCuisineOptions(categoryPlaces), [categoryPlaces]);
   const items = useMemo(() => buildDiscoveryItems(filteredPlaces, placeGroups, null), [filteredPlaces, placeGroups]);
@@ -150,7 +148,7 @@ export function BrowseResultsScreen() {
           <SearchField value={filters.query} onChangeText={(query) => setFilters({ ...filters, query })} />
         </View>
         <Pressable accessibilityLabel="Open filters" accessibilityRole="button" onPress={() => setFiltersOpen(true)} style={styles.filterLauncher}><SlidersHorizontal color={colours.text} size={18} /><Text style={styles.filterText}>Filters</Text><ChevronDown color={colours.muted} size={18} /></Pressable>
-        <View style={styles.resultHead}><View><Text style={styles.resultText}>{areaHeading}</Text><Text style={styles.sectionHint}>Select a place to see live details</Text></View><View style={styles.resultActions}><Text style={styles.resultCount}>{resultCount}</Text>{viewportWidth >= 768 ? <Pressable accessibilityLabel={layout === "list" ? "Show three-column grid" : "Show list"} accessibilityRole="button" onPress={() => setLayout(layout === "list" ? "grid" : "list")} style={styles.layoutButton}>{layout === "list" ? <LayoutGrid color={colours.text} size={19} /> : <List color={colours.text} size={20} />}</Pressable> : null}</View></View>
+        <View style={styles.resultHead}><Text style={styles.resultText}>{areaHeading}</Text><View style={styles.resultActions}><Text style={styles.resultCount}>{resultCount}</Text>{viewportWidth >= 768 ? <Pressable accessibilityLabel={layout === "list" ? "Show three-column grid" : "Show list"} accessibilityRole="button" onPress={() => setLayout(layout === "list" ? "grid" : "list")} style={styles.layoutButton}>{layout === "list" ? <LayoutGrid color={colours.text} size={19} /> : <List color={colours.text} size={20} />}</Pressable> : null}</View></View>
         {dataSource === "cache" ? <CacheNotice fetchedAt={lastUpdatedAt} expired={cacheExpired} onRetry={() => void refresh()} /> : null}
         {loading && !places.length ? <><Skeleton /><Skeleton /></> : null}
         {error && !places.length ? <Notice title="Could not load live places" message={error} actionLabel="Try again" onAction={() => void refresh()} /> : null}
@@ -159,7 +157,7 @@ export function BrowseResultsScreen() {
           ? <ExploreGroupTile group={item.group} branches={item.branches} width={width} layout={layout} />
           : <ExplorePlaceTile place={item.place} width={width} saved={isSaved(item.id)} onToggleSaved={(id) => void toggleSaved(id)} layout={layout} />}
       />
-      <FilterSheet categories={[category.id]} visible={filtersOpen} filters={filters} areas={areas} cuisines={cuisines} onChange={setFilters} onClose={() => setFiltersOpen(false)} />
+      <FilterSheet places={categoryPlaces} categories={serviceCategories} visible={filtersOpen} filters={filters} areas={areas} cuisines={cuisines} onChange={setFilters} onClose={() => setFiltersOpen(false)} />
     </>
   );
 }
@@ -188,14 +186,14 @@ function NearbyResultsScreen() {
         keyExtractor={(item) => `${item.kind}-${item.id}`}
         refreshing={refreshing}
         onRefresh={() => void refresh()}
-        header={<><BackButton label="Back to explore" /><View style={styles.header}><Text style={styles.eyebrow}>Status near me</Text><Text style={styles.resultsTitle}>{coordinates ? "Check places close by." : "Choose an area to check."}</Text><SearchField value={filters.query} onChangeText={(query) => setFilters({ ...filters, query })} /></View>
+        header={<><BackButton label="Back to explore" /><View style={styles.header}><Text accessibilityRole="header" style={styles.resultsTitle}>{coordinates ? "Nearby" : "Choose an area"}</Text><SearchField value={filters.query} onChangeText={(query) => setFilters({ ...filters, query })} /></View>
         {!coordinates ? <View style={styles.locationPanel}>
           <Pressable disabled={locationLoading} onPress={() => void requestNearby()} style={styles.locationButton}><MapPin color={colours.white} size={17} /><Text style={styles.locationButtonText}>{locationLoading ? "Finding you..." : "Use my location"}</Text></Pressable>
           {locationError ? <Text style={styles.locationError}>{locationError}</Text> : null}
           <ScrollView horizontal style={styles.areaRailViewport} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.areaRail}>{areas.map((area) => { const active = selectedAreas.includes(area); return <Chip role="radio" key={area} label={area} selected={active} onPress={() => { setFilters({ ...filters, areas: [area] }); void setFallbackArea(area); }} />; })}</ScrollView>
         </View> : null}
         <Pressable accessibilityLabel="Open filters" accessibilityRole="button" onPress={() => setFiltersOpen(true)} style={styles.filterLauncher}><SlidersHorizontal color={colours.text} size={18} /><Text style={styles.filterText}>Filters</Text><ChevronDown color={colours.muted} size={18} /></Pressable>
-        <View style={styles.resultHead}><View><Text style={styles.resultText}>{coordinates ? "Status near you" : selectedAreas[0] ?? "Pretoria East"}</Text><Text style={styles.sectionHint}>Select a place to check its current report</Text></View><View style={styles.resultActions}><Text style={styles.resultCount}>{items.length}</Text>{viewportWidth >= 768 ? <Pressable accessibilityLabel={layout === "list" ? "Show three-column grid" : "Show list"} accessibilityRole="button" onPress={() => setLayout(layout === "list" ? "grid" : "list")} style={styles.layoutButton}>{layout === "list" ? <LayoutGrid color={colours.text} size={19} /> : <List color={colours.text} size={20} />}</Pressable> : null}</View></View>
+        <View style={styles.resultHead}><Text style={styles.resultText}>{coordinates ? "Places" : selectedAreas[0] ?? "Pretoria East"}</Text><View style={styles.resultActions}><Text style={styles.resultCount}>{items.length}</Text>{viewportWidth >= 768 ? <Pressable accessibilityLabel={layout === "list" ? "Show three-column grid" : "Show list"} accessibilityRole="button" onPress={() => setLayout(layout === "list" ? "grid" : "list")} style={styles.layoutButton}>{layout === "list" ? <LayoutGrid color={colours.text} size={19} /> : <List color={colours.text} size={20} />}</Pressable> : null}</View></View>
         {dataSource === "cache" ? <CacheNotice fetchedAt={lastUpdatedAt} expired={cacheExpired} onRetry={() => void refresh()} /> : null}
         {loading && !places.length ? <><Skeleton /><Skeleton /></> : null}
         {error && !places.length ? <Notice title="Could not load places" message={error} actionLabel="Try again" onAction={() => void refresh()} /> : null}
@@ -204,7 +202,7 @@ function NearbyResultsScreen() {
           ? <ExploreGroupTile group={item.group} branches={item.branches} width={width} distance={formatDistance(item.distanceKm)} layout={layout} />
           : <ExplorePlaceTile place={item.place} width={width} distance={formatDistance(item.distanceKm)} saved={isSaved(item.id)} onToggleSaved={(id) => void toggleSaved(id)} layout={layout} />}
       />
-      <FilterSheet categories={serviceCategories} visible={filtersOpen} filters={filters} areas={areas} cuisines={cuisines} onChange={setFilters} onClose={() => setFiltersOpen(false)} />
+      <FilterSheet places={places} categories={serviceCategories} visible={filtersOpen} filters={filters} areas={areas} cuisines={cuisines} onChange={setFilters} onClose={() => setFiltersOpen(false)} />
     </>
   );
 }
@@ -214,8 +212,8 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   pickerTitle: { maxWidth: 340, paddingBottom: 8, color: colours.text, fontFamily: fonts.extraBold, fontSize: 38, lineHeight: 45 }, resultsTitle: { maxWidth: 330, paddingBottom: 8, color: colours.text, fontFamily: fonts.extraBold, fontSize: 36, lineHeight: 43 },
   pickerCopy: { maxWidth: 350, color: colours.muted, fontFamily: fonts.regular, fontSize: 15, lineHeight: 21 }, nearbyButton: { minHeight: 46, alignSelf: "flex-start", paddingHorizontal: 15, flexDirection: "row", alignItems: "center", gap: 7, borderWidth: 1, borderColor: colours.border, borderRadius: radii.round, backgroundColor: colours.surface }, nearbyText: { color: colours.primary, fontFamily: fonts.extraBold, fontSize: 12 },
   rule: { height: StyleSheet.hairlineWidth, backgroundColor: colours.border }, category: { overflow: "hidden", borderWidth: 1, borderColor: colours.border, borderRadius: radii.surface, backgroundColor: colours.surface },
-  categoryImage: { width: "100%", aspectRatio: 2.35, backgroundColor: colours.elevated }, categoryCopy: { padding: 15, gap: 7 }, live: { color: colours.primary, fontFamily: fonts.extraBold, fontSize: 11, textTransform: "uppercase" },
-  categoryTitle: { paddingBottom: 3, color: colours.text, fontFamily: fonts.extraBold, fontSize: 32, lineHeight: 36 }, categoryFoot: { flexDirection: "row", alignItems: "center", gap: 12 }, categoryBody: { flex: 1, color: colours.muted, fontFamily: fonts.regular, fontSize: 14, lineHeight: 18 },
+  categoryCopy: { padding: 15, minHeight: 72, flexDirection: "row", alignItems: "center", gap: 14 }, live: { color: colours.primary, fontFamily: fonts.extraBold, fontSize: 11, textTransform: "uppercase" },
+  categoryTitle: { flex: 1, color: colours.text, fontFamily: fonts.extraBold, fontSize: 20, lineHeight: 26 }, categoryFoot: { flexDirection: "row", alignItems: "center", gap: 12 }, categoryBody: { flex: 1, color: colours.muted, fontFamily: fonts.regular, fontSize: 14, lineHeight: 18 },
   foodImage: { width: "100%", aspectRatio: 16 / 9, borderRadius: radii.surface, backgroundColor: colours.elevated }, filterLauncher: { minHeight: 52, paddingHorizontal: 15, flexDirection: "row", alignItems: "center", gap: 10, borderRadius: radii.control, backgroundColor: colours.surface, borderWidth: 1, borderColor: colours.border },
   filterText: { flex: 1, color: colours.text, fontFamily: fonts.extraBold, fontSize: 15 }, resultHead: { minHeight: 55, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colours.border },
   resultActions: { flexDirection: "row", alignItems: "center", gap: 8 }, layoutButton: { width: 44, height: 44, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: colours.controlBorder, borderRadius: radii.control, backgroundColor: colours.surface },

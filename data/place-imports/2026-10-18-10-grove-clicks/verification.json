@@ -1,0 +1,111 @@
+{
+  "hours": [
+    {
+      "day": "Mon",
+      "open": "09:00:00",
+      "close": "19:00:00",
+      "source": "https://clicks.co.za/store/The-Grove/1574",
+      "source_date": "2026-10-18"
+    },
+    {
+      "day": "Tue",
+      "open": "09:00:00",
+      "close": "19:00:00",
+      "source": "https://clicks.co.za/store/The-Grove/1574",
+      "source_date": "2026-10-18"
+    },
+    {
+      "day": "Wed",
+      "open": "09:00:00",
+      "close": "19:00:00",
+      "source": "https://clicks.co.za/store/The-Grove/1574",
+      "source_date": "2026-10-18"
+    },
+    {
+      "day": "Thu",
+      "open": "09:00:00",
+      "close": "19:00:00",
+      "source": "https://clicks.co.za/store/The-Grove/1574",
+      "source_date": "2026-10-18"
+    },
+    {
+      "day": "Fri",
+      "open": "09:00:00",
+      "close": "19:00:00",
+      "source": "https://clicks.co.za/store/The-Grove/1574",
+      "source_date": "2026-10-18"
+    },
+    {
+      "day": "Sat",
+      "open": "09:00:00",
+      "close": "18:00:00",
+      "source": "https://clicks.co.za/store/The-Grove/1574",
+      "source_date": "2026-10-18"
+    },
+    {
+      "day": "Sun",
+      "open": "09:00:00",
+      "close": "16:00:00",
+      "source": "https://clicks.co.za/store/The-Grove/1574",
+      "source_date": "2026-10-18"
+    }
+  ],
+  "place": {
+    "id": "clicks-the-grove",
+    "name": "Clicks The Grove",
+    "slug": "clicks-the-grove",
+    "tags": [
+      "Pharmacy",
+      "Health",
+      "Beauty"
+    ],
+    "phone": "012 807 4030",
+    "address": "Shop L21, The Grove Mall, corner Lynnwood Road and Simon Vermooten Road, Equestria, Pretoria",
+    "map_url": "https://www.google.com/maps/dir/?api=1&destination=-25.766281%2C28.3246705",
+    "website": "https://clicks.co.za/store/The-Grove/1574",
+    "features": [],
+    "group_id": "clicks",
+    "latitude": -25.766281,
+    "logo_url": null,
+    "menu_url": null,
+    "image_url": null,
+    "is_active": true,
+    "longitude": 28.3246705,
+    "region_id": "equestria",
+    "created_at": "2026-10-16T12:55:21.998392+00:00",
+    "data_notes": "Hours apply to the store and pharmacy, not the clinic. Clinic weekdays 09:00-17:00; first and last Saturday each month 09:00-13:00; other Saturdays and Sundays closed. Holiday hours need confirmation. Prefer the operator's shop phone; the mall's different value is retained in provenance. The operator map pin does not establish doorway accuracy.",
+    "place_type": "pharmacy",
+    "source_url": "https://clicks.co.za/store/The-Grove/1574",
+    "updated_at": "2026-10-18T17:07:52.167737+00:00",
+    "category_id": "shops",
+    "logo_checked_at": null,
+    "logo_source_url": null,
+    "service_details": {
+      "shop": "L21",
+      "hours_scope": "store_and_pharmacy",
+      "shop_source": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+      "clinic_hours": {
+        "sunday": "Closed",
+        "saturday": "First and last Saturday of each month 09:00-13:00; other Saturdays closed",
+        "weekdays": "09:00-17:00"
+      },
+      "pharmacy_phone": "012 807 4082",
+      "previous_phone": "012 807 4020",
+      "shopping_centre": "The Grove Mall",
+      "coordinate_source": "https://clicks.co.za/store/The-Grove/1574",
+      "coordinate_precision": "operator_map_pin",
+      "public_holiday_hours": "Store and pharmacy 09:00-16:00; call to confirm. Clinic closed.",
+      "previous_phone_source": "https://www.thegrovemall.co.za/the-grove-mall---stores"
+    },
+    "image_checked_at": null,
+    "image_source_url": null,
+    "image_attribution": null,
+    "source_checked_at": "2026-10-18"
+  },
+  "active": 157,
+  "groups": 97,
+  "places": 162,
+  "db_bytes": 14331027,
+  "status_hash": "d4f58974a9f4e887e7fa10dc3bac8121",
+  "missing_hours": 47
+}

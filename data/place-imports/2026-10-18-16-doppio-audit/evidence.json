@@ -1,0 +1,107 @@
+{
+  "checked_at": "2026-10-18",
+  "sources": [
+    {
+      "id": "doppio-zero-castle-gate",
+      "url": "https://doppio.co.za/restaurant/castle-gate/",
+      "key": "doppioCastleGate18Data",
+      "region": "erasmus-park",
+      "address": "Shop 65, Castle Gate Shopping Centre, 478 Koedoesnek Avenue, Erasmus Park, Pretoria, 0048",
+      "latitude": -25.8185613,
+      "longitude": 28.244004,
+      "coordinate_source": "https://castlegate.co.za/castle-gate---contact",
+      "precision": "shopping_centre",
+      "shop": "65",
+      "phone": "012 485 4066",
+      "email": "castlegate@doppio.co.za",
+      "whatsapp": "082 778 4653",
+      "booking": "Telephonic bookings accepted.",
+      "parking": "On-site parking in Castle Gate Mall.",
+      "hours": [
+        "21:00",
+        "21:00",
+        "21:00",
+        "21:00",
+        "21:00",
+        "21:00",
+        "21:00"
+      ],
+      "notes": "Restaurant hours come from the operator, not mall hours. Coordinates mark Castle Gate centre, not the restaurant doorway; the operator's short navigation link resolves to Hobart Grove in Johannesburg and was rejected. Kitchen and holiday hours are not published.",
+      "scrape_id": "01a150a3-2ba0-76a9-b531-4a579f925a28"
+    },
+    {
+      "id": "doppio-zero-hazeldean",
+      "url": "https://doppio.co.za/restaurant/silver-lakes-hazeldean/",
+      "key": "doppioHazeldean18Data",
+      "region": "hazeldean",
+      "address": "Shop 42, Hazeldean Retail Square, Silverlakes Road, Silver Lakes, Pretoria, 0084",
+      "latitude": -25.7851478,
+      "longitude": 28.3527804,
+      "coordinate_source": "https://www.hazeldeansquare.co.za/hazeldean-retail-square---contact",
+      "precision": "shopping_centre",
+      "shop": "42",
+      "phone": "012 809 1149",
+      "email": "hazeldean@doppio.co.za",
+      "whatsapp": "072 368 4299",
+      "booking": "Bookings accepted; contact the restaurant.",
+      "parking": "On-site parking in Hazeldean Square.",
+      "hours": [
+        "21:00",
+        "22:00",
+        "22:00",
+        "22:00",
+        "22:30",
+        "22:00",
+        "21:00"
+      ],
+      "notes": "Restaurant hours come from its operator page. Coordinates mark Hazeldean Retail Square, not the shop doorway; the operator's short map link points to the nearby road junction. Kitchen and holiday hours are not published.",
+      "scrape_id": "01a150a3-63b5-746d-9a6e-0540c5c77330"
+    },
+    {
+      "id": "doppio-zero-hazelwood",
+      "url": "https://doppio.co.za/restaurant/hazelwood/",
+      "key": "doppioHazelwoodData18",
+      "region": "hazelwood",
+      "address": "24 Oaktree Avenue, Hazelwood, Pretoria, 0081",
+      "latitude": -25.77668953,
+      "longitude": 28.25678635,
+      "coordinate_source": "https://www.dineplan.com/restaurant/doppio-zero-hazelwood",
+      "precision": "booking_platform_pin",
+      "phone": "061 516 1253",
+      "email": "hazelwood@doppio.co.za",
+      "whatsapp": "061 516 1253",
+      "booking": "Book through Dineplan.",
+      "booking_url": "https://www.dineplan.com/restaurants/doppio-zero-hazelwood",
+      "parking": "Limited on-site parking; paid covered parking next door.",
+      "hours": [
+        "21:00",
+        "22:00",
+        "22:00",
+        "22:00",
+        "22:30",
+        "22:30",
+        "21:00"
+      ],
+      "notes": "Operator's weekly restaurant hours take precedence over Dineplan's Sunday close of 19:00; the operator lists 21:00, so confirm Sunday closing before travelling. Coordinates are the booking platform's restaurant pin, not a verified entrance. Kitchen and holiday hours are not published.",
+      "scrape_id": "01a150a1-ed68-774c-97e9-01fef480dfb5"
+    }
+  ],
+  "map_sources": [
+    {
+      "source": "https://castlegate.co.za/castle-gate---contact",
+      "attribute": "data-widget-latlng",
+      "value": "-25.8185613,28.244004"
+    },
+    {
+      "source": "https://www.hazeldeansquare.co.za/hazeldean-retail-square---contact",
+      "attribute": "data-widget-latlng",
+      "value": "-25.7851478,28.3527804"
+    },
+    {
+      "source": "https://www.dineplan.com/restaurant/doppio-zero-hazelwood",
+      "visible_marker_url": "https://www.dineplan.com/api/dineplan/location/static?center=-25.77668953%2C28.25678635&zoom=15&size=552x200&scale=2&marker=instant"
+    }
+  ],
+  "menu_scope": "Operator-published Gauteng main-menu link. PDF prices/content not audited.",
+  "excluded": "No customer reviews, image URLs, temporary map API keys, accounts or community reports retained."
+}

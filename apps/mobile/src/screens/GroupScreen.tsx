@@ -32,7 +32,7 @@ export function GroupScreen() {
         columns={1}
         keyExtractor={(branch) => branch.id}
         empty={<Notice title="No branches available" />}
-        header={<><BackButton label="Back to explore" /><View style={styles.head}><Text style={styles.eyebrow}>Group</Text><Title>{group.name}</Title>{group.description ? <Body muted>{group.description}</Body> : null}<Text style={styles.branchCount}>{branches.length} branches</Text></View>{branches.length ? <BranchMap branches={branches} selectedId={selected?.id} onSelect={setSelected} /> : null}<View style={styles.sectionHead}><Text style={styles.sectionTitle}>All branches</Text><Text style={styles.sectionCount}>{branches.length}</Text></View></>}
+        header={<><BackButton label="Back to explore" /><View style={styles.head}><Title>{group.name}</Title>{group.description ? <Body muted>{group.description}</Body> : null}</View><View style={styles.sectionHead}><Text style={styles.sectionTitle}>All branches</Text><Text style={styles.sectionCount}>{branches.length}</Text></View>{branches.length ? <BranchMap branches={branches} selectedId={selected?.id} onSelect={setSelected} /> : null}</>}
         renderTile={(branch, width) => <BranchRow branch={branch} width={width} onPress={() => router.push({ pathname: "/restaurants/[placeId]", params: { placeId: branch.id } })} />}
       />
       <BranchSheet place={selected} onClose={() => setSelected(null)} />
@@ -43,11 +43,12 @@ export function GroupScreen() {
 function BranchRow({ branch, width, onPress }: { branch: Place; width: number; onPress: () => void }) {
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
+  const showArea = !branch.name.trim().toLocaleLowerCase().endsWith(branch.area.trim().toLocaleLowerCase());
   return <Pressable accessibilityLabel={`${branch.name}, ${branch.area}, ${getCheckPresentation(branch.currentStatus).summary}`} accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.branchRow, { width }, pressed && styles.pressed]}>
-    <PlaceLogo id={branch.id} name={branch.groupName ?? branch.name} uri={branch.logoUrl} fallback="surface" style={styles.branchLogo} />
+    <PlaceLogo name={branch.groupName ?? branch.name} style={styles.branchLogo} />
     <View style={styles.branchCopy}>
       <Text style={styles.branchName}>{branch.name}</Text>
-      <Text style={styles.branchArea}>{branch.area}</Text>
+      {showArea ? <Text style={styles.branchArea}>{branch.area}</Text> : null}
       <View style={styles.branchMeta}><BranchStatus place={branch}/><Text style={styles.branchHours}>{getCloseTime(branch.openingHours)}</Text></View>
     </View>
     <ChevronRight color={colours.muted} size={20} />

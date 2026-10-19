@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useWindowDimensions } from "react-native";
 import { ExplorePlaceTile } from "../components/PlaceCards";
-import { ActionButton, CacheNotice, Eyebrow, Notice, Skeleton, Title } from "../components/Ui";
+import { ActionButton, CacheNotice, Notice, Skeleton, Title } from "../components/Ui";
 import { VirtualizedGrid } from "../components/VirtualizedGrid";
 import { usePlaces } from "../state/PlacesContext";
 
@@ -15,7 +15,7 @@ export function SavedScreen() {
     ? <><Skeleton /><Skeleton /></>
     : error && !places.length
       ? <Notice title="Could not load saved places" message={error} actionLabel="Try again" onAction={() => void refresh()} />
-      : <Notice title="Nothing saved yet" message="Save a place to keep its live checks close." />;
+      : <Notice title="No saved places" message="Save a place from its details." />;
 
   return (
     <VirtualizedGrid
@@ -26,7 +26,7 @@ export function SavedScreen() {
       refreshing={refreshing}
       onRefresh={() => void refresh()}
       empty={empty}
-      header={<><Eyebrow>Saved</Eyebrow><Title>Your places.</Title>{width >= 768 ? <ActionButton label={grid ? "Show list" : "Show grid"} tone="light" onPress={() => setGrid(!grid)}/> : null}{dataSource === "cache" ? <CacheNotice fetchedAt={lastUpdatedAt} expired={cacheExpired} onRetry={() => void refresh()} /> : null}</>}
+      header={<><Title>Saved places</Title>{width >= 768 ? <ActionButton label={grid ? "Show list" : "Show grid"} tone="light" onPress={() => setGrid(!grid)}/> : null}{dataSource === "cache" ? <CacheNotice fetchedAt={lastUpdatedAt} expired={cacheExpired} onRetry={() => void refresh()} /> : null}</>}
       renderTile={(place, tileWidth) => <ExplorePlaceTile place={place} saved={isSaved(place.id)} allowRemove onToggleSaved={(id) => void toggleSaved(id)} width={tileWidth} layout={layout}/>}
     />
   );

@@ -1,13 +1,5 @@
-export type PlaceCategory =
-  | "restaurant"
-  | "quick_bites"
-  | "bar"
-  | "pharmacy"
-  | "cafe"
-  | "hardware"
-  | "vet"
-  | "petrol_station"
-  | "government_office";
+export const placeCategoryIds = ["restaurant", "quick_bites", "bar", "pharmacy", "cafe", "hardware", "vet", "petrol_station", "government_office", "food_drink", "shops", "automotive", "public_services", "entertainment", "sport_outdoors"] as const;
+export type PlaceCategory = typeof placeCategoryIds[number];
 
 export type Area = {
   name: string;
@@ -61,6 +53,10 @@ export type Place = {
   groupSlug?: string;
   groupName?: string;
   category: PlaceCategory;
+  placeType?: string;
+  sourceUrl?: string;
+  sourceCheckedAt?: string;
+  dataNotes?: string;
   area: string;
   address: string;
   latitude: number;
@@ -137,6 +133,8 @@ export type ReportAssessment = {
 export type PlaceFilters = {
   query: string;
   areas: string[];
+  placeTypes?: string[];
+  tags?: string[];
   openNow: boolean;
   openAfter: "none" | "20:00" | "21:00";
   kitchenServing: boolean;

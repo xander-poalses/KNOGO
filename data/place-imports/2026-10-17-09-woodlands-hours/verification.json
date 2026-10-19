@@ -1,0 +1,295 @@
+{
+  "held": [
+    {
+      "id": "checkers-woodlands",
+      "source_date": "2026-10-16",
+      "opening_days": 0
+    },
+    {
+      "id": "pick-n-pay-clothing-woodlands",
+      "source_date": "2026-10-16",
+      "opening_days": 0
+    },
+    {
+      "id": "toys-r-us-woodlands",
+      "source_date": "2026-10-16",
+      "opening_days": 0
+    }
+  ],
+  "batch": [
+    {
+      "id": "baby-city-woodlands",
+      "shop": "311",
+      "source": "https://woodlandsboulevard.co.za/shop/baby-city",
+      "entrance": "3",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "0618389667be4899054d5c9edb712e93",
+      "opening_days": 7
+    },
+    {
+      "id": "bargain-books-woodlands",
+      "shop": "75B",
+      "source": "https://woodlandsboulevard.co.za/shop/bargain-books",
+      "entrance": "1",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "c617c4ca672ec7a58fbc78c7004f5ee1",
+      "opening_days": 7
+    },
+    {
+      "id": "cape-union-mart-woodlands",
+      "shop": "57",
+      "source": "https://woodlandsboulevard.co.za/shop/cape-union-mart",
+      "entrance": "4",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "c22313f8c779373cfd561ac0b960befa",
+      "opening_days": 7
+    },
+    {
+      "id": "dis-chem-woodlands",
+      "shop": "267",
+      "source": "https://woodlandsboulevard.co.za/shop/dis-chem",
+      "entrance": "2",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "f7ec7690768591fcb64000efa51d2223",
+      "opening_days": 7
+    },
+    {
+      "id": "edgars-woodlands",
+      "shop": "9",
+      "source": "https://woodlandsboulevard.co.za/shop/edgars",
+      "entrance": "4",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "3a3bed96829297c10c98f40a467c0c4c",
+      "opening_days": 7
+    },
+    {
+      "id": "exclusive-books-woodlands",
+      "shop": "25A",
+      "source": "https://woodlandsboulevard.co.za/shop/exclusive-books",
+      "entrance": "4",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "6ce2c48f43738e4e5eedf2f128597a94",
+      "opening_days": 7
+    },
+    {
+      "id": "freedom-of-movement-woodlands",
+      "shop": "38",
+      "source": "https://woodlandsboulevard.co.za/shop/freedom-of-movement",
+      "entrance": "4",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "586835283f96a3f052ffc8040379823e",
+      "opening_days": 7
+    },
+    {
+      "id": "istore-woodlands",
+      "shop": "35",
+      "source": "https://woodlandsboulevard.co.za/shop/istore",
+      "entrance": "4",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "065710bebac1a8340df25439a885fc24",
+      "opening_days": 7
+    },
+    {
+      "id": "le-creuset-woodlands",
+      "shop": "275 & 276",
+      "source": "https://woodlandsboulevard.co.za/shop/le-creuset",
+      "entrance": "2",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "e4186614ac10758d5160fa8dd320a0c9",
+      "opening_days": 7
+    },
+    {
+      "id": "mr-price-home-woodlands",
+      "shop": "241A",
+      "source": "https://woodlandsboulevard.co.za/shop/mr-price-home",
+      "entrance": "3",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "89612f15d6b9bbcde31b16d178547836",
+      "opening_days": 7
+    },
+    {
+      "id": "mr-price-sport-woodlands",
+      "shop": "70C",
+      "source": "https://woodlandsboulevard.co.za/shop/mr-price-sport",
+      "entrance": "1",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "9f1b31d7c558b2257b5923d6976bd892",
+      "opening_days": 7
+    },
+    {
+      "id": "mr-price-woodlands",
+      "shop": "63",
+      "source": "https://woodlandsboulevard.co.za/shop/mr-price-weekend",
+      "entrance": "1",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "c69c79fb2e6bc03130494c69e7216529",
+      "opening_days": 7
+    },
+    {
+      "id": "mtn-woodlands",
+      "shop": "2",
+      "source": "https://woodlandsboulevard.co.za/shop/mtn",
+      "entrance": "Pick 'n Pay Entrance",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "ff7b04490eb9f516a7877ae6af1e8468",
+      "opening_days": 7
+    },
+    {
+      "id": "outdoor-warehouse-woodlands",
+      "shop": "310B",
+      "source": "https://woodlandsboulevard.co.za/shop/outdoor-warehouse",
+      "entrance": "3",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "e5af3c1593d472758ee216e317e97895",
+      "opening_days": 7
+    },
+    {
+      "id": "pep-woodlands",
+      "shop": "263B",
+      "source": "https://woodlandsboulevard.co.za/shop/pep",
+      "entrance": "3",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "5bc6361601e5858c749c663d1f7a56d1",
+      "opening_days": 7
+    },
+    {
+      "id": "pna-woodlands",
+      "shop": "7",
+      "source": "https://woodlandsboulevard.co.za/shop/pna",
+      "entrance": "1",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "14d35a8ec0ce29f67fc4d00148639523",
+      "opening_days": 7
+    },
+    {
+      "id": "telkom-woodlands",
+      "shop": "71B",
+      "source": "https://woodlandsboulevard.co.za/shop/telkom",
+      "entrance": "1",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "693a70de4f6f099b5e518c334a3f48c3",
+      "opening_days": 7
+    },
+    {
+      "id": "the-crazy-store-woodlands",
+      "shop": "75A",
+      "source": "https://woodlandsboulevard.co.za/shop/the-crazy-store",
+      "entrance": "1",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "e36db327578e56cc7d38137c6c432195",
+      "opening_days": 7
+    },
+    {
+      "id": "the-fun-company-woodlands",
+      "shop": "26",
+      "source": "https://woodlandsboulevard.co.za/shop/the-fun-company",
+      "entrance": "4",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "8c03ea90798614593d04b40ab0b9c734",
+      "opening_days": 7
+    },
+    {
+      "id": "vodacom-woodlands",
+      "shop": "66A & 67",
+      "source": "https://woodlandsboulevard.co.za/shop/vodacom-shop",
+      "entrance": "1",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "aa6876141f75114dac0829cb07443cad",
+      "opening_days": 7
+    },
+    {
+      "id": "woolworths-woodlands",
+      "shop": "46",
+      "source": "https://woodlandsboulevard.co.za/shop/woolworths",
+      "entrance": "2 & 4",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "b68b0c5d90aef632fe744bf655b6f530",
+      "opening_days": 7
+    },
+    {
+      "id": "yuppiechef-woodlands",
+      "shop": "281",
+      "source": "https://woodlandsboulevard.co.za/shop/yuppiechef",
+      "entrance": "3",
+      "is_active": true,
+      "source_date": "2026-10-17",
+      "status_hash": "6407d14a5e8fe73255c280d55a1072dd",
+      "opening_days": 7
+    }
+  ],
+  "active": 157,
+  "groups": 97,
+  "places": 162,
+  "db_bytes": 14331027,
+  "hours_gap": [
+    {
+      "active": 6,
+      "no_days": 0,
+      "seven_days": 6,
+      "category_id": "automotive"
+    },
+    {
+      "active": 6,
+      "no_days": 0,
+      "seven_days": 6,
+      "category_id": "bar"
+    },
+    {
+      "active": 4,
+      "no_days": 2,
+      "seven_days": 2,
+      "category_id": "entertainment"
+    },
+    {
+      "active": 2,
+      "no_days": 1,
+      "seven_days": 1,
+      "category_id": "public_services"
+    },
+    {
+      "active": 28,
+      "no_days": 0,
+      "seven_days": 28,
+      "category_id": "quick_bites"
+    },
+    {
+      "active": 27,
+      "no_days": 0,
+      "seven_days": 27,
+      "category_id": "restaurant"
+    },
+    {
+      "active": 79,
+      "no_days": 44,
+      "seven_days": 35,
+      "category_id": "shops"
+    },
+    {
+      "active": 4,
+      "no_days": 1,
+      "seven_days": 3,
+      "category_id": "sport_outdoors"
+    }
+  ]
+}

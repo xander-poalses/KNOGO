@@ -1,7 +1,7 @@
 import { Info } from "lucide-react-native";
 import { Image } from "expo-image";
 import { useState } from "react";
-import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { HapticPressable as Pressable } from "./HapticPressable";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fonts, shadows, useTheme, useThemeStyles, type ThemeColours } from "../theme";
@@ -10,7 +10,6 @@ export function BrandHeader() {
   const insets = useSafeAreaInsets();
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
-  const { width } = useWindowDimensions();
   const [betaOpen, setBetaOpen] = useState(false);
 
   return (
@@ -20,7 +19,6 @@ export function BrandHeader() {
         <Image source={require("../../assets/knogo-logo.png")} contentFit="contain" tintColor={colours.text} style={styles.logo} />
       </View>
       <View style={styles.headerActions}>
-        {width >= 360 ? <Text style={styles.tagline}>Know before you go.</Text> : null}
         <Pressable accessibilityLabel="About KNOGO beta" accessibilityRole="button" accessibilityState={{ expanded: betaOpen }} onPress={() => setBetaOpen((current) => !current)} style={({ pressed }) => [styles.headerInfo, pressed && styles.pressed]}>
           <Info color={colours.primary} size={18} />
         </Pressable>
@@ -44,7 +42,6 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   mascot: { width: 33, height: 57, alignSelf: "flex-end" },
   logo: { width: 92, height: 35, marginLeft: 2 },
   headerActions: { flexDirection: "row", alignItems: "center", gap: 4 },
-  tagline: { color: colours.muted, fontFamily: fonts.regular, fontSize: 12 },
   headerInfo: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
   betaPopup: { position: "absolute", top: 50, right: 0, zIndex: 100, width: 260, padding: 13, borderRadius: 8, backgroundColor: colours.surface, borderWidth: 1, borderColor: colours.border, ...shadows.floating },
   betaText: { color: colours.text, fontFamily: fonts.medium, fontSize: 13, lineHeight: 18 },

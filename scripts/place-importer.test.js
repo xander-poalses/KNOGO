@@ -9,6 +9,43 @@ function batch(overrides = {}) {
 
 describe("place importer", () => {
   it("validates a complete place with seven opening rows", () => expect(validateBatch(batch()).errors).toEqual([]));
+  it("accepts Die Wilgers as a Pretoria East locality", () => expect(validateBatch(batch({ region_id: "die-wilgers" })).errors).toEqual([]));
+  it("accepts documented mall co-location but rejects unexplained copied pins", () => {
+    const mall = batch({ category_id: "shops", place_type: "bookshop", hours_status: "unpublished", data_notes: "Centre pin, not a shop entrance.", service_details: JSON.stringify({ shopping_centre: "The Grove Mall", coordinate_precision: "shopping_centre", coordinate_source: "https://example.com/contact" }) });
+    mall.hours = [];
+    mall.places.push({ ...mall.places[0], id: "second-shop", slug: "second-shop", name: "Second Shop", address: "Shop 2, Test Mall", phone: "012 000 0001" });
+    expect(validateBatch(mall).errors).toEqual([]);
+    mall.places[1].address = mall.places[0].address;
+    expect(validateBatch(mall).errors).toEqual([]);
+    mall.places[1].service_details = "{}";
+    expect(validateBatch(mall).errors.join("\n")).toContain("need a shared documented shopping-centre pin");
+  });
+  it("stores a non-food type with unpublished hours without inventing closed days", () => {
+    const unknown = batch({ category_id: "shops", place_type: "supermarket", hours_status: "unpublished", data_notes: "Branch hours not published.", service_details: '{"collection":"See branch website"}' });
+    unknown.hours = [];
+    expect(validateBatch(unknown).errors).toEqual([]);
+    const sql = generateImportSql(unknown, "test");
+    expect(sql).toContain("place_type, source_url, source_checked_at, map_url, data_notes");
+    expect(sql).toContain("'supermarket'");
+    expect(sql).not.toContain("insert into public.place_hours");
+    expect(sql).not.toContain("delete from");
+  });
+  it("rejects contradictory hour evidence and missing types", () => {
+    const unknown = batch({ category_id: "shops", hours_status: "unpublished" });
+    const errors = validateBatch(unknown).errors.join("\n");
+    expect(errors).toContain("place_type is required");
+    expect(errors).toContain("marked unpublished but has opening hours");
+    expect(errors).toContain("needs data_notes");
+  });
+  it("accepts only the published subset of hours and preserves other days on updates", () => {
+    const partial = batch({ hours_status: "partial", data_notes: "Only weekday hours are published." });
+    partial.hours = partial.hours.slice(0, 5);
+    expect(validateBatch(partial).errors).toEqual([]);
+    const sql = generateImportSql(partial, "test");
+    expect(sql).toContain("on conflict (place_id, hours_type, day_of_week) do update");
+    expect(sql).not.toContain("delete from");
+    expect(sql).toContain("coalesce(excluded.image_url, places.image_url)");
+  });
   it("expands day ranges before validation and SQL generation", () => {
     const ranged = batch();
     ranged.hours = [{ ...ranged.hours[0], day_of_week: "Mon-Sun", sort_order: "1" }];

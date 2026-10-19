@@ -1,0 +1,203 @@
+{
+  "source_url": "https://www.pna.co.za/pna-locations/",
+  "checked_at": "2026-10-18",
+  "scrape_id": "01a15006-9062-72f4-a479-09af86a5855f",
+  "html_scrape_id": "01a15007-5c16-736c-ac6b-a9762e8bf6e5",
+  "branches": [
+    {
+      "name": "PNA Castle Gate Lifestyle",
+      "address": "Shop 19 Castle Gate Lifestyle Retail Centre, Koedoesnek Avenue, Erasmus Park, Pretoria, Gauteng, 0048, South Africa",
+      "latitude": -25.81916741950044,
+      "longitude": 28.246906325360523,
+      "phone": "012 492 9961",
+      "email": "castlegate@pnaonline.co.za",
+      "map_url": "https://maps.google.com/maps?cid=18063459123255609514",
+      "hours": [
+        [
+          "Monday",
+          "08:00 - 19:00"
+        ],
+        [
+          "Tuesday",
+          "08:00 - 19:00"
+        ],
+        [
+          "Wednesday",
+          "08:00 - 19:00"
+        ],
+        [
+          "Thursday",
+          "08:00 - 19:00"
+        ],
+        [
+          "Friday",
+          "08:00 - 19:00"
+        ],
+        [
+          "Saturday",
+          "08:00 - 17:00"
+        ],
+        [
+          "Sunday",
+          "09:00 - 16:00"
+        ]
+      ]
+    },
+    {
+      "name": "PNA Hazeldean",
+      "address": "Shop 18, Hazeldean Square, Silverlakes Road, Silverlakes, Pretoria, Gauteng, 0081, South Africa",
+      "latitude": -25.7844455,
+      "longitude": 28.3526572,
+      "phone": "012 493 0137",
+      "email": "hazeldean@pnaonline.co.za",
+      "map_url": "https://maps.google.com/maps?cid=16504541416435924542",
+      "hours": [
+        [
+          "Monday",
+          "09:00 - 18:00"
+        ],
+        [
+          "Tuesday",
+          "09:00 - 18:00"
+        ],
+        [
+          "Wednesday",
+          "09:00 - 18:00"
+        ],
+        [
+          "Thursday",
+          "09:00 - 18:00"
+        ],
+        [
+          "Friday",
+          "09:00 - 18:00"
+        ],
+        [
+          "Saturday",
+          "09:00 - 16:00"
+        ],
+        [
+          "Sunday",
+          "09:00 - 15:00"
+        ]
+      ]
+    },
+    {
+      "name": "PNA Menlyn",
+      "address": "Shop LF 12-14, Menlyn Park Shopping Centre, Atterbury Road, Menlyn, Pretoria, Gauteng, 0063, South Africa",
+      "latitude": -25.7831413,
+      "longitude": 28.2754487,
+      "phone": "012 492 7820",
+      "email": "menlyn@pnaonline.co.za",
+      "map_url": "https://maps.google.com/maps?cid=220146035298134741",
+      "hours": [
+        [
+          "Monday",
+          "09:00 - 20:00"
+        ],
+        [
+          "Tuesday",
+          "09:00 - 20:00"
+        ],
+        [
+          "Wednesday",
+          "09:00 - 20:00"
+        ],
+        [
+          "Thursday",
+          "09:00 - 20:00"
+        ],
+        [
+          "Friday",
+          "09:00 - 21:00"
+        ],
+        [
+          "Saturday",
+          "09:00 - 21:00"
+        ],
+        [
+          "Sunday",
+          "09:00 - 18:00"
+        ]
+      ]
+    },
+    {
+      "name": "PNA The Grove",
+      "address": "The Grove Mall, Lynnwood Road, Die Wilgers, Pretoria, Gauteng, 0184, South Africa",
+      "latitude": -25.765790734054,
+      "longitude": 28.323913366723,
+      "phone": "012 493 3998",
+      "email": "grovemall@pnaonline.co.za",
+      "map_url": "https://maps.google.com/maps?cid=9706629641402938757",
+      "hours": [
+        [
+          "Monday",
+          "09:00 - 19:00"
+        ],
+        [
+          "Tuesday",
+          "09:00 - 19:00"
+        ],
+        [
+          "Wednesday",
+          "09:00 - 19:00"
+        ],
+        [
+          "Thursday",
+          "09:00 - 19:00"
+        ],
+        [
+          "Friday",
+          "09:00 - 19:00"
+        ],
+        [
+          "Saturday",
+          "09:00 - 18:00"
+        ],
+        [
+          "Sunday",
+          "09:00 - 16:00"
+        ]
+      ]
+    },
+    {
+      "name": "PNA Woodlands",
+      "address": "Shop 6, Woodlands Boulevard Shopping Complex, Pretoriuspark, Pretoria, Gauteng, 0081, South Africa",
+      "latitude": -25.8235774,
+      "longitude": 28.3130348,
+      "phone": "012 493 0746",
+      "email": "woodlands@pnaonline.co.za",
+      "map_url": "https://maps.google.com/maps?cid=17360745501251622258",
+      "hours": [
+        [
+          "Monday",
+          "09:00 - 19:00"
+        ],
+        [
+          "Tuesday",
+          "09:00 - 19:00"
+        ],
+        [
+          "Wednesday",
+          "09:00 - 19:00"
+        ],
+        [
+          "Thursday",
+          "09:00 - 19:00"
+        ],
+        [
+          "Friday",
+          "09:00 - 19:00"
+        ],
+        [
+          "Saturday",
+          "09:00 - 19:00"
+        ],
+        [
+          "Sunday",
+          "09:00 - 17:00"
+        ]
+      ]
+    }
+  ]
+}

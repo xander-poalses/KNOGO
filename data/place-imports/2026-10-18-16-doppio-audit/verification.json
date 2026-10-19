@@ -1,0 +1,36 @@
+{
+  "checked_at": "2026-10-18",
+  "status": "applied_and_read_back",
+  "places": 166,
+  "active_places": 161,
+  "database_bytes": 14396563,
+  "growth_from_baseline_bytes": 425984,
+  "verified": [
+    {
+      "id": "doppio-zero-castle-gate",
+      "fields_match": true,
+      "opening_days": 7,
+      "status_unchanged": true,
+      "activity_and_images_unchanged": true,
+      "status_hash": "434ac34fd3940fa19e79932be1c61656"
+    },
+    {
+      "id": "doppio-zero-hazeldean",
+      "fields_match": true,
+      "opening_days": 7,
+      "status_unchanged": true,
+      "activity_and_images_unchanged": true,
+      "status_hash": "d87f15a723b496bf42f50615aa76195f"
+    },
+    {
+      "id": "doppio-zero-hazelwood",
+      "fields_match": true,
+      "opening_days": 7,
+      "status_unchanged": true,
+      "activity_and_images_unchanged": true,
+      "status_hash": "29b6c494e45ac192f380598a35b85169"
+    }
+  ],
+  "fnb_unchanged": true,
+  "hotspot_image_url": null
+}

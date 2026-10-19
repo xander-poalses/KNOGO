@@ -1,0 +1,47 @@
+{
+  "place": {
+    "id": "dis-chem-castle-gate",
+    "name": "Dis-Chem Castle Gate",
+    "slug": "dis-chem-castle-gate",
+    "tags": [
+      "Pharmacy",
+      "Health",
+      "Beauty"
+    ],
+    "phone": "012 574 0485",
+    "address": "Castle Gate Shopping Centre, 478 Koedoesnek Avenue, Erasmuspark, Pretoria",
+    "map_url": "https://www.google.com/maps/dir/?api=1&destination=-25.8185613%2C28.244004",
+    "website": "https://castlegate.co.za/castle-gate---stores---castle-gate",
+    "features": [],
+    "group_id": "dis-chem",
+    "latitude": -25.8185613,
+    "logo_url": null,
+    "menu_url": null,
+    "image_url": null,
+    "is_active": true,
+    "longitude": 28.244004,
+    "region_id": "erasmus-park",
+    "created_at": "2026-10-16T13:07:01.503398+00:00",
+    "data_notes": "Tenant hours are not published in the mall directory. Coordinates are the centre map pin published by Castle Gate, not the shop doorway. Confirm entrance before travelling.",
+    "place_type": "pharmacy",
+    "source_url": "https://castlegate.co.za/castle-gate---stores---castle-gate",
+    "updated_at": "2026-10-16T13:07:43.23553+00:00",
+    "category_id": "shops",
+    "logo_checked_at": null,
+    "logo_source_url": null,
+    "service_details": {
+      "precinct": "Retail",
+      "address_source": "https://castlegate.co.za/castle-gate---stores---castle-gate",
+      "shopping_centre": "Castle Gate",
+      "coordinate_source": "https://castlegate.co.za/castle-gate---contact",
+      "coordinate_precision": "shopping_centre"
+    },
+    "image_checked_at": null,
+    "image_source_url": null,
+    "image_attribution": null,
+    "source_checked_at": "2026-10-16"
+  },
+  "record_hash": "e4a0f654b66f713363fae9a91c7d84d9",
+  "status_hash": "234b5c1f6c45b83e6278200c3f8f78c8",
+  "opening_days": 0
+}

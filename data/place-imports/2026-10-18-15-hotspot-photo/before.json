@@ -1,0 +1,67 @@
+{
+  "place": {
+    "id": "hot-spot-cycles",
+    "name": "Hot Spot Cycles",
+    "slug": "hot-spot-cycles",
+    "tags": [
+      "Bicycles",
+      "Cycling",
+      "Accessories",
+      "Padel equipment"
+    ],
+    "phone": "012 993 5231",
+    "address": "Shop 3B, Atterbury Decor Centre, Windsor Road entrance at Atterbury Road, Faerie Glen, Pretoria, 0081",
+    "map_url": "https://www.waze.com/live-map/directions/hotspot-cycles-windsor-rd-faerie-glen,-pretoria?to=place.w.18548230.185547837.7032509",
+    "website": "https://hotspotcycles.co.za/pages/contact",
+    "features": [],
+    "group_id": null,
+    "latitude": -25.791607566,
+    "logo_url": null,
+    "menu_url": null,
+    "image_url": null,
+    "is_active": true,
+    "longitude": 28.310121893,
+    "region_id": "faerie-glen",
+    "created_at": "2026-10-18T18:34:39.844212+00:00",
+    "data_notes": "Use the Windsor Road entrance. Operator lists shop 3B, Atterbury Decor Centre; a supplier search excerpt gives shop 2, Atterbury Lifestyle Centre, so confirm the shop before travelling. Waze supplies the business pin, not a verified doorway. Holiday hours differ from the weekly schedule.",
+    "place_type": "bicycle_shop",
+    "source_url": "https://hotspotcycles.co.za/pages/contact",
+    "updated_at": "2026-10-18T18:35:19.658239+00:00",
+    "category_id": "shops",
+    "logo_checked_at": null,
+    "logo_source_url": null,
+    "service_details": {
+      "shop": "3B",
+      "entrance": "Windsor Road at Atterbury Road",
+      "services": [
+        "Bicycle sales",
+        "Cycling accessories",
+        "Padel equipment"
+      ],
+      "hours_scope": "store",
+      "branch_email": "info@hotspotcycles.co.za",
+      "mobile_phone": "082 315 2991",
+      "grouping_note": "One published business location; no chain group inferred from product brands.",
+      "alternate_phone": "012 993 4642",
+      "shopping_centre": "Atterbury Decor Centre",
+      "inventory_source": "https://hotspotcycles.co.za/",
+      "coordinate_source": "https://www.waze.com/live-map/directions/hotspot-cycles-windsor-rd-faerie-glen,-pretoria?to=place.w.18548230.185547837.7032509",
+      "coordinate_precision": "third_party_business_pin",
+      "public_holiday_hours": "Closed except when the holiday falls on Saturday; confirm that day's hours.",
+      "supplier_search_excerpt_conflict": {
+        "source": "https://bicyclepower.co.za/dealer-profiles/hot-spot-cycles/",
+        "address": "Shop 2, Atterbury Lifestyle Centre",
+        "verification": "Search excerpt only; operator contact page preferred."
+      }
+    },
+    "image_checked_at": null,
+    "image_source_url": null,
+    "image_attribution": null,
+    "source_checked_at": "2026-10-18"
+  },
+  "record_hash": "6a1402485361ca1e7a52b528d5c2257f",
+  "untouched_hash": "099e8a8a6a8986b3445e31864add9db9",
+  "status_hash": "1b84f7ea41d06a28d988471253680ceb",
+  "hours_hash": "70ad8fd51cf67522ba64819b27f7e06a",
+  "fnb_record_hash": "24c7b869c4e57b3946d6cf44d0f3533e"
+}

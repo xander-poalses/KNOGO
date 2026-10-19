@@ -1,0 +1,160 @@
+{
+  "place": {
+    "id": "dis-chem-castle-gate",
+    "name": "Dis-Chem Castle Gate",
+    "slug": "dis-chem-castle-gate",
+    "tags": [
+      "Pharmacy",
+      "Health",
+      "Beauty"
+    ],
+    "phone": "012 574 0485",
+    "address": "Shop 23, Castle Gate Lifestyle Centre, 478 Koedoesnek Avenue, Erasmus Park, Pretoria",
+    "map_url": "https://www.google.com/maps/dir/?api=1&destination=-25.818621%2C28.244421",
+    "website": "https://www.dischem.co.za/castle-gate-pharmacy",
+    "features": [],
+    "group_id": "dis-chem",
+    "latitude": -25.818621,
+    "logo_url": null,
+    "menu_url": null,
+    "image_url": null,
+    "is_active": true,
+    "longitude": 28.244421,
+    "region_id": "erasmus-park",
+    "created_at": "2026-10-16T13:07:01.503398+00:00",
+    "data_notes": "Opening hours apply to the store, not the clinic or delivery service. Clinic Saturday appointments are limited to the end and beginning of the month; confirm dates. Holiday hours need confirmation. Coordinates come from the operator's directions link, not a verified doorway.",
+    "place_type": "pharmacy",
+    "source_url": "https://www.dischem.co.za/castle-gate-pharmacy",
+    "updated_at": "2026-10-18T17:16:00.016823+00:00",
+    "category_id": "shops",
+    "logo_checked_at": null,
+    "logo_source_url": null,
+    "service_details": {
+      "shop": "23",
+      "precinct": "Retail",
+      "services": [
+        "Click & Collect",
+        "Clinic",
+        "DeliverD"
+      ],
+      "hours_scope": "store",
+      "clinic_hours": {
+        "sunday": "Closed",
+        "saturday": "09:00-16:00 at the end and beginning of the month, by appointment; confirm dates with the clinic",
+        "weekdays": "09:00-17:00"
+      },
+      "address_source": "https://www.dischem.co.za/castle-gate-pharmacy",
+      "delivery_hours": {
+        "monday_to_saturday": "09:00-16:30",
+        "sunday_and_public_holidays": "09:00-13:00"
+      },
+      "shopping_centre": "Castle Gate",
+      "dispensary_email": "castlegatedispensary@dischem.co.za",
+      "coordinate_source": "https://www.dischem.co.za/castle-gate-pharmacy",
+      "dispensary_whatsapp": "060 706 3545",
+      "coordinate_precision": "operator_directions_pin",
+      "previous_coordinates": {
+        "source": "https://castlegate.co.za/castle-gate---contact",
+        "latitude": -25.8185613,
+        "longitude": 28.244004
+      },
+      "public_holiday_hours": "Store 09:00-17:00; contact the store to confirm. Clinic closed."
+    },
+    "image_checked_at": null,
+    "image_source_url": null,
+    "image_attribution": null,
+    "source_checked_at": "2026-10-18"
+  },
+  "hours": [
+    {
+      "id": "4727f506-898b-42fa-b5ed-8ad71fd7bacd",
+      "place_id": "dis-chem-castle-gate",
+      "is_closed": false,
+      "open_time": "09:00:00",
+      "close_time": "19:00:00",
+      "hours_type": "opening",
+      "sort_order": 1,
+      "source_url": "https://www.dischem.co.za/castle-gate-pharmacy",
+      "day_of_week": "Mon",
+      "source_checked_at": "2026-10-18"
+    },
+    {
+      "id": "59591ddf-e0f5-4ef5-b3fc-4422bd5ce986",
+      "place_id": "dis-chem-castle-gate",
+      "is_closed": false,
+      "open_time": "09:00:00",
+      "close_time": "19:00:00",
+      "hours_type": "opening",
+      "sort_order": 2,
+      "source_url": "https://www.dischem.co.za/castle-gate-pharmacy",
+      "day_of_week": "Tue",
+      "source_checked_at": "2026-10-18"
+    },
+    {
+      "id": "fc3a5908-4143-436e-96ad-55893f4efdff",
+      "place_id": "dis-chem-castle-gate",
+      "is_closed": false,
+      "open_time": "09:00:00",
+      "close_time": "19:00:00",
+      "hours_type": "opening",
+      "sort_order": 3,
+      "source_url": "https://www.dischem.co.za/castle-gate-pharmacy",
+      "day_of_week": "Wed",
+      "source_checked_at": "2026-10-18"
+    },
+    {
+      "id": "79bf48c5-d20b-4cab-a1f5-31bcbaa32a3c",
+      "place_id": "dis-chem-castle-gate",
+      "is_closed": false,
+      "open_time": "09:00:00",
+      "close_time": "19:00:00",
+      "hours_type": "opening",
+      "sort_order": 4,
+      "source_url": "https://www.dischem.co.za/castle-gate-pharmacy",
+      "day_of_week": "Thu",
+      "source_checked_at": "2026-10-18"
+    },
+    {
+      "id": "bc6c6527-e7c2-4ac2-ba7a-0d2d21198d2f",
+      "place_id": "dis-chem-castle-gate",
+      "is_closed": false,
+      "open_time": "09:00:00",
+      "close_time": "19:00:00",
+      "hours_type": "opening",
+      "sort_order": 5,
+      "source_url": "https://www.dischem.co.za/castle-gate-pharmacy",
+      "day_of_week": "Fri",
+      "source_checked_at": "2026-10-18"
+    },
+    {
+      "id": "d2020019-aaf2-4219-802b-8e9517bbdac2",
+      "place_id": "dis-chem-castle-gate",
+      "is_closed": false,
+      "open_time": "09:00:00",
+      "close_time": "17:00:00",
+      "hours_type": "opening",
+      "sort_order": 6,
+      "source_url": "https://www.dischem.co.za/castle-gate-pharmacy",
+      "day_of_week": "Sat",
+      "source_checked_at": "2026-10-18"
+    },
+    {
+      "id": "9d7640d7-4998-4eb9-94d6-63d081cae28e",
+      "place_id": "dis-chem-castle-gate",
+      "is_closed": false,
+      "open_time": "09:00:00",
+      "close_time": "16:00:00",
+      "hours_type": "opening",
+      "sort_order": 7,
+      "source_url": "https://www.dischem.co.za/castle-gate-pharmacy",
+      "day_of_week": "Sun",
+      "source_checked_at": "2026-10-18"
+    }
+  ],
+  "status_hash": "234b5c1f6c45b83e6278200c3f8f78c8",
+  "database_bytes": 14339219,
+  "total_places": 162,
+  "active_places": 157,
+  "groups": 97,
+  "missing_hours": 46
+}

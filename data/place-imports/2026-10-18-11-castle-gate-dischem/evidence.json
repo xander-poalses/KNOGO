@@ -1,0 +1,44 @@
+{
+  "source_url": "https://www.dischem.co.za/castle-gate-pharmacy",
+  "checked_at": "2026-10-18",
+  "scrape_id": "01a15001-cc0d-734f-bd64-4a1fb51eb715",
+  "address": "Shop 23, Castle Gate Lifestyle Centre, 478 Koedoesnek Avenue, Erasmus Park, Pretoria",
+  "phone": "012 574 0485",
+  "latitude": -25.818621,
+  "longitude": 28.244421,
+  "store_hours": {
+    "weekdays": "09:00-19:00",
+    "saturday": "09:00-17:00",
+    "sunday": "09:00-16:00"
+  },
+  "precinct": "Retail",
+  "address_source": "https://www.dischem.co.za/castle-gate-pharmacy",
+  "shopping_centre": "Castle Gate",
+  "coordinate_source": "https://www.dischem.co.za/castle-gate-pharmacy",
+  "coordinate_precision": "operator_directions_pin",
+  "shop": "23",
+  "previous_coordinates": {
+    "latitude": -25.8185613,
+    "longitude": 28.244004,
+    "source": "https://castlegate.co.za/castle-gate---contact"
+  },
+  "hours_scope": "store",
+  "public_holiday_hours": "Store 09:00-17:00; contact the store to confirm. Clinic closed.",
+  "clinic_hours": {
+    "weekdays": "09:00-17:00",
+    "saturday": "09:00-16:00 at the end and beginning of the month, by appointment; confirm dates with the clinic",
+    "sunday": "Closed"
+  },
+  "delivery_hours": {
+    "monday_to_saturday": "09:00-16:30",
+    "sunday_and_public_holidays": "09:00-13:00"
+  },
+  "dispensary_email": "castlegatedispensary@dischem.co.za",
+  "dispensary_whatsapp": "060 706 3545",
+  "services": [
+    "Click & Collect",
+    "Clinic",
+    "DeliverD"
+  ],
+  "excluded": "Website open-now banner is not a community report; pharmacist identity and registration number are not needed."
+}

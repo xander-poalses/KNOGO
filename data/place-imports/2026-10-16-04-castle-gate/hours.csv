@@ -1,0 +1,5 @@
+place_id,hours_type,day_of_week,open_time,close_time,is_closed,sort_order,source_url,source_checked_at
+planet-fitness-castle-gate,opening,Mon-Thu,05:00,21:00,false,1,https://www.planetfitness.co.za/gyms/waterkloof-ridge/,2026-10-16
+planet-fitness-castle-gate,opening,Fri,05:00,20:00,false,5,https://www.planetfitness.co.za/gyms/waterkloof-ridge/,2026-10-16
+planet-fitness-castle-gate,opening,Sat,07:00,18:00,false,6,https://www.planetfitness.co.za/gyms/waterkloof-ridge/,2026-10-16
+planet-fitness-castle-gate,opening,Sun,07:00,16:00,false,7,https://www.planetfitness.co.za/gyms/waterkloof-ridge/,2026-10-16

@@ -1,0 +1,47 @@
+{
+  "checked_at": "2026-10-18",
+  "sources": [
+    {
+      "url": "https://crawdaddys.co.za/Branches.html",
+      "scrape_id": "01a150ad-3295-727d-82ff-fd62f63fe607",
+      "facts": "Each branch: Mon-Thu 11:00-22:00; Fri-Sat 11:00-22:30; Sun 11:00-21:00. Contacts and branch address appear alongside each heading. Hidden booking modals require phone, not email. Silver Lakes also links Dineplan and lists a play area."
+    },
+    {
+      "url": "https://crawdaddys.co.za/",
+      "facts": "Operator links 2026 menu and wine list. Only menu link recorded; PDF contents and prices not verified."
+    }
+  ],
+  "coordinates": [
+    {
+      "id": "crawdaddys-brooklyn",
+      "latitude": -25.7721323,
+      "longitude": 28.2306222,
+      "precision": "operator_branch_map",
+      "source": "https://crawdaddys.co.za/Branches.html",
+      "extraction": "Branch marker array follows operator branch order: Brooklyn, Menlyn, Centurion, Silver Lakes. No doorway claim."
+    },
+    {
+      "id": "crawdaddys-silver-lakes",
+      "latitude": -25.781944,
+      "longitude": 28.347566,
+      "precision": "operator_branch_map",
+      "source": "https://crawdaddys.co.za/Branches.html",
+      "extraction": "Branch marker array follows operator branch order: Brooklyn, Menlyn, Centurion, Silver Lakes. No doorway claim."
+    }
+  ],
+  "unverified": [
+    "Kitchen hours",
+    "Holiday hours",
+    "Parking",
+    "Wheelchair access",
+    "Prior feature flags"
+  ],
+  "excluded_branches": [
+    "Centurion",
+    "Montana",
+    "Tzaneen",
+    "Secunda",
+    "Rustenburg"
+  ],
+  "remaining_lead": "Menlyn branch is listed by operator at 402 Mendelssohn Street; research and duplicate check required before import."
+}

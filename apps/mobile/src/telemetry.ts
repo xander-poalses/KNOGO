@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/react-native";
 import { PostHog } from "posthog-react-native";
+import { placeCategoryIds } from "@knogo/core";
 
 type EventName = "app_opened" | "search_completed" | "place_opened" | "place_saved" | "report_submitted" | "report_failed";
 type EventProperties = Record<string, string | number | boolean | null>;
@@ -63,7 +64,7 @@ export function captureEvent(name: EventName, properties: EventProperties = {}) 
   for (const key of booleanKeys[name] ?? []) {
     if (typeof properties[key] === "boolean") safe[key] = properties[key];
   }
-  if (name === "place_opened" && ["restaurant", "quick_bites", "bar", "pharmacy", "cafe", "hardware", "vet", "petrol_station", "government_office"].includes(String(properties.category))) {
+  if (name === "place_opened" && placeCategoryIds.some(category => category === properties.category)) {
     safe.category = properties.category;
   }
   if (name === "report_failed" && ["auth", "report"].includes(String(properties.stage))) safe.stage = properties.stage;

@@ -1,0 +1,60 @@
+{
+  "total_places": 166,
+  "active_places": 161,
+  "groups": 97,
+  "database_bytes": 14371987,
+  "fnb_record_hash": "24c7b869c4e57b3946d6cf44d0f3533e",
+  "locality": {
+    "id": "die-wilgers",
+    "name": "Die Wilgers",
+    "slug": "die-wilgers",
+    "parent_id": "pretoria",
+    "created_at": "2026-10-18T18:34:39.844212+00:00",
+    "sort_order": 0,
+    "region_type": "suburb_area"
+  },
+  "places": [
+    {
+      "id": "hot-spot-cycles",
+      "active": true,
+      "status": {
+        "source": "unknown",
+        "is_open": null,
+        "place_id": "hot-spot-cycles",
+        "busy_level": "unknown",
+        "updated_at": "2026-10-18T18:35:19.658239+00:00",
+        "accepts_walk_ins": null,
+        "confidence_score": 0,
+        "has_backup_power": null,
+        "last_confirmed_at": null,
+        "signal_confirmed_at": {},
+        "card_machine_working": null,
+        "is_service_available": null
+      },
+      "group_id": null,
+      "opening_days": 7
+    },
+    {
+      "id": "lynnwood-cyclery",
+      "active": true,
+      "status": {
+        "source": "unknown",
+        "is_open": null,
+        "place_id": "lynnwood-cyclery",
+        "busy_level": "unknown",
+        "updated_at": "2026-10-18T18:35:19.658239+00:00",
+        "accepts_walk_ins": null,
+        "confidence_score": 0,
+        "has_backup_power": null,
+        "last_confirmed_at": null,
+        "signal_confirmed_at": {},
+        "card_machine_working": null,
+        "is_service_available": null
+      },
+      "group_id": null,
+      "opening_days": 7
+    }
+  ],
+  "missing_hours": 44,
+  "growth_bytes": 401408
+}

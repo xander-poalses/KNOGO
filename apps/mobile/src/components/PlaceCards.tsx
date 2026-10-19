@@ -10,6 +10,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { HapticPressable as Pressable } from "./HapticPressable";
 import { fonts, radii, space, useTheme, useThemeStyles, type ThemeColours } from "../theme";
 import { PlaceLogo } from "./PlaceLogo";
+import { PlaceImage } from "./PlaceImage";
 import { getCheckPresentation } from "../statusPresentation";
 
 function signalTone(tone: ReturnType<typeof getCheckPresentation>["tone"], styles: ReturnType<typeof createStyles>) {
@@ -90,20 +91,21 @@ export function ExplorePlaceTile({ place, width, saved, onToggleSaved, distance,
   const router = useRouter();
   const open = () => onPress ? onPress(place) : router.push({ pathname: "/restaurants/[placeId]", params: { placeId: place.id } });
   const trading = getCheckPresentation(place.currentStatus);
+  const metadata = [place.name.trim().toLocaleLowerCase().endsWith(place.area.trim().toLocaleLowerCase()) ? null : place.area, distance].filter(Boolean).join(" / ");
   if (layout === "list") return <View style={[styles.resultRow, { width }]}>
     <Pressable accessibilityRole="button" accessibilityLabel={`${place.name}, ${place.area}, ${trading.summary}`} onPress={open} style={({ pressed }) => [styles.resultMain, pressed && styles.pressed]}>
-      <PlaceLogo compact id={place.id} name={place.groupName ?? place.name} uri={place.logoUrl} fallback="surface" style={styles.resultLogo}/>
-      <View style={styles.resultCopy}><Text style={styles.resultName}>{place.name}</Text><Text style={styles.resultMeta}>{place.area}{distance ? ` · ${distance}` : ""}</Text><Text style={[styles.resultStatus, signalTone(trading.tone, styles)]}>{trading.tone === "neutral" ? "No recent check" : trading.label}</Text></View>
+      <PlaceImage id={place.id} name={place.name} uri={place.imageUrl} style={styles.resultLogo}/>
+      <View style={styles.resultCopy}><Text style={styles.resultName}>{place.name}</Text>{metadata ? <Text style={styles.resultMeta}>{metadata}</Text> : null}<Text style={[styles.resultStatus, signalTone(trading.tone, styles)]}>{trading.tone === "neutral" ? "No recent check" : trading.label}</Text></View>
     </Pressable>
     {allowRemove && saved ? <Pressable accessibilityRole="button" accessibilityLabel={`Remove ${place.name} from saved`} onPress={() => onToggleSaved(place.id)} style={styles.resultSave}><Heart color={colours.primary} fill={colours.primary} size={20}/></Pressable> : null}
   </View>;
   return (
     <View style={[styles.exploreTile, { width }]}>
       <Pressable accessibilityLabel={`${place.name}, ${trading.summary}, ${place.area}`} accessibilityRole="button" onPress={open} style={({ pressed }) => [styles.exploreMain, pressed && styles.pressed]}>
-        <PlaceLogo compact id={place.id} name={place.groupName ?? place.name} uri={place.logoUrl} fallback="surface" style={styles.gridLogo} />
+        <PlaceImage id={place.id} name={place.name} uri={place.imageUrl} style={styles.gridLogo} />
         <View style={[styles.exploreCopy]}>
           <Text style={styles.exploreName}>{place.name}</Text>
-          <Text style={styles.exploreArea}>{place.area}{distance ? ` / ${distance}` : ""}</Text>
+          {metadata ? <Text style={styles.exploreArea}>{metadata}</Text> : null}
           <Text style={[styles.resultStatus, signalTone(trading.tone, styles)]}>{trading.label}</Text>
         </View>
       </Pressable>
@@ -128,7 +130,7 @@ export function ExploreGroupTile({ group, branches, width = 196, distance, layou
   const openGroup = () => branches.length === 1 ? router.push({ pathname: "/restaurants/[placeId]", params: { placeId: branches[0].id } }) : router.push({ pathname: "/restaurants/groups/[groupSlug]", params: { groupSlug: group.slug } });
   if (branches.length === 1) return <ExplorePlaceTile place={branches[0]} width={width} saved={false} onToggleSaved={() => undefined} distance={distance} layout={layout}/>;
   if (layout === "list") return <Pressable accessibilityRole="button" accessibilityLabel={`${group.name}, choose a branch`} onPress={() => router.push({ pathname: "/restaurants/groups/[groupSlug]", params: { groupSlug: group.slug } })} style={({ pressed }) => [styles.resultRow, styles.resultGroup, { width }, pressed && styles.pressed]}>
-    <PlaceLogo compact id={group.id} name={group.name} uri={group.logoUrl} fallback="surface" style={styles.resultLogo}/>
+    <PlaceLogo name={group.name} style={styles.resultLogo}/>
     <View style={styles.resultCopy}><Text style={styles.resultName}>{group.name}</Text><Text style={styles.resultMeta}>{[...new Set(branches.map(branch => branch.area))].slice(0, 2).join(" · ")}{distance ? ` · ${distance}` : ""}</Text><Text style={styles.resultGroupAction}>Choose a branch</Text></View>
   </Pressable>;
   return (
@@ -138,7 +140,7 @@ export function ExploreGroupTile({ group, branches, width = 196, distance, layou
       accessibilityRole="button"
       style={({ pressed }) => [styles.exploreGroup, { width }, pressed && styles.pressed]}
     >
-      <PlaceLogo compact id={group.id} name={group.name} uri={group.logoUrl} fallback="surface" style={styles.gridLogo} />
+      <PlaceLogo name={group.name} style={styles.gridLogo} />
       <View style={[styles.exploreCopy]}>
         <Text style={styles.exploreName}>{group.name}</Text>
         <Text style={styles.exploreArea}>{branches.length} branches</Text>

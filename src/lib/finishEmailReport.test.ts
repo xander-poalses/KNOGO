@@ -15,7 +15,19 @@ describe("email return reporting", () => {
   });
   it("does not route a review callback to a different report draft", async () => {
     const input = { ...harness(), url: "knogo://auth/callback?intent=review&placeId=other&code=one-time" };
-    expect((await finishEmailReport(input)).kind).toBe("account");
+    expect(await finishEmailReport(input)).toEqual({ kind: "report", placeId: "other" });
+    expect(input.submit).not.toHaveBeenCalled();
+  });
+  it("starts the intended report after sign-in without requiring answers first", async () => {
+    const input = { ...harness(), url: "knogo://auth/callback?intent=review&placeId=place-1&code=one-time", readDraft: vi.fn(async () => null) };
+    expect(await finishEmailReport(input)).toEqual({ kind: "report", placeId: "place-1" });
+    expect(input.completeEmailLink).toHaveBeenCalledOnce();
+    expect(input.submit).not.toHaveBeenCalled();
+    expect(input.clearDraft).not.toHaveBeenCalled();
+  });
+  it.each(["", "../settings", "https://other.example", "/restaurants/place-1"])("does not start a report for invalid callback ID %s", async placeId => {
+    const input = { ...harness(), url: `knogo://auth/callback?intent=review&placeId=${encodeURIComponent(placeId)}`, readDraft: vi.fn(async () => null) };
+    expect(await finishEmailReport(input)).toEqual({ kind: "account" });
     expect(input.submit).not.toHaveBeenCalled();
   });
   it("does not publish a saved report when confirming account registration", async () => {

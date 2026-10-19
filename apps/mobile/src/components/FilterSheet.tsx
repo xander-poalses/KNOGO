@@ -1,5 +1,5 @@
-import { defaultFilters, type PlaceCategory, type PlaceFilters } from "@knogo/core";
-import { filterCapabilities } from "../filterContext";
+import { defaultFilters, type Place, type PlaceCategory, type PlaceFilters } from "@knogo/core";
+import { directoryFilterOptions, filterCapabilities } from "../filterContext";
 import { ChevronDown, ChevronUp, X } from "lucide-react-native";
 import { useEffect, useState, type ReactNode } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
@@ -33,7 +33,8 @@ export function FilterSheet({
   onClose,
   areasOnly = false,
   cuisinesOnly = false,
-  categories = []
+  categories = [],
+  places = []
 }: {
   visible: boolean;
   filters: PlaceFilters;
@@ -44,16 +45,20 @@ export function FilterSheet({
   areasOnly?: boolean;
   cuisinesOnly?: boolean;
   categories?: PlaceCategory[];
+  places?: Place[];
 }) {
   const [areaQuery, setAreaQuery] = useState("");
+  const [typeQuery, setTypeQuery] = useState("");
   const [cuisineQuery, setCuisineQuery] = useState("");
-  useEffect(() => { if (visible) { setAreaQuery(""); setCuisineQuery(""); } }, [visible]);
+  const [tagQuery, setTagQuery] = useState("");
+  useEffect(() => { if (visible) { setAreaQuery(""); setTypeQuery(""); setCuisineQuery(""); setTagQuery(""); } }, [visible]);
   const insets = useSafeAreaInsets();
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
   const supported = filterCapabilities(categories);
-  const toggleMany = (key: "areas" | "cuisines", value: string) => {
-    const current = filters[key];
+  const options = directoryFilterOptions(places, categories);
+  const toggleMany = (key: "areas" | "cuisines" | "placeTypes" | "tags", value: string) => {
+    const current = filters[key] ?? [];
     onChange({ ...filters, [key]: current.includes(value) ? current.filter((item) => item !== value) : [...current, value] });
   };
 
@@ -68,6 +73,20 @@ export function FilterSheet({
           </Pressable>
         </View>
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.content, { paddingBottom: 48 + insets.bottom }]}>
+          {!areasOnly && !cuisinesOnly && options.types.length > 1 ? <Section title="Place type" summary={filters.placeTypes?.length ? options.types.filter(type => filters.placeTypes?.includes(type.id)).map(type => type.label).join(", ") : "All types"} list>
+            {options.types.length > 10 ? <SearchField value={typeQuery} onChangeText={setTypeQuery} placeholder="Search place types" accessibilityLabel="Search place types"/> : null}
+            <ScrollView nestedScrollEnabled keyboardShouldPersistTaps="handled" style={styles.areaList}>
+              {options.types.filter(type => type.label.toLowerCase().includes(typeQuery.trim().toLowerCase())).map(type => <View key={type.id} style={styles.areaRow}><Chip label={type.label} selected={filters.placeTypes?.includes(type.id)} onPress={() => toggleMany("placeTypes", type.id)}/></View>)}
+              {!options.types.some(type => type.label.toLowerCase().includes(typeQuery.trim().toLowerCase())) ? <Text style={styles.empty}>No matches</Text> : null}
+            </ScrollView>
+          </Section> : null}
+          {!areasOnly && !cuisinesOnly && options.tagLabel && options.tags.length > 1 ? <Section title={options.tagLabel} summary={filters.tags?.length ? filters.tags.join(", ") : "Any"} list>
+            {options.tags.length > 10 ? <SearchField value={tagQuery} onChangeText={setTagQuery} placeholder={`Search ${options.tagLabel.toLowerCase()}`} accessibilityLabel={`Search ${options.tagLabel.toLowerCase()}`}/> : null}
+            <ScrollView nestedScrollEnabled keyboardShouldPersistTaps="handled" style={styles.areaList}>
+              {options.tags.filter(tag => tag.toLowerCase().includes(tagQuery.trim().toLowerCase())).map(tag => <View key={tag} style={styles.areaRow}><Chip label={tag} selected={filters.tags?.includes(tag)} onPress={() => toggleMany("tags", tag)}/></View>)}
+              {!options.tags.some(tag => tag.toLowerCase().includes(tagQuery.trim().toLowerCase())) ? <Text style={styles.empty}>No matches</Text> : null}
+            </ScrollView>
+          </Section> : null}
           {!areasOnly && !cuisinesOnly && supported.dining ? <>
           <Section title="Listed hours after" summary={filters.openAfter === "none" ? "Any time" : filters.openAfter}>
             {(["none", "20:00", "21:00"] as const).map((value) => (
@@ -107,7 +126,7 @@ export function FilterSheet({
 
 const createStyles = (colours: ThemeColours) => StyleSheet.create({
   overlay: { flex: 1, justifyContent: "flex-end" },
-  modal: { maxHeight: "92%", backgroundColor: colours.surface, borderTopRightRadius: radii.sheet, borderTopLeftRadius: radii.sheet, ...shadows.floating },
+  modal: { width: "100%", maxWidth: 720, alignSelf: "center", maxHeight: "92%", backgroundColor: colours.surface, borderTopRightRadius: radii.sheet, borderTopLeftRadius: radii.sheet, overflow: "hidden", ...shadows.floating },
   head: { minHeight: 66, paddingHorizontal: space.md, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderBottomWidth: 1, borderBottomColor: colours.border },
   title: { color: colours.text, fontFamily: fonts.extraBold, fontSize: 24, lineHeight: 32, paddingBottom: 2 },
   close: { width: sizes.touch, height: sizes.touch, alignItems: "center", justifyContent: "center" },

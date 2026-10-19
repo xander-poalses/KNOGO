@@ -41,9 +41,9 @@ export function ReportAssessmentReceipt({ reportId }: { reportId: string }) {
   const title = state === "complete" ? "Gemini review complete" : state === "queued" ? "Waiting for review" : state === "reviewing" ? "Review in progress" : state === "expired" ? "Review window ended" : state === "unavailable" ? "Review unavailable" : loading ? "Checking review" : "Review not loaded";
   const message = state === "complete"
     ? assessment?.risk === "low" ? "No pattern flagged. This does not prove the report." : "More community checks needed. This is not a verdict on your report."
-    : state === "queued" || state === "reviewing" ? "Your report is recorded. You can leave this screen."
-    : state === "expired" ? "Your report stays in the record. Its live review window has ended."
-    : "Your report is recorded. Community checks still count.";
+    : state === "queued" || state === "reviewing" ? "You can leave this screen."
+    : state === "expired" ? "Your report remains in the record."
+    : "Community checks still count.";
 
   return <View style={styles.section}>
     <View accessibilityLiveRegion="polite" accessibilityState={{ busy: loading }}>

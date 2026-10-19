@@ -65,6 +65,10 @@ export default function AuthCallbackScreen() {
           if (mounted.current) router.replace({ pathname: "/confirm/[placeId]", params: { placeId: finished.draft.placeId } });
           return;
         }
+        if (finished.kind === "report") {
+          if (mounted.current) router.replace({ pathname: "/confirm/[placeId]", params: { placeId: finished.placeId } });
+          return;
+        }
       } catch (cause) {
         const status = (cause as { status?: number } | null)?.status;
         let expired = status === 401;

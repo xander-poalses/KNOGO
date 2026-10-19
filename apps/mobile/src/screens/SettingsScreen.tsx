@@ -55,12 +55,11 @@ export function SettingsScreen() {
         <Pressable accessibilityRole="link" onPress={() => router.push("/support")} style={styles.linkRow}><ShieldCheck color={colours.text} size={18} /><Text style={styles.linkText}>Support and data corrections</Text><ChevronRight color={colours.muted} size={18} /></Pressable>
         <Pressable accessibilityRole="link" onPress={() => router.push("/legal/privacy")} style={styles.linkRow}><FileText color={colours.text} size={18} /><Text style={styles.linkText}>Privacy and community rules</Text><ChevronRight color={colours.muted} size={18} /></Pressable>
       </View>
-      <Text style={styles.note}>Know before you go.</Text>
       <PlaceSheet title="Your account" visible={accountOpen} onClose={() => setAccountOpen(false)}><AccountForm onAuthenticated={() => setAccountOpen(false)}/></PlaceSheet>
       <PlaceSheet title={preferencesSheet === "fuel" ? "Fuel and trip estimates" : "Appearance"} visible={preferencesSheet !== null} onClose={() => setPreferencesSheet(null)}>
         {preferencesSheet === "fuel" ? <FuelPreferencesForm preferences={preferences} onSave={save} allowClear/> : <View style={styles.appearance}>
           <View accessibilityRole="radiogroup" accessibilityLabel="Theme" style={styles.segment}>{themes.map(theme => { const selected = preference === theme.value; return <Pressable accessibilityRole="radio" accessibilityLabel={theme.label} accessibilityState={{ checked: selected }} aria-checked={selected} key={theme.value} onPress={() => setPreference(theme.value)} style={[styles.segmentItem, selected && styles.segmentSelected]}>{theme.value === "light" ? <Sun color={selected ? colours.background : colours.muted} size={15}/> : theme.value === "dark" ? <Moon color={selected ? colours.background : colours.muted} size={15}/> : null}<Text style={[styles.segmentText, selected && styles.segmentTextSelected]}>{theme.label}</Text></Pressable>; })}</View>
-          <Text style={styles.help}>System follows your phone. Your choice stays on this device.</Text>
+          <Text style={styles.help}>System follows your phone's theme.</Text>
         </View>}
       </PlaceSheet>
     </Page>

@@ -1,0 +1,16 @@
+place_id,hours_type,day_of_week,open_time,close_time,is_closed,sort_order,source_url,source_checked_at
+ackermans-woodlands,opening,Mon-Fri,09:00,19:00,false,1,https://woodlandsboulevard.co.za/shop/ackermans,2026-10-16
+ackermans-woodlands,opening,Sat,09:00,18:00,false,6,https://woodlandsboulevard.co.za/shop/ackermans,2026-10-16
+ackermans-woodlands,opening,Sun,09:00,17:00,false,7,https://woodlandsboulevard.co.za/shop/ackermans,2026-10-16
+clicks-woodlands,opening,Mon-Sat,09:00,19:00,false,1,https://woodlandsboulevard.co.za/shop/clicks-pharmacy,2026-10-16
+clicks-woodlands,opening,Sun,09:00,17:00,false,7,https://woodlandsboulevard.co.za/shop/clicks-pharmacy,2026-10-16
+computer-mania-woodlands,opening,Mon-Sat,09:00,19:00,false,1,https://woodlandsboulevard.co.za/shop/computer-mania,2026-10-16
+computer-mania-woodlands,opening,Sun,09:00,17:00,false,7,https://woodlandsboulevard.co.za/shop/computer-mania,2026-10-16
+incredible-connection-woodlands,opening,Mon-Sat,09:00,19:00,false,1,https://woodlandsboulevard.co.za/shop/incredible-connection,2026-10-16
+incredible-connection-woodlands,opening,Sun,09:00,17:00,false,7,https://woodlandsboulevard.co.za/shop/incredible-connection,2026-10-16
+pick-n-pay-woodlands,opening,Mon-Sat,09:00,19:00,false,1,https://woodlandsboulevard.co.za/shop/pick-n-pay,2026-10-16
+pick-n-pay-woodlands,opening,Sun,09:00,17:00,false,7,https://woodlandsboulevard.co.za/shop/pick-n-pay,2026-10-16
+plush-carwash-woodlands,opening,Mon-Sun,09:00,17:00,false,1,https://woodlandsboulevard.co.za/shop/plush-carwash,2026-10-16
+tiger-wheel-tyre-woodlands,opening,Mon-Fri,08:00,17:00,false,1,https://woodlandsboulevard.co.za/shop/tiger-wheel-tyre,2026-10-16
+tiger-wheel-tyre-woodlands,opening,Sat,08:00,13:00,false,6,https://woodlandsboulevard.co.za/shop/tiger-wheel-tyre,2026-10-16
+tiger-wheel-tyre-woodlands,opening,Sun,,,true,7,https://woodlandsboulevard.co.za/shop/tiger-wheel-tyre,2026-10-16

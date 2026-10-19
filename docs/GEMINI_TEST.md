@@ -1,5 +1,14 @@
 # Gemini Report Test
 
+## Current Instruction: 14 October 2026
+
+The user requested that Gemini remain enabled until they ask to turn it off.
+The hosted gate is enabled, with one call per 25-hour window and one per minute.
+The test-account and `knogo-gemini-test-venue` scope remain unchanged.
+Invocation remains manual; no scheduler or catalogue-wide review was enabled.
+Do not disable the gate after a test unless the user requests it.
+Earlier disable-after-test instructions below describe the previous test plan.
+
 Prepared 12 October 2026. This is a test plan, not evidence of a Google request.
 
 ## Checkpoint: 14 October 2026

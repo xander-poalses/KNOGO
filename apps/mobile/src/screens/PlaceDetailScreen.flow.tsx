@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { mockPlaces, type Place } from "@knogo/core";
+import { mockPlaces, type Place, type TrustClaim, type ConfirmationType } from "@knogo/core";
 import { PlaceDetailScreen } from "./PlaceDetailScreen";
 
 const mocks = vi.hoisted(() => ({ places: [] as Place[], loading: false, saved: false, toggle: vi.fn(), push: vi.fn(), open: vi.fn(), refresh: vi.fn() }));
@@ -51,9 +51,40 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("place dashboard journey", () => {
+  it("does not show kitchen status for a non-food place", () => {
+    mocks.places[0] = { ...mocks.places[0], category: "shops", placeType: "supermarket" };
+    render(<PlaceDetailScreen />);
+    expect(screen.queryByText("Service expected")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "View recent reports" }));
+    expect(screen.queryByText("Kitchen serving")).toBeNull();
+    expect(screen.getByText("No opening reports")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Close sheet" }));
+    fireEvent.click(screen.getByRole("button", { name: "View listed hours" }));
+    expect(screen.queryByText("Kitchen hours not published.")).toBeNull();
+  });
+  it.each([true, false])("shows reported opening, age and serving only from evidence (%s)", (serving) => {
+    const reportedAt = new Date(Date.now() - 65 * 60_000).toISOString();
+    const expiresAt = new Date(Date.now() + 60 * 60_000).toISOString();
+    const claim = (type: ConfirmationType, value: string): TrustClaim => ({ state: "community_indication", value, reportedAt, expiresAt, rule: "community", evidence: [{ id: type, actorId: "tester", type, value, source: "community", reportedAt, expiresAt }] });
+    mocks.places[0].currentStatus = { ...mocks.places[0].currentStatus, trust: { version: 1, claims: { open_status: claim("open_status", "open"), ...(serving ? { kitchen_status: claim("kitchen_status", "yes") } : {}) } } };
+    render(<PlaceDetailScreen />);
+    expect(screen.getByText("Open")).toBeTruthy();
+    expect(screen.getByText("Reported 01:05 ago")).toBeTruthy();
+    expect(Boolean(screen.queryByText("and Serving"))).toBe(serving);
+    expect(screen.queryByText("Community reports open")).toBeNull();
+  });
   it("uses the visible reports label as its accessible name", () => {
     render(<PlaceDetailScreen/>);
     expect(screen.getByRole("button", { name: "View recent reports" }).textContent).toContain("View recent reports");
+  });
+  it("counts busy-level evidence as a practical check without calling it an opening report", () => {
+    const reportedAt = new Date(Date.now() - 5 * 60_000).toISOString();
+    const expiresAt = new Date(Date.now() + 60 * 60_000).toISOString();
+    mocks.places[0].currentStatus.trust = { version: 1, claims: { busy_level: { state: "community_indication", value: "quiet", reportedAt, expiresAt, rule: "community", evidence: [{ id: "busy-check", actorId: "tester", type: "busy_level", value: "quiet", source: "community", reportedAt, expiresAt }] } } };
+    render(<PlaceDetailScreen/>);
+    fireEvent.click(screen.getByRole("button", { name: "View recent reports" }));
+    expect(screen.getByText("1 of 4 checked")).toBeTruthy();
+    expect(screen.getByText("No opening reports")).toBeTruthy();
   });
   it("refreshes on entry and lets a failed report refresh be retried", async () => {
     mocks.refresh.mockRejectedValueOnce(new Error("Offline")).mockRejectedValueOnce(new Error("Offline"));
@@ -100,7 +131,7 @@ describe("place dashboard journey", () => {
     render(<PlaceDetailScreen/>);
     fireEvent.click(screen.getByRole("button", { name: "View recent reports" }));
     const sheet = within(screen.getByRole("dialog", { name: "Status & checks" }));
-    expect(sheet.getByText("Community reports")).toBeTruthy();
+    expect(sheet.getByText("Reports")).toBeTruthy();
     expect(sheet.getByText("Based on listed hours, not a status check.")).toBeTruthy();
     expect(sheet.queryByText("Outside service hours")).toBeNull();
     fireEvent.click(sheet.getByRole("button", { name: "Leave a report" }));
@@ -135,6 +166,60 @@ describe("place dashboard journey", () => {
     fireEvent.click(screen.getByRole("link", { name: "Represent this venue" }));
     expect(mocks.push).toHaveBeenCalledWith({ pathname: "/venue/[placeId]", params: { placeId: "test-place" } });
     expect(screen.queryByRole("dialog")).toBeNull();
+  });
+  it("groups contact actions and keeps listing provenance behind disclosure", async () => {
+    mocks.places[0] = { ...mocks.places[0], phone: "012 123 4567", website: "https://example.com/venue", sourceUrl: "https://example.com/source", sourceCheckedAt: "2026-10-17", dataNotes: "Coordinates mark the shopping centre." };
+    render(<PlaceDetailScreen/>);
+    fireEvent.click(screen.getByRole("button", { name: "View place information" }));
+    const sheet = within(screen.getByRole("dialog", { name: "Place information" }));
+    expect(sheet.getByText("Address")).toBeTruthy();
+    expect(sheet.getByRole("button", { name: "Call 012 123 4567" })).toBeTruthy();
+    expect(sheet.queryByText("Coordinates mark the shopping centre.")).toBeNull();
+    fireEvent.click(sheet.getByRole("button", { name: "About this listing" }));
+    expect(sheet.getByText("Coordinates mark the shopping centre.")).toBeTruthy();
+    fireEvent.click(sheet.getByRole("button", { name: "View listing source" }));
+    await vi.waitFor(() => expect(mocks.open).toHaveBeenCalledWith("https://example.com/source"));
+  });
+  it("does not expose unsafe listing source links", () => {
+    mocks.places[0] = { ...mocks.places[0], sourceUrl: "javascript:alert(1)", dataNotes: "Source needs a check." };
+    render(<PlaceDetailScreen/>);
+    fireEvent.click(screen.getByRole("button", { name: "View place information" }));
+    fireEvent.click(screen.getByRole("button", { name: "About this listing" }));
+    expect(screen.queryByRole("button", { name: "View listing source" })).toBeNull();
+  });
+  it("keeps photo credit behind listing details and opens its source", async () => {
+    mocks.places[0] = { ...mocks.places[0], imageUrl: "https://example.com/place.jpg", imageSourceUrl: "https://example.com/photos", imageAttribution: "Example photographer", imageCheckedAt: "2026-10-18" };
+    render(<PlaceDetailScreen/>);
+    fireEvent.click(screen.getByRole("button", { name: "View place information" }));
+    expect(screen.queryByText("Photo: Example photographer")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "About this listing" }));
+    expect(screen.getByText("Photo: Example photographer")).toBeTruthy();
+    expect(screen.getByText("Photo checked 2026-10-18")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "View photo source" }));
+    await vi.waitFor(() => expect(mocks.open).toHaveBeenCalledWith("https://example.com/photos"));
+  });
+  it("does not expose an unsafe photo source", () => {
+    mocks.places[0] = { ...mocks.places[0], imageUrl: "https://example.com/place.jpg", imageSourceUrl: "javascript:alert(1)", imageAttribution: "Example photographer" };
+    render(<PlaceDetailScreen/>);
+    fireEvent.click(screen.getByRole("button", { name: "View place information" }));
+    fireEvent.click(screen.getByRole("button", { name: "About this listing" }));
+    expect(screen.queryByRole("button", { name: "View photo source" })).toBeNull();
+  });
+  it("keeps report evidence behind a control and excludes expired evidence", () => {
+    const reportedAt = new Date(Date.now() - 5 * 60_000).toISOString();
+    const expiresAt = new Date(Date.now() + 60 * 60_000).toISOString();
+    const evidence = { id: "check-1", actorId: "tester", type: "open_status" as const, value: "open", source: "community" as const, reportedAt, expiresAt, checkedBy: "in_person" as const };
+    mocks.places[0].currentStatus = { ...mocks.places[0].currentStatus, trust: { version: 1, claims: { open_status: { state: "community_indication", value: "open", reportedAt, expiresAt, rule: "community", evidence: [evidence] } } } };
+    const view = render(<PlaceDetailScreen/>);
+    fireEvent.click(screen.getByRole("button", { name: "View recent reports" }));
+    const sheet = within(screen.getByRole("dialog", { name: "Status & checks" }));
+    expect(sheet.queryByText(/Expires at/)).toBeNull();
+    fireEvent.click(sheet.getByRole("button", { name: "Open report details" }));
+    expect(sheet.getByText(/At the venue/)).toBeTruthy();
+    expect(sheet.getAllByText(/Expires at/)).toHaveLength(1);
+    mocks.places[0].currentStatus.trust!.claims.open_status!.evidence[0].expiresAt = new Date(Date.now() - 60_000).toISOString();
+    view.rerender(<PlaceDetailScreen/>);
+    expect(sheet.queryByRole("button", { name: "Open report details" })).toBeNull();
   });
   it("offers directions when contact details are missing", () => {
     render(<PlaceDetailScreen/>);

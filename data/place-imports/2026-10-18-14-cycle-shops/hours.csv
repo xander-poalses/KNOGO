@@ -1,0 +1,7 @@
+place_id,hours_type,day_of_week,open_time,close_time,is_closed,sort_order,source_url,source_checked_at
+hot-spot-cycles,opening,Mon-Fri,09:00,18:00,false,1,https://hotspotcycles.co.za/pages/contact,2026-10-18
+hot-spot-cycles,opening,Sat,09:00,14:00,false,6,https://hotspotcycles.co.za/pages/contact,2026-10-18
+hot-spot-cycles,opening,Sun,,,true,7,https://hotspotcycles.co.za/pages/contact,2026-10-18
+lynnwood-cyclery,opening,Mon-Fri,09:00,17:30,false,1,https://www.lynnwoodcyclery.co.za/,2026-10-18
+lynnwood-cyclery,opening,Sat,09:00,13:00,false,6,https://www.lynnwoodcyclery.co.za/,2026-10-18
+lynnwood-cyclery,opening,Sun,,,true,7,https://www.lynnwoodcyclery.co.za/,2026-10-18

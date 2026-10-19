@@ -1,0 +1,4 @@
+place_id,hours_type,day_of_week,open_time,close_time,is_closed,sort_order,source_url,source_checked_at
+dis-chem-castle-gate,opening,Mon-Fri,09:00,19:00,false,1,https://www.dischem.co.za/castle-gate-pharmacy,2026-10-18
+dis-chem-castle-gate,opening,Sat,09:00,17:00,false,6,https://www.dischem.co.za/castle-gate-pharmacy,2026-10-18
+dis-chem-castle-gate,opening,Sun,09:00,16:00,false,7,https://www.dischem.co.za/castle-gate-pharmacy,2026-10-18

@@ -1,0 +1,4 @@
+place_id,hours_type,day_of_week,open_time,close_time,is_closed,sort_order,source_url,source_checked_at
+thrashers-garsfontein,opening,Mon-Sat,06:00,22:00,false,1,https://thrashers.co.za/,2026-10-17
+thrashers-garsfontein,opening,Sun,06:00,20:00,false,7,https://thrashers.co.za/,2026-10-17
+create-wolwespruit,opening,Mon-Sun,09:00,17:00,false,1,https://www.createwolwespruit.co.za/,2026-10-17

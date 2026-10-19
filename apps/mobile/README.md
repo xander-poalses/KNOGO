@@ -15,6 +15,8 @@ Install KNOGO's development APK on your Android phone. Keep the phone and PC on 
 
 JavaScript and TypeScript edits reload through Metro. Changes to native dependencies or Expo native configuration need an APK rebuild. The development APK needs Metro; it is not a release for testers without access to your PC.
 
+If Mapbox's native module is missing, the branch screen shows an install message instead of crashing at launch. Install an APK built with the Mapbox plugin, then open KNOGO rather than Expo Go. Reloading Metro cannot add native code to an installed APK.
+
 ## Build on Windows
 
 Android Studio, its JDK and the Android SDK must be installed, with Windows long-file-path support enabled. On this PC, `LongPathsEnabled` was changed from `0` to `1` with Windows administrator approval for the build. From `apps/mobile/android`:
@@ -36,9 +38,9 @@ If the `android` directory does not exist, run `pnpm --dir apps/mobile exec expo
 
 Create `apps/mobile/.env.local` from `.env.example` and set the project URL and publishable key. Do not use a secret or service-role key in the app.
 
-For branch maps in the browser build, set `EXPO_PUBLIC_GOOGLE_MAPS_BROWSER_KEY` to a Google Maps JavaScript API key restricted to KNOGO's web origins and that API. Android maps use separate native configuration; installing the development APK does not configure a Maps key.
+For branch maps in the browser build, set `EXPO_PUBLIC_GOOGLE_MAPS_BROWSER_KEY` to a Google Maps JavaScript API key restricted to KNOGO's web origins and that API. The browser map is unchanged.
 
-Without `android.config.googleMaps.apiKey`, Android uses the branch list without mounting Google Maps. Adding that config requires an APK rebuild that embeds the key in `AndroidManifest.xml`; changing Metro's config alone is not enough. Do not enable billing to test the branch list.
+Android and iOS branch maps use Mapbox. Set `EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN` in `.env.local` to a map token, never a server or download secret. This token is bundled into the app, not stored in Supabase secrets. Install an APK rebuilt with the Mapbox plugin before loading this code. Expo Go keeps its placeholder; without a token or when the map fails, the branch list remains usable. Mapbox attribution stays visible and SDK telemetry is disabled. Do not add a payment method for the test account; trial usage limits still apply.
 
 Do not use `127.0.0.1` as the phone's Supabase URL: it points at the phone, not your PC. Use the KNOGO Supabase project URL for this testing setup.
 
