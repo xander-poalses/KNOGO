@@ -16,11 +16,6 @@ Created by Xander Poalses at Open Window for DV300 and UX300.
 
 <!-- Add Xander's mockups and photos here when supplied. Include alt text. -->
 
-## Project video
-
-<video src="https://github.com/user-attachments/assets/b11d7e23-af80-480a-86d3-e479a36f1fa8" controls muted playsinline></video>
-
-[Watch the promo (59 seconds)](docs/media/knogo-launch-59s.mp4).
 
 ## Features
 
