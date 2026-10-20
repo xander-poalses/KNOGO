@@ -127,7 +127,7 @@
   grid-template-columns: repeat(4, 1fr);
   padding: 0.35rem;
   border: 0;
-  border-radius: 10000px;
+  border-radius: var(--radius-nav);
   background: rgba(var(--rgb-surface), 0.98);
   box-shadow:
     0 -20px 48px rgba(23, 32, 24, 0.18),
@@ -159,7 +159,7 @@
   left: 0.35rem;
   z-index: 0;
   width: calc((100% - 0.7rem) / 4);
-  border-radius: 10000px;
+  border-radius: var(--radius-nav-item);
   background: var(--color-primary);
   box-shadow:
     0 16px 32px rgba(var(--rgb-primary), 0.22),
@@ -188,7 +188,7 @@
   height: 3rem;
   place-items: center;
   border: 1px solid rgba(var(--rgb-border), 0.82);
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   background: rgba(var(--rgb-surface), 0.88);
   color: var(--color-text);
   cursor: pointer;
@@ -203,7 +203,7 @@
   height: 3rem;
   place-items: center;
   border: 1px solid rgba(var(--rgb-border), 0.82);
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   background: rgba(var(--rgb-surface), 0.9);
   color: var(--color-primary);
   cursor: pointer;
@@ -215,7 +215,7 @@
   width: min(18rem, calc(100vw - 2rem));
   padding: 0.85rem;
   border: 1px solid rgba(var(--rgb-border), 0.8);
-  border-radius: 0.7rem;
+  border-radius: var(--radius-control);
   background: rgba(var(--rgb-surface), 0.96);
   color: var(--color-text);
   font-size: 0.86rem;
@@ -250,7 +250,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
-  border-radius: 10000px;
+  border-radius: var(--radius-nav-item);
   color: var(--color-muted);
   text-decoration: none;
   font-size: 0.74rem;

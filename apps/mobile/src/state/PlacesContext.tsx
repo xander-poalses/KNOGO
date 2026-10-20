@@ -67,7 +67,7 @@ type PlacesContextValue = {
   updateSettings: (settings: LocalSettings) => Promise<void>;
 };
 
-const PlacesContext = createContext<PlacesContextValue | null>(null);
+export const PlacesContext = createContext<PlacesContextValue | null>(null);
 
 export function PlacesProvider({ children }: { children: ReactNode }) {
   const [places, setPlaces] = useState<Place[]>(useMockData ? mockPlaces : []);

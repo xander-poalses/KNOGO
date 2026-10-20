@@ -1,8 +1,8 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type React from "react";
 import { applyConfirmation, getCurrentStatus, mockPlaces } from "@knogo/core";
 import { useStatusClock } from "./useStatusClock";
-import { fetchSupabasePlaceGroups, fetchSupabasePlaces, hasSupabaseConfig, submitSupabaseConfirmation } from "../lib/supabaseApi";
+import { fetchSupabasePlace, fetchSupabasePlaceGroups, fetchSupabasePlaces, hasSupabaseConfig, submitSupabaseConfirmation } from "../lib/supabaseApi";
 import type { Confirmation, ConfirmationType, Place, PlaceGroup } from "@knogo/core/types/place";
 import {
   readConfirmations,
@@ -23,6 +23,7 @@ type PlacesContextValue = {
   isSaved: (placeId: string) => boolean;
   toggleSaved: (placeId: string) => void;
   addConfirmation: (placeId: string, type: ConfirmationType, value: string) => Promise<void>;
+  refreshPlace: (placeId: string) => Promise<void>;
   updateSettings: (settings: LocalSettings) => void;
 };
 
@@ -36,6 +37,11 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<LocalSettings>(readSettings);
   const statusNow = useStatusClock(places);
   const currentPlaces = useMemo(() => places.map(place => ({ ...place, currentStatus: getCurrentStatus(place.currentStatus, statusNow) })), [places, statusNow]);
+  const refreshPlace=useCallback(async(placeId:string)=>{
+    if(!hasSupabaseConfig)return;
+    const place=await fetchSupabasePlace(placeId);
+    if(place)setPlaces(current=>current.map(item=>item.id===placeId?place:item));
+  },[]);
 
   useEffect(() => {
     let cancelled = false;
@@ -81,6 +87,7 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
       confirmations,
       savedPlaceIds,
       settings,
+      refreshPlace,
       isSaved: (placeId) => savedPlaceIds.includes(placeId),
       toggleSaved: (placeId) => {
         setSavedPlaceIds((current) => {
@@ -115,7 +122,7 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
         writeSettings(nextSettings);
       }
     }),
-    [confirmations, currentPlaces, placeGroups, places, savedPlaceIds, settings]
+    [confirmations, currentPlaces, placeGroups, places, refreshPlace, savedPlaceIds, settings]
   );
 
   return <PlacesContext.Provider value={value}>{children}</PlacesContext.Provider>;

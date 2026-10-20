@@ -24,12 +24,49 @@ const authResponse = {
 
 afterEach(() => { vi.restoreAllMocks(); vi.useRealTimers(); });
 
+describe("report review notice", () => {
+  const session: SupabaseSession = { accessToken: "access", refreshToken: "refresh", userId: "user-1", email: "person@example.test", expiresAt: Math.floor(Date.now() / 1000) + 3600 };
+  it("reads and accepts only through the signed-in account RPC", async () => {
+    const { api } = createHarness(session);
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(response({ version: "2026-10-19", accepted: false }))
+      .mockResolvedValueOnce(response({ version: "2026-10-19", accepted: true }));
+    expect(await api.readReportReviewNotice()).toEqual({ version: "2026-10-19", accepted: false });
+    expect(await api.acceptReportReviewNotice({ version: "2026-10-19", adultConfirmed: true })).toEqual({ version: "2026-10-19", accepted: true });
+    expect(JSON.parse(fetchMock.mock.calls[1][1]!.body as string)).toEqual({ p_version: "2026-10-19", p_adult_confirmed: true });
+    expect(fetchMock.mock.calls[1][1]?.headers).toMatchObject({ Authorization: "Bearer access" });
+  });
+  it("does not acknowledge without sign-in or adult confirmation", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+    await expect(createHarness().api.readReportReviewNotice()).rejects.toThrow("Sign in");
+    await expect(createHarness(session).api.acceptReportReviewNotice({ version: "2026-10-19", adultConfirmed: false })).rejects.toThrow("18");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+  it.each([null, { version: "old", accepted: true }, { version: "2026-10-19", accepted: "yes" }])("rejects a malformed notice %j", async value => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(response(value));
+    await expect(createHarness(session).api.readReportReviewNotice()).rejects.toThrow("notice");
+  });
+  it("rejects an acceptance response that did not save", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(response({ version: "2026-10-19", accepted: false }));
+    await expect(createHarness(session).api.acceptReportReviewNotice({ version: "2026-10-19", adultConfirmed: true })).rejects.toThrow("notice");
+  });
+  it("discards notice responses when the account changes during the request", async () => {
+    const {api,storage}=createHarness(session);
+    let finish!:(value:Response)=>void;
+    vi.spyOn(globalThis,"fetch").mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;}));
+    const read=api.readReportReviewNotice();
+    await vi.waitFor(()=>expect(globalThis.fetch).toHaveBeenCalledOnce());
+    await storage.write({...session,userId:"account-b"});
+    finish(response({version:"2026-10-19",accepted:true}));
+    await expect(read).rejects.toThrow("account changed");
+  });
+});
+
 describe("report assessment receipts", () => {
   const reportId = "10000000-0000-0000-0000-000000000001";
   const session: SupabaseSession = { accessToken: "access", refreshToken: "refresh", userId: "user-1", email: "person@example.test", expiresAt: Math.floor(Date.now() / 1000) + 3600 };
   it("reads the receipt with an account session", async () => {
     const { api } = createHarness(session);
-    const receipt = { reportId, state: "complete", risk: "low", model: "gemini-3.5-flash-lite", assessedAt: "2026-10-09T12:00:00Z" };
+    const receipt = { reportId, state: "complete", risk: "low", model: "gemini-3.5-flash-lite", assessedAt: "2026-10-09T12:00:00Z", reason: null, retryAt: null };
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(response(receipt));
     expect(await api.readReportAssessment(reportId)).toEqual(receipt);
     expect(fetchMock).toHaveBeenCalledWith("https://test.supabase.co/rest/v1/rpc/read_report_assessment", expect.objectContaining({ method: "POST", body: JSON.stringify({ p_report_id: reportId }), headers: expect.objectContaining({ Authorization: "Bearer access" }) }));
@@ -39,6 +76,15 @@ describe("report assessment receipts", () => {
     const fetchMock = vi.spyOn(globalThis, "fetch");
     await expect(api.readReportAssessment(reportId)).rejects.toThrow("Sign in");
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+  it("validates wait reasons and retry timestamps", async () => {
+    const {api}=createHarness(session);
+    const value={reportId,state:"queued",risk:null,model:null,assessedAt:null,reason:"quota",retryAt:"2026-10-19T14:00:00Z"};
+    const fetcher=vi.spyOn(globalThis,"fetch").mockResolvedValueOnce(response(value)).mockResolvedValueOnce(response({...value,reason:"provider-secret"})).mockResolvedValueOnce(response({...value,retryAt:"invalid"}));
+    expect(await api.readReportAssessment(reportId)).toEqual(value);
+    await expect(api.readReportAssessment(reportId)).rejects.toThrow("assessment");
+    await expect(api.readReportAssessment(reportId)).rejects.toThrow("assessment");
+    expect(fetcher).toHaveBeenCalledTimes(3);
   });
   it.each([null, { reportId, state: "made-up" }, { reportId, state: "complete", risk: "low", model: null, assessedAt: null }, { reportId: "other", state: "queued", risk: null, model: null, assessedAt: null }])("rejects unavailable or malformed receipts: %j", async value => {
     const { api } = createHarness(session);

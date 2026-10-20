@@ -32,6 +32,11 @@ export const signInWithEmail = api.signInWithEmail;
 export const signUpWithEmail = api.signUpWithEmail;
 export const fetchSupabasePlaces = api.fetchPlaces;
 export const fetchSupabasePlaceGroups = api.fetchPlaceGroups;
+export const fetchSupabasePlace=api.fetchPlace;
+export const readReportAssessment=api.readReportAssessment;
+export const readReportReviewNotice=api.readReportReviewNotice;
+export const acceptReportReviewNotice=api.acceptReportReviewNotice;
+export const submitSupabaseReport=api.submitConfirmations;
 export const submitSupabaseConfirmation = async (input: { placeId: string; type: import("@knogo/core").ConfirmationType; value: string; reportSource?: import("@knogo/core").ReportSource; sourceUrl?: string }) => {
   if (!input.reportSource) throw new Error("Choose how you checked this venue. Use the mobile reporting flow while web reporting is updated.");
   const result = await api.submitConfirmations({ placeId: input.placeId, reportSource: input.reportSource, sourceUrl: input.sourceUrl, answers: [{ type: input.type, value: input.value }] });

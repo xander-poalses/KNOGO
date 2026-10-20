@@ -11,6 +11,7 @@ export const lightColours = {
   statusSurface: "#e7e7df",
   tripSurface: "#F6F7F2",
   sheetSurface: "#e9ede7",
+  sheetInset: "#e1e6e0",
   controlBorder: "#657168",
   focus: "#0b4f2f",
   primary: "#0b4f2f",
@@ -57,6 +58,7 @@ export const darkColours: typeof lightColours = {
   statusSurface: "#000000",
   tripSurface: "#121816",
   sheetSurface: "#222c29",
+  sheetInset: "#1a2220",
   controlBorder: "#8b9b95",
   focus: "#72d99c",
   primary: "#43c58a",
@@ -100,7 +102,7 @@ export const colours = lightColours;
 
 const themeStorageKey = "knogo.themePreference";
 type ThemeValue = { colours: ThemeColours; isDark: boolean; preference: ThemePreference; setPreference: (value: ThemePreference) => void };
-const ThemeContext = createContext<ThemeValue>({ colours: lightColours, isDark: false, preference: "system", setPreference: () => undefined });
+export const ThemeContext = createContext<ThemeValue>({ colours: lightColours, isDark: false, preference: "system", setPreference: () => undefined });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const system = useColorScheme();
@@ -143,7 +145,19 @@ export const fonts = {
 
 export const space = { xs: 6, sm: 10, md: 16, lg: 24, xl: 32 } as const;
 
-export const radii = { tile: 4, surface: 8, control: 12, sheet: 16, round: 999 } as const;
+const cornerRadius = 26;
+export const radii = {
+  tile: cornerRadius, surface: cornerRadius, control: cornerRadius, inset: cornerRadius,
+  sheet: cornerRadius + 14,
+  check: cornerRadius - 15,
+  content: cornerRadius - 16,
+  listInset: cornerRadius - 12,
+  segment: cornerRadius - 4,
+  checkLabel: cornerRadius - 15 - 8,
+  indicator: 4,
+  nav: 33, navItem: 33 - 5,
+  round: 999
+} as const;
 
 export const sizes = { touch: 44, control: 52, iconButton: 44 } as const;
 

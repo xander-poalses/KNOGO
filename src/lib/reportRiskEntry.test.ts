@@ -26,20 +26,18 @@ const request = (body = "{}", method = "POST", token = "test-worker") => new Req
 });
 
 describe("risk worker request boundary", () => {
-  it.each([[true, undefined], [true, ''], [true, 'not-an-account-id'], [false, undefined], [false, ''], [false, 'not-an-account-id']])("blocks missing or invalid scope regardless of enablement (%s, %s)", async (enabled, testActorId) => {
+  it.each([[true, undefined], [true, ''], [true, 'not-an-account-id'], [false, undefined], [false, ''], [false, 'not-an-account-id']])("does not require the former test scope (%s, %s)", async (enabled, testActorId) => {
     env.GEMINI_FREE_TIER_CONFIRMED = String(enabled);
     if (typeof testActorId === 'string') env.RISK_TEST_ACTOR_ID = testActorId;
     else delete env.RISK_TEST_ACTOR_ID;
-    expect((await handler(request())).status).toBe(503);
-    expect(mocks.drain).not.toHaveBeenCalled();
+    expect((await handler(request())).status).toBe(200);
+    expect(mocks.drain).toHaveBeenCalledOnce();
   });
-  it("claims only the configured account at the test venue", async () => {
+  it("claims from the server eligibility boundary without a fixture filter", async () => {
     mocks.rpc.mockResolvedValue([]);
     mocks.drain.mockImplementation(async input => { await input.claim(); return { processed: 0 }; });
     expect((await handler(request())).status).toBe(200);
-    expect(mocks.rpc).toHaveBeenCalledWith("https://project.example", "test-service", "claim_report_risk_job", {
-      p_actor_id: env.RISK_TEST_ACTOR_ID, p_place_id: "knogo-gemini-test-venue"
-    });
+    expect(mocks.rpc).toHaveBeenCalledWith("https://project.example", "test-service", "claim_report_risk_job", {});
   });
   it("passes the server-held test account to the assessment boundary", async () => {
     env.GEMNINI_API_KEY = 'test-gemini-key';
@@ -48,16 +46,17 @@ describe("risk worker request boundary", () => {
     mocks.rpc.mockResolvedValue([]);
     mocks.drain.mockImplementation(async input => { await input.assess('test-report'); return { processed: 1 }; });
     expect((await handler(request())).status).toBe(200);
-    expect(mocks.assess).toHaveBeenCalledWith([], expect.objectContaining({ testActorId: env.RISK_TEST_ACTOR_ID, key: 'test-gemini-key' }));
+    expect(mocks.assess).toHaveBeenCalledWith([], expect.objectContaining({ key: 'test-gemini-key' }));
+    expect(mocks.assess.mock.calls[0][1]).not.toHaveProperty('testActorId');
   });
-  it("keeps other accounts and venues out of the test context", async () => {
+  it("keeps eligible cross-account and cross-place context from the server", async () => {
     const fixture = { report_id: 'test-report', actor_id: env.RISK_TEST_ACTOR_ID, venue_id: 'knogo-gemini-test-venue' };
     mocks.rpc.mockResolvedValue([fixture,
       { ...fixture, actor_id: '00000000-0000-0000-0000-000000000002' },
-      { ...fixture, venue_id: 'catalogue-venue' }, null]);
+      { ...fixture, venue_id: 'catalogue-venue' }]);
     mocks.drain.mockImplementation(async input => { await input.assess('test-report'); return { processed: 1 }; });
     expect((await handler(request())).status).toBe(200);
-    expect(mocks.assess).toHaveBeenCalledWith([fixture], expect.objectContaining({ targetReportId: 'test-report' }));
+    expect(mocks.assess).toHaveBeenCalledWith(mocks.rpc.mock.results[0] ? await mocks.rpc.mock.results[0].value : [], expect.objectContaining({ targetReportId: 'test-report' }));
   });
   it.each(["", "wrong-worker"])("rejects an unauthorised caller before queue access (%s)", async token => {
     expect((await handler(request("{}", "POST", token))).status).toBe(401);
@@ -101,7 +100,7 @@ describe("risk worker request boundary", () => {
     expect((await handler(request())).status).toBe(200);
     expect(mocks.rpc).toHaveBeenCalledTimes(2);
     expect(mocks.rpc.mock.calls.every(call => call[2] === 'report_risk_context')).toBe(true);
-    expect(mocks.drain.mock.calls[0][0].maxJobs).toBe(1);
+    expect(mocks.drain.mock.calls[0][0].maxJobs).toBe(3);
   });
   it("retries finish with the same report and lease", async () => {
     mocks.rpc.mockRejectedValueOnce(new DOMException('timed out', 'TimeoutError')).mockResolvedValueOnce(true);

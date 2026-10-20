@@ -1,10 +1,10 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mockPlaces } from "@knogo/core";
 import { VenueScreen } from "./VenueScreen";
 
-const mocks = vi.hoisted(() => ({ places: [] as any[], loading: false, session: null as any, access: vi.fn(), start: vi.fn() }));
-vi.mock("expo-router", () => ({ useLocalSearchParams: () => ({ placeId: "cappuccinos-menlyn" }), useRouter: () => ({ replace: vi.fn() }) }));
+const mocks = vi.hoisted(() => ({ places: [] as any[], loading: false, session: null as any, access: vi.fn(), start: vi.fn(), push: vi.fn() }));
+vi.mock("expo-router", () => ({ useLocalSearchParams: () => ({ placeId: "cappuccinos-menlyn" }), useRouter: () => ({ replace: vi.fn(), push: mocks.push }) }));
 vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ places: mocks.places, loading: mocks.loading, session: mocks.session, authLoading: false, refresh: vi.fn() }) }));
 vi.mock("../supabase", () => ({ supabaseApi: { readVenueAccess: mocks.access, startVenueClaim: mocks.start } }));
 vi.mock("../components/AccountForm", async () => {
@@ -17,7 +17,7 @@ vi.mock("../components/Ui", async () => {
     Page: ({ children }: any) => createElement("main", null, children),
     BackButton: () => createElement("button", null, "Back"),
     Notice: ({ title }: any) => createElement("p", null, title),
-    ActionButton: ({ label }: any) => createElement("button", null, label)
+    ActionButton: ({ label, onPress }: any) => createElement("button", { onClick: onPress }, label)
   };
 });
 vi.mock("../theme", () => ({ fonts: {}, useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({}) }));
@@ -55,8 +55,17 @@ describe("venue account entry", () => {
     mocks.session = { userId: "person" };
     view.rerender(<VenueScreen/>);
     await waitFor(() => expect(mocks.access).toHaveBeenCalledWith("cappuccinos-menlyn"));
-    await screen.findByText("Verify venue phone access");
+    await screen.findByText("Request representative access");
     expect(screen.queryByRole("region", { name: "Account access" })).toBeNull();
+    expect(mocks.start).not.toHaveBeenCalled();
+  });
+  it("offers contact rather than phone verification even when the claim API is configured", async () => {
+    vi.stubEnv("EXPO_PUBLIC_VENUE_CLAIM_API_URL", "https://example.com/claim");
+    mocks.session = { userId: "person" };
+    render(<VenueScreen/>);
+    fireEvent.click(await screen.findByRole("button", { name: "Contact KNOGO" }));
+    expect(mocks.push).toHaveBeenCalledWith({ pathname: "/support", params: { reason: "representation", placeId: "cappuccinos-menlyn", placeName: mocks.places[0].name } });
+    expect(screen.queryByRole("button", { name: "Request venue code" })).toBeNull();
     expect(mocks.start).not.toHaveBeenCalled();
   });
 });

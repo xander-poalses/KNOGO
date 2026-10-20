@@ -4,9 +4,9 @@ import { createFuelFeed, fuelFeedConfigured, parseFuelFeed, readFuelFeedCache, u
 const now = Date.parse("2026-10-01T10:00:00Z");
 const policy: FuelFeedPolicy = { feedUrl: "https://knogo.example/fuel", termsUrl: "https://provider.example/terms", maxCacheAgeSeconds: 3600, termsConfirmed: true };
 const item = () => ({ grade: "petrol_95", region: "inland", price: 2525, kind: "retail_reference", effectiveAt: "2026-09-02T00:00:00+02:00", effectiveUntil: "2026-10-07T00:00:00+02:00", checkedAt: "2026-10-01T09:00:00Z", sourceUrl: "https://provider.example/prices", forecast: false });
-const envelope = (records: unknown[] = [item()]) => ({ version: 1, currency: "ZAR", unit: "cents/litre", records });
+const envelope = (records: unknown[] = [item()]) => ({ version: 2, currency: "ZAR", unit: "cents/litre", updateState: "idle", records });
 function cached(): FuelFeedCache {
-  return { version: 1, feedUrl: policy.feedUrl, termsUrl: policy.termsUrl, fetchedAt: new Date(now - 1000).toISOString(), records: parseFuelFeed(envelope(), now)! };
+  return { version: 2, feedUrl: policy.feedUrl, termsUrl: policy.termsUrl, fetchedAt: new Date(now - 1000).toISOString(), records: parseFuelFeed(envelope(), now)! };
 }
 function harness(cache: FuelFeedCache | null = null, feedPolicy = policy) {
   vi.useFakeTimers(); vi.setSystemTime(now);
@@ -52,19 +52,22 @@ describe("fuel reference data and cache", () => {
     expect(parseFuelFeed(envelope([{ ...item(), grade: "diesel" }]), now)).toBeNull();
   });
   it("rejects cache version, source, terms, timestamps and retention mismatches", () => {
-    for (const change of [{ version: 2 }, { feedUrl: "https://other.example" }, { termsUrl: "https://other.example/terms" }, { fetchedAt: "bad" }, { fetchedAt: new Date(now + 1).toISOString() }, { fetchedAt: new Date(now - 3600000).toISOString() }]) {
+    for (const change of [{ version: 1 }, { feedUrl: "https://other.example" }, { termsUrl: "https://other.example/terms" }, { fetchedAt: "bad" }, { fetchedAt: new Date(now + 1).toISOString() }, { fetchedAt: new Date(now - 3600000).toISOString() }]) {
       expect(readFuelFeedCache({ ...cached(), ...change }, policy, now)).toBeNull();
     }
   });
-  it("loads and caches a verified response, then serves cache without another request", async () => {
+  it("loads prices and still requests the daily check when device cache exists", async () => {
     const h = harness();
     const result = await h.feed.load();
     expect(result.source).toBe("live");
     expect(result.cache?.records[0].zarPerLitre).toBe(25.25);
     expect(h.storage.setItem).toHaveBeenCalledOnce();
     h.storage.getItem.mockResolvedValue(JSON.stringify(result.cache));
-    expect((await h.feed.load()).source).toBe("cache");
-    expect(h.fetcher).toHaveBeenCalledOnce();
+    expect((await h.feed.load()).source).toBe("live");
+    expect(h.fetcher).toHaveBeenCalledTimes(2);
+    expect(h.fetcher.mock.calls[0][1]?.method).toBe("POST");
+    await h.feed.poll();
+    expect(h.fetcher.mock.calls[2][1]?.method).toBe("GET");
   });
   it("uses unexpired cache on a failed refresh without hiding the failure", async () => {
     const h = harness(cached());
@@ -105,5 +108,17 @@ describe("fuel reference data and cache", () => {
     expect(h.fetcher).toHaveBeenCalledOnce();
     expect(h.fetcher.mock.calls[0][1]?.signal?.aborted).toBe(true);
     expect(vi.getTimerCount()).toBe(0);
+  });
+  it("supports open-ended references only while the source check is under 48 hours old", () => {
+    expect(parseFuelFeed(envelope([{...item(),effectiveUntil:null}]),now)?.[0].effectiveUntil).toBeNull();
+    expect(parseFuelFeed(envelope([{...item(),effectiveUntil:null,checkedAt:new Date(now-48*3600000).toISOString()}]),now)).toBeNull();
+    expect(parseFuelFeed({...envelope(),version:1},now)).toBeNull();
+  });
+  it("accepts an empty pending snapshot without leaving a failed request pending", async () => {
+    const h=harness();
+    h.fetcher.mockResolvedValueOnce(new Response(JSON.stringify({...envelope([]),updateState:'pending'})));
+    expect((await h.feed.load()).updateState).toBe('pending');
+    h.fetcher.mockRejectedValueOnce(new Error('offline'));
+    expect((await h.feed.poll()).updateState).toBe('failed');
   });
 });

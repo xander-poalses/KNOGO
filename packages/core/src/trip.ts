@@ -2,7 +2,7 @@ import type { OpeningHours } from "./types/place";
 
 export type FuelGrade = "petrol_93" | "petrol_95" | "diesel_50ppm" | "diesel_500ppm";
 export type FuelRegion = "inland" | "coastal";
-export type FuelPreferences = { consumptionLPer100Km: number | null; grade: FuelGrade | null; region: FuelRegion | null; priceOverrideZarPerLitre: number | null };
+export type FuelPreferences = { consumptionLPer100Km: number | null; consumptionUnit?: "l_per_100km" | "km_per_litre"; grade: FuelGrade | null; region: FuelRegion | null; priceOverrideZarPerLitre: number | null };
 export const emptyFuelPreferences: FuelPreferences = { consumptionLPer100Km: null, grade: null, region: null, priceOverrideZarPerLitre: null };
 export function positiveNumber(value: unknown, maximum = 1000): number | null {
   if (typeof value !== "number" || !Number.isFinite(value) || value <= 0 || value > maximum) return null;
@@ -12,6 +12,7 @@ export function parseFuelPreferences(value: unknown): FuelPreferences {
   if (!value || typeof value !== "object" || Array.isArray(value)) return { ...emptyFuelPreferences };
   const raw = value as Record<string, unknown>;
   return { consumptionLPer100Km: positiveNumber(raw.consumptionLPer100Km, 100),
+    ...(raw.consumptionUnit === "l_per_100km" || raw.consumptionUnit === "km_per_litre" ? { consumptionUnit: raw.consumptionUnit } : {}),
     grade: ["petrol_93", "petrol_95", "diesel_50ppm", "diesel_500ppm"].includes(String(raw.grade)) ? raw.grade as FuelGrade : null,
     region: raw.region === "inland" || raw.region === "coastal" ? raw.region : null,
     priceOverrideZarPerLitre: positiveNumber(raw.priceOverrideZarPerLitre) };
@@ -19,6 +20,10 @@ export function parseFuelPreferences(value: unknown): FuelPreferences {
 export function calculateTankConsumption(kilometres: number, litres: number, filledToFullBothTimes: boolean): number | null {
   if (!filledToFullBothTimes || !positiveNumber(kilometres, 100000) || !positiveNumber(litres, 10000)) return null;
   return positiveNumber(litres / kilometres * 100, 100);
+}
+export function fuelRegionForLocation(point: {latitude:number;longitude:number} | null): FuelRegion | null {
+  // shortcut: only the supported Pretoria East area is mapped; retain the chooser elsewhere until zone polygons are available.
+  return point && point.latitude >= -25.95 && point.latitude <= -25.65 && point.longitude >= 28.15 && point.longitude <= 28.5 ? "inland" : null;
 }
 export function estimateFuel(kilometres: number, consumption: number | null, price: number | null) {
   if (!Number.isFinite(kilometres) || kilometres < 0 || !positiveNumber(consumption, 100)) return { litres: null, costZar: null };
@@ -79,12 +84,12 @@ export function compareArrivalWithHours(arrival: Date, hours?: OpeningHours[]): 
   return missing ? unknown : { state: "outside", minutesRemaining: null, endsAt: null };
 }
 
-export type FuelPriceRecord = { grade: FuelGrade; region: FuelRegion; zarPerLitre: number; effectiveAt: string; effectiveUntil: string; checkedAt: string; sourceUrl: string; kind: "retail_reference" | "wholesale_reference" };
+export type FuelPriceRecord = { grade: FuelGrade; region: FuelRegion; zarPerLitre: number; effectiveAt: string; effectiveUntil: string | null; checkedAt: string; sourceUrl: string; kind: "retail_reference" | "wholesale_reference" };
 export function usableFuelPrice(record: FuelPriceRecord | null, grade: FuelGrade | null, region: FuelRegion | null, now = Date.now()) {
   if (!record || record.grade !== grade || record.region !== region || !positiveNumber(record.zarPerLitre) ||
     !Number.isFinite(Date.parse(record.effectiveAt)) || Date.parse(record.effectiveAt) > now ||
-    !Number.isFinite(Date.parse(record.effectiveUntil)) || Date.parse(record.effectiveUntil) <= now || Date.parse(record.effectiveUntil) <= Date.parse(record.effectiveAt) ||
-    !Number.isFinite(Date.parse(record.checkedAt)) || Date.parse(record.checkedAt) > now || !/^https:\/\//.test(record.sourceUrl)) return null;
+    (record.effectiveUntil !== null && (!Number.isFinite(Date.parse(record.effectiveUntil)) || Date.parse(record.effectiveUntil) <= now || Date.parse(record.effectiveUntil) <= Date.parse(record.effectiveAt))) ||
+    !Number.isFinite(Date.parse(record.checkedAt)) || Date.parse(record.checkedAt) > now || now - Date.parse(record.checkedAt) >= 48 * 3600000 || !/^https:\/\//.test(record.sourceUrl)) return null;
   if (grade?.startsWith("diesel_") && record.kind !== "wholesale_reference") return null;
   if (grade?.startsWith("petrol_") && record.kind !== "retail_reference") return null;
   return record;

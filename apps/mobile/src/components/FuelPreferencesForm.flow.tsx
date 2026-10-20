@@ -4,7 +4,7 @@ import { emptyFuelPreferences } from "@knogo/core";
 import { FuelPreferencesForm } from "./FuelPreferencesForm";
 
 vi.mock("lucide-react-native", () => ({ Check: () => null, ChevronDown: () => null }));
-vi.mock("../theme", () => ({ fonts: {}, useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({}) }));
+vi.mock("../theme", () => ({ fonts: {}, radii: {}, useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({}) }));
 vi.mock("./Ui", async () => {
   const { createElement } = await import("react");
   return {
@@ -25,6 +25,23 @@ afterEach(cleanup);
 const enter = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
 
 describe("fuel setup form", () => {
+  it.each(["0", "-1", "1001", "NaN", "Infinity"])("names the price field and bounds for %s", async price => {
+    const onSave = vi.fn();
+    render(<FuelPreferencesForm preferences={emptyFuelPreferences} onSave={onSave}/>);
+    enter("Price override (R/litre)", price);
+    fireEvent.click(screen.getByRole("button", { name: "Save fuel setup" }));
+    expect(await screen.findByRole("alert")).toHaveProperty("textContent", "Price override must be above R0 and no more than R1,000 per litre.");
+    expect(onSave).not.toHaveBeenCalled();
+  });
+  it.each([["L/100 km", "101", "Consumption must be above 0 and no more than 100 L/100 km."], ["km/l", "0.5", "Consumption must be at least 1 km/l."]])("explains the consumption bounds in %s", async (unit, value, message) => {
+    const onSave = vi.fn();
+    render(<FuelPreferencesForm preferences={emptyFuelPreferences} onSave={onSave}/>);
+    fireEvent.click(screen.getByRole("radio", { name: unit }));
+    enter(`Consumption (${unit})`, value);
+    fireEvent.click(screen.getByRole("button", { name: "Save fuel setup" }));
+    expect(await screen.findByRole("alert")).toHaveProperty("textContent", message);
+    expect(onSave).not.toHaveBeenCalled();
+  });
   it("saves dashboard use, grade, region and a decimal-comma price without an account", async () => {
     const onSave = vi.fn().mockResolvedValue(undefined);
     render(<FuelPreferencesForm preferences={emptyFuelPreferences} onSave={onSave}/>);
@@ -38,19 +55,22 @@ describe("fuel setup form", () => {
     await screen.findByText("Fuel setup saved on this device.");
     expect(onSave).toHaveBeenCalledWith({ consumptionLPer100Km: 7.5, grade: "diesel_50ppm", region: "coastal", priceOverrideZarPerLitre: 23.1 });
   });
-  it("requires two full tank fills before calculating consumption", async () => {
+  it("accepts km/l and stores its L/100 km equivalent without a tank calculator", async () => {
     const onSave = vi.fn().mockResolvedValue(undefined);
     render(<FuelPreferencesForm preferences={emptyFuelPreferences} onSave={onSave}/>);
-    fireEvent.click(screen.getByRole("tab", { name: "Tank-fill calculation" }));
-    enter("Kilometres between fills", "500"); enter("Litres used to fill again", "35");
-    fireEvent.click(screen.getByRole("button", { name: "Save fuel setup" }));
-    expect(onSave).not.toHaveBeenCalled();
-    expect(screen.getByRole("alert")).toBeTruthy();
-    fireEvent.click(screen.getByRole("checkbox"));
+    expect(screen.queryByRole("tab", { name: "Tank-fill calculation" })).toBeNull();
+    fireEvent.click(screen.getByRole("radio", { name: "km/l" }));
+    enter("Consumption (km/l)", "12,5");
     fireEvent.click(screen.getByRole("button", { name: "Save fuel setup" }));
     await screen.findByText("Fuel setup saved on this device.");
     expect(onSave.mock.calls[0][0]).toMatchObject({ grade: null, region: null, priceOverrideZarPerLitre: null });
-    expect(onSave.mock.calls[0][0].consumptionLPer100Km).toBeCloseTo(7, 10);
+    expect(onSave.mock.calls[0][0].consumptionLPer100Km).toBeCloseTo(8, 10);
+    expect(onSave.mock.calls[0][0].consumptionUnit).toBe("km_per_litre");
+  });
+  it('hides region selection when the shared location resolves a reference region',()=>{
+    render(<FuelPreferencesForm preferences={emptyFuelPreferences} onSave={vi.fn()} automaticRegion="inland"/>);
+    expect(screen.queryByRole('button',{name:/Reference-price region/})).toBeNull();
+    expect(screen.queryByText(/Diesel reference prices/)).toBeNull();
   });
   it("allows clearing after invalid draft values", async () => {
     const onSave = vi.fn().mockResolvedValue(undefined);

@@ -77,7 +77,7 @@
   min-height: 4.35rem;
   padding: 10px 10px 10px 1.35rem;
   border: 2px solid rgba(var(--rgb-primary), 0.14);
-  border-radius: 10000px;
+  border-radius: var(--radius-control);
   background: rgba(var(--rgb-surface), 0.9);
   box-shadow:
     var(--shadow-soft),
@@ -117,7 +117,7 @@
   height: calc(4.35rem - 20px);
   place-items: center;
   border: 0;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   background: var(--color-primary);
   color: var(--color-background);
   cursor: pointer;

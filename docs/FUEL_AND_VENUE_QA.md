@@ -1,5 +1,15 @@
 # Fuel and venue QA
 
+## Daily Fuel Source Check, 19 October 2026
+
+- Source parser, bounds and request/background tests: eight Deno tests passed. Source probe and hosted worker each extracted six pairs from the government publication.
+- Disposable SQL: one daily claim, SAST boundary, grants, rejected malformed/duplicate prices, stale finish, failure without check-time extension, future replacement expiry, freshness and bounded state passed.
+- Root suite: 306 passed. Mobile suite: 509 passed. Root/core/mobile TypeScript checks passed. Review found two expiry cases; failing regressions were added and the fixes passed before deployment.
+- Hosted: migration `20261019202911_background_fuel_prices`, function version 1, update enabled. Two guest POSTs shared a pending run; after responses ended the server completed in about three seconds. GET returned six source-matched rows. A subsequent client load retained the same attempt timestamp.
+- The core feed parser and trip calculation accepted hosted prices with memory-only preferences. No user account, location or saved settings were sent or changed.
+- Browser: place page and trip/fuel sheets opened. No grade/region was selected in this browser, so no automatic reference was displayed; user settings were left alone. Hardware/theme screenshots of the price reference remain a user/device check, not claimed as done.
+- Source layout/outage can stop updates; the previous amount is eligible only within its validity/freshness window. Coastal diesel is not in the selected table and remains manual. Commercial source-use approval is outside this test release.
+
 ## Fuel persistence continuation, 4 October 2026
 
 `FuelContext` now orders device writes, normalises the stored/displayed value through the same parser and ignores a startup restore after a save succeeds. A failed write leaves the prior preferences intact and does not block the next write. Five provider tests cover restore, restore/save ordering, overlapping save/save/clear, write failure/retry and read failure without invented values.

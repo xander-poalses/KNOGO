@@ -11,8 +11,8 @@ const nativeMapbox = vi.hoisted(() => ({ available: true }));
 
 const mocks = vi.hoisted(() => ({ fit: vi.fn(), setCamera: vi.fn(), background: vi.fn((_props: unknown) => null), water: vi.fn(() => null), dark: false, permission: vi.fn(), position: vi.fn(), mapProps: null as any, environment: "storeClient", platform: "android", mapsKey: "", reduced: vi.fn(), start: vi.fn(), stop: vi.fn(), loop: vi.fn(), remove: vi.fn(), listener: null as null | ((enabled: boolean) => void) }));
 vi.mock("expo-constants", () => ({ default: { get executionEnvironment() { return mocks.environment; }, get expoConfig() { return { android: { config: { googleMaps: { apiKey: mocks.mapsKey } } } }; } }, ExecutionEnvironment: { StoreClient: "storeClient" } }));
-vi.mock("@rnmapbox/maps", () => ({ default: { setAccessToken: vi.fn(), setTelemetryEnabled: vi.fn(), StyleURL: { Light: "light", Dark: "dark" }, MapView: (props: any) => { mocks.mapProps = props; return <div data-testid="native-map">{props.children}</div>; }, Camera: ({ ref }: any) => { useImperativeHandle(ref, () => ({ fitBounds: mocks.fit, setCamera: mocks.setCamera })); return null; }, MarkerView: ({ children }: any) => <div>{children}</div>, BackgroundLayer: mocks.background, FillLayer: mocks.water, SymbolLayer: poiLabel } }));
-vi.mock("../theme", () => ({ fonts: {}, shadows: { card: { elevation: 1 } }, useTheme: () => ({ colours: {}, isDark: mocks.dark }), useThemeStyles: (factory: any) => factory({}) }));
+vi.mock("@rnmapbox/maps", () => ({ default: { setAccessToken: vi.fn(), setTelemetryEnabled: vi.fn(), StyleURL: { Light: "light", Dark: "dark" }, MapView: (props: any) => { mocks.mapProps = props; return <div data-testid="native-map">{props.children}</div>; }, Camera: ({ ref }: any) => { useImperativeHandle(ref, () => ({ fitBounds: mocks.fit, setCamera: mocks.setCamera })); return null; }, MarkerView: ({ children }: any) => <div>{children}</div>, ShapeSource: ({ children }: any) => <div>{children}</div>, LineLayer: () => <div data-testid="route-line"/>, BackgroundLayer: mocks.background, FillLayer: mocks.water, SymbolLayer: poiLabel } }));
+vi.mock("../theme", () => ({ fonts: {}, radii: {}, shadows: { card: { elevation: 1 } }, useTheme: () => ({ colours: {}, isDark: mocks.dark }), useThemeStyles: (factory: any) => factory({}) }));
 vi.mock("expo-location", () => ({ requestForegroundPermissionsAsync: mocks.permission }));
 vi.mock("../tripLocation", () => ({ getTripPosition: mocks.position }));
 vi.mock("react-native-safe-area-context", () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0 }) }));
@@ -44,6 +44,18 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.unstubAllEnvs(); });
 
 describe("Expo Go map placeholder", () => {
+  it("draws a trip route and fits its start and destination without requesting location", async () => {
+    mocks.environment = "bare";
+    const route = [{ latitude: -25.7, longitude: 28.1 }, { latitude: -25.8, longitude: 28.3 }];
+    render(<BranchMap branches={branches} route={route}/>);
+    await screen.findByTestId("native-map");
+    expect(screen.getByTestId("route-line")).toBeTruthy();
+    expect(screen.getByLabelText("Starting place")).toBeTruthy();
+    act(() => mocks.mapProps.onDidFinishLoadingMap());
+    expect(mocks.fit).toHaveBeenCalledWith([28.3, -25.7], [28.1, -25.8], [84, 84, 76, 84], 0);
+    expect(mocks.permission).not.toHaveBeenCalled();
+    expect(mocks.position).not.toHaveBeenCalled();
+  });
   it("keeps the branch list accessible when the installed build lacks Mapbox", () => {
     mocks.environment = "bare";
     nativeMapbox.available = false;

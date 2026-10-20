@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { usePlaces } from "../state/PlacesContext";
 import { accountError } from "../auth/accountError";
-import { fonts, sizes, space, useTheme, useThemeStyles, type ThemeColours } from "../theme";
+import { radii, fonts, sizes, space, useTheme, useThemeStyles, type ThemeColours } from "../theme";
 import { ActionButton } from "./Ui";
 import { FeedbackToast } from "./FeedbackToast";
 
@@ -40,5 +40,5 @@ export function PasswordResetForm({ onComplete, onRequestLink }: { onComplete: (
 const createStyles = (colours: ThemeColours) => StyleSheet.create({
   form: { gap: space.md }, title: { fontFamily: fonts.bold, fontSize: 24, lineHeight: 32, color: colours.text },
   body: { fontFamily: fonts.regular, fontSize: 14, lineHeight: 22, color: colours.muted },
-  input: { minHeight: sizes.control, padding: space.sm, borderWidth: 1, borderColor: colours.controlBorder, borderRadius: 8, backgroundColor: colours.surface, color: colours.text, fontFamily: fonts.regular, fontSize: 16 }
+  input: { minHeight: sizes.control, padding: space.sm, borderWidth: 1, borderColor: colours.controlBorder, borderRadius: radii.control, backgroundColor: colours.surface, color: colours.text, fontFamily: fonts.regular, fontSize: 16 }
 });

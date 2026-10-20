@@ -8,6 +8,9 @@ function batch(overrides = {}) {
 }
 
 describe("place importer", () => {
+  it.each(["", " ", "\t\n"])("rejects a blank place name (%j)", name => {
+    expect(validateBatch(batch({ name })).errors.some(error => error.includes("name is required"))).toBe(true);
+  });
   it("validates a complete place with seven opening rows", () => expect(validateBatch(batch()).errors).toEqual([]));
   it("accepts Die Wilgers as a Pretoria East locality", () => expect(validateBatch(batch({ region_id: "die-wilgers" })).errors).toEqual([]));
   it("accepts documented mall co-location but rejects unexplained copied pins", () => {

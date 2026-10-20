@@ -1,5 +1,6 @@
 import {
   featureLabel,
+  getPlaceDisplayName,
   getCloseTime,
   type Place,
   type PlaceGroup
@@ -20,7 +21,8 @@ function signalTone(tone: ReturnType<typeof getCheckPresentation>["tone"], style
   return styles.neutral;
 }
 
-export function PlaceCard({ place, saved, onToggleSaved }: { place: Place; saved: boolean; onToggleSaved: (id: string) => void }) {
+export function PlaceCard({ place: inputPlace, saved, onToggleSaved }: { place: Place; saved: boolean; onToggleSaved: (id: string) => void }) {
+  const place = { ...inputPlace, name: getPlaceDisplayName(inputPlace.name) };
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
   const router = useRouter();
@@ -85,7 +87,8 @@ export function GroupCard({ group, branches }: { group: PlaceGroup; branches: Pl
   );
 }
 
-export function ExplorePlaceTile({ place, width, saved, onToggleSaved, distance, onPress, layout = "list", allowRemove = false }: { place: Place; width: number; saved: boolean; onToggleSaved: (id: string) => void; distance?: string | null; onPress?: (place: Place) => void; layout?: "grid" | "list"; allowRemove?: boolean }) {
+export function ExplorePlaceTile({ place: inputPlace, width, saved, onToggleSaved, distance, onPress, layout = "list", allowRemove = false }: { place: Place; width: number; saved: boolean; onToggleSaved: (id: string) => void; distance?: string | null; onPress?: (place: Place) => void; layout?: "grid" | "list"; allowRemove?: boolean }) {
+  const place = { ...inputPlace, name: getPlaceDisplayName(inputPlace.name) };
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
   const router = useRouter();
@@ -154,7 +157,7 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   resultRow: { minHeight: 104, flexDirection: "row", alignItems: "center", borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colours.border, backgroundColor: colours.surface },
   resultMain: { flex: 1, flexDirection: "row", alignItems: "center", gap: 14, paddingVertical: 16, paddingHorizontal: 12 },
   resultGroup: { gap: 14, paddingVertical: 16, paddingHorizontal: 12 },
-  resultLogo: { width: 64, height: 64, flexShrink: 0, borderRadius: 8, borderWidth: StyleSheet.hairlineWidth, borderColor: colours.border },
+  resultLogo: { width: 64, height: 64, flexShrink: 0, borderRadius: radii.listInset, borderWidth: StyleSheet.hairlineWidth, borderColor: colours.border },
   resultCopy: { flex: 1, gap: 4, paddingRight: 4 },
   resultName: { fontFamily: fonts.semibold, fontSize: 17, lineHeight: 23, color: colours.text },
   resultMeta: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 19, color: colours.muted },
@@ -178,9 +181,9 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   bad: { color: colours.closed },
   neutral: { color: colours.muted },
   features: { flexDirection: "row", flexWrap: "wrap", gap: 7 },
-  feature: { minHeight: 28, paddingHorizontal: 10, paddingTop: 6, borderRadius: 999, backgroundColor: colours.featureTint, color: colours.muted, fontFamily: fonts.regular, fontSize: 11 },
+  feature: { minHeight: 28, paddingHorizontal: 10, paddingTop: 6, borderRadius: radii.control, backgroundColor: colours.featureTint, color: colours.muted, fontFamily: fonts.regular, fontSize: 11 },
   actions: { flexDirection: "row", alignItems: "center", gap: 8 },
-  detailsButton: { minHeight: 46, flex: 1, alignItems: "center", justifyContent: "center", borderRadius: radii.control, backgroundColor: colours.primary },
+  detailsButton: { minHeight: 46, flex: 1, alignItems: "center", justifyContent: "center", borderRadius: radii.content, backgroundColor: colours.primary },
   detailsText: { color: colours.background, fontFamily: fonts.extraBold, fontSize: 13 },
   saveButton: { width: 46, height: 46, alignItems: "center", justifyContent: "center" },
   groupCard: { minHeight: 126, padding: 16, flexDirection: "row", alignItems: "center", gap: 12, borderWidth: 1, borderColor: colours.border, borderRadius: radii.surface, backgroundColor: colours.surface },
@@ -194,13 +197,13 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   tileLetter: { position: "absolute", right: 5, top: -20, color: colours.imageTextGhost, fontFamily: fonts.extraBold, fontSize: 96, lineHeight: 112 },
   fill: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   listLogo: { position: "absolute", top: 0, bottom: 0, left: 0, width: 132 },
-  exploreStatus: { position: "absolute", top: 7, left: 7, minHeight: 22, paddingHorizontal: 7, flexDirection: "row", alignItems: "center", gap: 4, borderRadius: 11 },
+  exploreStatus: { position: "absolute", top: 7, left: 7, minHeight: 22, paddingHorizontal: 7, flexDirection: "row", alignItems: "center", gap: 4, borderRadius: radii.control },
   exploreStatusOnLogo: { backgroundColor: colours.overlay },
-  statusDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colours.openDot },
+  statusDot: { width: 6, height: 6, borderRadius: radii.round, backgroundColor: colours.openDot },
   statusDotClosed: { backgroundColor: colours.closedDot },
   statusDotUnknown: { backgroundColor: colours.muted },
   exploreStatusText: { color: colours.white, fontFamily: fonts.semibold, fontSize: 9 },
-  exploreSave: { position: "absolute", zIndex: 1, top: 1, right: 1, width: 44, height: 44, alignItems: "center", justifyContent: "center", backgroundColor: colours.surface, borderRadius: 8 },
+  exploreSave: { position: "absolute", zIndex: 1, top: 1, right: 1, width: 44, height: 44, alignItems: "center", justifyContent: "center", backgroundColor: colours.surface, borderRadius: radii.control },
   exploreCopy: { padding: 12, gap: 4, backgroundColor: colours.surface },
   exploreCopyList: { top: 0, right: 44, bottom: 0, left: 148, justifyContent: "center", gap: 7 },
   exploreName: { color: colours.text, fontFamily: fonts.semibold, fontSize: 17, lineHeight: 23 },

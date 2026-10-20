@@ -16,7 +16,7 @@ vi.mock("expo-router", () => ({ useRouter: () => ({}), useLocalSearchParams: () 
 vi.mock("react-native-safe-area-context", () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0 }) }));
 vi.mock("lucide-react-native", async () => {
   const { createElement } = await import("react");
-  return { CircleAlert: (props: Record<string, unknown>) => createElement("svg", props), Check: () => null, ArrowLeft: () => null, ChevronRight: () => null, ChevronDown: () => null, ChevronUp: () => null, X: () => null, Search: () => null };
+  return { CircleAlert: (props: Record<string, unknown>) => createElement("svg", props), Check: () => null, ArrowLeft: () => null, ChevronRight: () => null, ChevronDown: () => null, ChevronUp: () => null, PanelBottomClose: () => null, X: () => null, Search: () => null };
 });
 vi.mock("../state/PlacesContext", async () => {
   const { mockPlaces } = await import("@knogo/core");
@@ -26,6 +26,7 @@ vi.mock("../storage", () => ({ mobileStorage: { readPendingReport: async () => n
 vi.mock("../telemetry", () => ({ captureEvent: vi.fn(), captureError: vi.fn() }));
 vi.mock("./AccountForm", () => ({ AccountForm: () => null }));
 vi.mock("./ReportAssessmentReceipt", () => ({ ReportAssessmentReceipt: () => null }));
+vi.mock("./ReportReviewGate",()=>({ReportReviewGate:({children}:any)=>children}));
 vi.mock("./FeedbackToast", () => ({ FeedbackToast: () => null }));
 vi.mock("../theme", () => ({
   fonts: {}, radii: {}, shadows: {}, sizes: { control: 52, touch: 44 }, space: { xs: 4, sm: 10, md: 16, lg: 24 },
@@ -34,6 +35,16 @@ vi.mock("../theme", () => ({
 afterEach(() => { cleanup(); route.outcome = undefined; vi.restoreAllMocks(); });
 
 describe("rendered web CTA semantics", () => {
+  it("uses the Figma command size without losing its label or busy state", () => {
+    render(<ActionButton label="Leave a report" tone="green" size="large" loading/>);
+    const button = screen.getByRole("button", { name: "Leave a report" });
+    expect(getComputedStyle(button).minHeight).toBe("66px");
+    const label = screen.getByText("Leave a report");
+    const rules = [...document.styleSheets].flatMap(sheet => [...sheet.cssRules]).filter(rule => rule instanceof CSSStyleRule && [...label.classList].some(name => rule.selectorText === `.${name}`));
+    expect(rules.map(rule => rule.cssText).join(" ")).toContain("font-size: 22px");
+    expect(button.getAttribute("aria-busy")).toBe("true");
+    expect(button.getAttribute("aria-disabled")).toBe("true");
+  });
   it("keeps the report result back button at the top of the page", () => {
     route.outcome = "pending";
     render(<ConfirmScreen />);

@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { PlaceImage } from "./PlaceImage";
 
 const mocks = vi.hoisted(() => ({ image: vi.fn() }));
+vi.mock("lucide-react-native", () => ({ MapPin: () => <span data-testid="place-icon"/> }));
 vi.mock("expo-image", () => ({ Image: (props: any) => {
   mocks.image(props);
   return <img alt={props.accessibilityLabel} src={props.source.uri} onError={props.onError} onLoad={props.onLoad}/>;

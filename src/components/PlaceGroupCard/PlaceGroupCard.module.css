@@ -2,7 +2,7 @@
   display: grid;
   overflow: hidden;
   border: 1px solid rgba(var(--rgb-border), 0.72);
-  border-radius: 1.15rem;
+  border-radius: var(--radius-control);
   background: color-mix(in srgb, var(--color-surface) 88%, white);
   box-shadow: var(--shadow-small);
   cursor: pointer;
@@ -65,7 +65,7 @@
   min-height: 3rem;
   margin-top: 0.4rem;
   padding: 0 1rem;
-  border-radius: 0.85rem;
+  border-radius: var(--radius-content);
   background: var(--color-primary);
   color: var(--color-background);
   font-weight: 850;

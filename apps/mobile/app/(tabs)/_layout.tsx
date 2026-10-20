@@ -4,7 +4,7 @@ import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { HapticPressable as Pressable } from "../../src/components/HapticPressable";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BrandHeader } from "../../src/components/AppChrome";
-import { fonts, shadows, useTheme, useThemeStyles, type ThemeColours } from "../../src/theme";
+import { radii, fonts, shadows, useTheme, useThemeStyles, type ThemeColours } from "../../src/theme";
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
@@ -92,14 +92,14 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
     height: 66,
     padding: 5,
     flexDirection: "row",
-    borderRadius: 999,
+    borderRadius: radii.nav,
     backgroundColor: colours.surface,
     ...shadows.floating
   },
   tabItem: {
     flex: 1,
     minWidth: 0,
-    borderRadius: 999,
+    borderRadius: radii.navItem,
     alignItems: "center",
     justifyContent: "center",
     gap: 2

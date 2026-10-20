@@ -1,4 +1,4 @@
-import type { ConfirmationType, Place, PlaceGroup, ReportAssessment, ReportSource, ReportSubmissionResult } from "../types/place";
+import { reportReviewNoticeVersion, type ReportReviewNotice, type ConfirmationType, type Place, type PlaceGroup, type ReportAssessment, type ReportSource, type ReportSubmissionResult } from "../types/place";
 import {
   mapSupabaseConfirmation,
   mapSupabasePlace,
@@ -339,6 +339,22 @@ export function createSupabaseApi(config: {
     } satisfies ReportSubmissionResult;
   }
 
+  async function reportReviewNotice(accept?: { version: string; adultConfirmed: boolean }): Promise<ReportReviewNotice> {
+    const session = await getValidSession();
+    if (!session) throw new Error("Sign in before reviewing the report notice.");
+    if (accept && (!accept.adultConfirmed || accept.version !== reportReviewNoticeVersion)) throw new Error("Confirm you are 18 or over and accept the report notice.");
+    const value = await request<ReportReviewNotice | null>(`rpc/${accept ? "accept" : "read"}_report_review_notice`, {
+      method: "POST", body: JSON.stringify(accept ? { p_version: accept.version, p_adult_confirmed: accept.adultConfirmed } : {})
+    }, session.accessToken);
+    if (!value || value.version !== reportReviewNoticeVersion || typeof value.accepted !== "boolean" || (accept && !value.accepted)) throw new Error("Could not read or save the report notice. Try again.");
+    const current = await sessionStorage.read();
+    if (current?.userId !== session.userId) throw new Error("Your account changed. Check the report notice again.");
+    return { version: value.version, accepted: value.accepted };
+  }
+
+  const readReportReviewNotice = () => reportReviewNotice();
+  const acceptReportReviewNotice = (input: { version: string; adultConfirmed: boolean }) => reportReviewNotice(input);
+
   async function readReportAssessment(reportId: string): Promise<ReportAssessment> {
     const session = await getValidSession();
     if (!session) throw new Error("Sign in to view your report assessment.");
@@ -351,7 +367,10 @@ export function createSupabaseApi(config: {
       value.risk !== null || value.model !== null || value.assessedAt !== null) {
       throw new Error("KNOGO could not read the report assessment.");
     }
-    return { reportId: value.reportId, state: value.state, risk: value.risk, model: value.model, assessedAt: value.assessedAt };
+    if (value.reason !== null && !["quota","disabled","setup","attempts","notice"].includes(value.reason) || value.retryAt !== null && (typeof value.retryAt !== "string" || !Number.isFinite(Date.parse(value.retryAt)))) throw new Error("KNOGO could not read the report assessment.");
+    const current = await sessionStorage.read();
+    if (current?.userId !== session.userId) throw new Error("Your account changed. Check the report assessment again.");
+    return { reportId: value.reportId, state: value.state, risk: value.risk, model: value.model, assessedAt: value.assessedAt, reason: value.reason, retryAt: value.retryAt };
   }
 
   async function readVenueAccess(placeId: string): Promise<VenueAccess> {
@@ -477,6 +496,8 @@ export function createSupabaseApi(config: {
     fetchPlace,
     fetchPlaceGroups,
     submitConfirmations,
+    readReportReviewNotice,
+    acceptReportReviewNotice,
     readReportAssessment,
     readVenueAccess,
     startVenueClaim,

@@ -65,6 +65,7 @@ export function ActionButton({
   label,
   icon,
   tone = "dark",
+  size = "default",
   loading = false,
   disabled,
   accessibilityState,
@@ -74,7 +75,7 @@ export function ActionButton({
   onHoverOut,
   style,
   ...props
-}: PressableProps & { label: string; icon?: ReactNode; tone?: "dark" | "light" | "green"; loading?: boolean }) {
+}: PressableProps & { label: string; icon?: ReactNode; tone?: "dark" | "light" | "green"; size?: "default" | "large"; loading?: boolean }) {
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
   const [focused, setFocused] = useState(false);
@@ -93,10 +94,10 @@ export function ActionButton({
       onBlur={event => { setFocused(false); onBlur?.(event); }}
       onHoverIn={event => { setHovered(true); onHoverIn?.(event); }}
       onHoverOut={event => { setHovered(false); onHoverOut?.(event); }}
-      style={state => [styles.button, styles[`button_${tone}`], unavailable && !busy && styles.buttonDisabled, (state.pressed || (hovered && !unavailable)) && styles.pressed, typeof style === "function" ? style(state) : style, Platform.OS === "web" && focused && styles.buttonFocus]}
+      style={state => [styles.button, size === "large" && styles.buttonLarge, styles[`button_${tone}`], unavailable && !busy && styles.buttonDisabled, (state.pressed || (hovered && !unavailable)) && styles.pressed, typeof style === "function" ? style(state) : style, Platform.OS === "web" && focused && styles.buttonFocus]}
     >
       {busy ? <ActivityIndicator accessibilityElementsHidden importantForAccessibility="no-hide-descendants" color={tone === "light" ? colours.text : colours.background}/> : icon}
-      <Text style={[styles.buttonText, tone === "light" && styles.buttonTextDark, unavailable && !busy && styles.buttonTextDark]}>{label}</Text>
+      <Text style={[styles.buttonText, size === "large" && styles.buttonTextLarge, tone === "light" && styles.buttonTextDark, unavailable && !busy && styles.buttonTextDark]}>{label}</Text>
     </Pressable>
   );
 }
@@ -192,16 +193,18 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   backIconOnly: { minWidth: sizes.touch, width: sizes.touch, justifyContent: "center" },
   backText: { color: colours.text, fontFamily: fonts.extraBold, fontSize: 14 },
   button: { minHeight: sizes.control, minWidth: sizes.touch, paddingVertical: space.sm, paddingHorizontal: 17, flexDirection: "row", gap: 9, alignItems: "center", justifyContent: "center", borderRadius: radii.control },
+  buttonLarge: { minHeight: 66 },
   button_dark: { backgroundColor: colours.text },
   button_green: { backgroundColor: colours.primary },
   button_light: { backgroundColor: colours.surface, borderWidth: 1, borderColor: colours.controlBorder },
   buttonDisabled: { backgroundColor: colours.controlStrong, borderWidth: 1, borderColor: colours.controlBorder },
-  buttonText: { flexShrink: 1, textAlign: "center", color: colours.background, fontFamily: fonts.extraBold, fontSize: 14, lineHeight: 20 },
+  buttonText: { flexShrink: 1, textAlign: "center", color: colours.background, fontFamily: fonts.extraBold, fontSize: 16, lineHeight: 24 },
+  buttonTextLarge: { fontSize: 22, lineHeight: 32 },
   buttonTextDark: { color: colours.text },
   buttonFocus: { outlineColor: colours.focus, outlineWidth: 2, outlineOffset: 3, outlineStyle: "solid" },
   pressed: { opacity: 0.92 },
-  chip: { minHeight: sizes.touch, paddingVertical: space.xs, paddingHorizontal: 8, borderRadius: 4, flexDirection: "row", gap: 10, alignItems: "center", maxWidth: "100%" },
-  chipIcon: { width: 20, height: 20, flexShrink: 0, borderWidth: 1.5, borderColor: colours.controlBorder, borderRadius: 4, backgroundColor: colours.surface, alignItems: "center", justifyContent: "center" },
+  chip: { minHeight: sizes.touch, paddingVertical: space.xs, paddingHorizontal: 8, borderRadius: radii.control, flexDirection: "row", gap: 10, alignItems: "center", maxWidth: "100%" },
+  chipIcon: { width: 20, height: 20, flexShrink: 0, borderWidth: 1.5, borderColor: colours.controlBorder, borderRadius: radii.indicator, backgroundColor: colours.surface, alignItems: "center", justifyContent: "center" },
   chipSelected: { borderColor: colours.primary, backgroundColor: colours.primary },
   radioIcon: { borderRadius: radii.round },
   radioDot: { width: 8, height: 8, borderRadius: radii.round, backgroundColor: colours.background },

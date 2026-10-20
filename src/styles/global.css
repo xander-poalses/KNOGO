@@ -1,4 +1,13 @@
 :root {
+  --radius-control: 26px;
+  --radius-content: calc(var(--radius-control) - 1rem);
+  --radius-sheet: calc(var(--radius-control) + 1rem);
+  --radius-dropdown-item: calc(var(--radius-control) - 0.4rem);
+  --radius-theme-item: calc(var(--radius-control) - 0.45rem);
+  --radius-report-content: calc(var(--radius-control) - 1.2rem);
+  --radius-nav: calc(3.9rem / 2 + 0.35rem);
+  --radius-nav-item: calc(var(--radius-nav) - 0.35rem);
+  --radius-round: 9999px;
   --color-background: #f3f3e8;
   --color-surface: #ebebd6;
   --color-elevated: #e8e0cd;

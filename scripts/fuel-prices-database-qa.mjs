@@ -1,0 +1,52 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
+if (!process.env.KNOGO_PGLITE_MODULE) throw new Error('Set KNOGO_PGLITE_MODULE. Disposable database only.');
+const { PGlite }=await import(pathToFileURL(process.env.KNOGO_PGLITE_MODULE).href);
+const db=new PGlite();
+const scalar=async(sql,args)=>Object.values((await db.query(sql,args)).rows[0])[0];
+try {
+ await db.exec('create role anon;create role authenticated;create role service_role;');
+ await db.exec(await readFile(new URL('../supabase/migrations/20261019202911_background_fuel_prices.sql',import.meta.url),'utf8'));
+ assert.equal(await scalar('select public.claim_fuel_price_refresh()'),null,'Disabled at installation');
+ await db.exec('update knogo_private.fuel_prices set enabled=true');
+ const claims=await Promise.all([scalar('select public.claim_fuel_price_refresh()'),scalar('select public.claim_fuel_price_refresh()')]);
+ assert.equal(claims.filter(Boolean).length,1);
+ const id=claims.find(Boolean);
+ assert.equal((await scalar('select public.read_fuel_price_snapshot()')).updateState,'pending');
+ for(const role of ['anon','authenticated']) {
+  assert.equal(await scalar(`select has_function_privilege('${role}','public.claim_fuel_price_refresh()','EXECUTE')`),false);
+  assert.equal(await scalar(`select has_table_privilege('${role}','knogo_private.fuel_prices','UPDATE')`),false);
+ }
+ const date=new Date(Date.now()-86400000).toISOString();
+ const records=['petrol_93','petrol_95'].flatMap(grade=>['inland','coastal'].map(region=>({grade,region,zarPerLitre:25,kind:'retail_reference'})));
+ records.push(...['diesel_50ppm','diesel_500ppm'].map(grade=>({grade,region:'inland',zarPerLitre:24,kind:'wholesale_reference'})));
+ const publication={effectiveAt:date,effectiveUntil:null,sourceUrl:'https://www.dmpr.gov.za/API/Evotiva-UserFiles/FileActionsServices/DownloadFile?ItemId=1&ModuleId=2&TabId=3',hash:'a'.repeat(64),records};
+ const finish=(attempt,pubs,error=null)=>scalar('select public.finish_fuel_price_refresh($1,$2::jsonb,$3)',[attempt,JSON.stringify(pubs),error]);
+ assert.equal(await finish('00000000-0000-0000-0000-000000000001',[publication]),false);
+ await assert.rejects(finish(id,[{...publication,records:[...records,records[0]]}]));
+ await assert.rejects(finish(id,[{...publication,sourceUrl:'https://evil.example'}]));
+ const future={...publication,effectiveAt:new Date(Date.now()+86400000).toISOString(),hash:'b'.repeat(64),records:records.map(r=>({...r,zarPerLitre:26}))};
+ assert.equal(await finish(id,[publication,future]),true);
+ let snapshot=await scalar('select public.read_fuel_price_snapshot()');
+ assert.equal(snapshot.records.length,6);assert.equal(snapshot.records[0].price,25);
+ assert.equal(Date.parse(snapshot.records[0].effectiveUntil),Date.parse(future.effectiveAt),'Published replacement expires cached prices');
+ const checked=snapshot.checkedAt;
+ assert.equal(await scalar('select public.claim_fuel_price_refresh()'),null);
+ await db.exec("update knogo_private.fuel_prices set attempt_day=attempt_day-1");
+ const next=await scalar('select public.claim_fuel_price_refresh()');
+ assert.equal(await finish(next,[],'source_download'),true);
+ snapshot=await scalar('select public.read_fuel_price_snapshot()');
+ assert.equal(snapshot.checkedAt,checked);assert.equal(snapshot.records[0].price,25);
+ assert.equal(snapshot.updateState,'failed');assert.equal(await scalar('select public.claim_fuel_price_refresh()'),null);
+ await db.exec("update knogo_private.fuel_prices set checked_at=now()-interval '49 hours'");
+ assert.equal((await scalar('select public.read_fuel_price_snapshot()')).records.length,0);
+ await db.exec("update knogo_private.fuel_prices set checked_at=now(),attempt_day=attempt_day-1");
+ await scalar('select public.claim_fuel_price_refresh()');
+ await db.exec("update knogo_private.fuel_prices set attempted_at=now()-interval '91 seconds',checked_at=now()-interval '1 day'");
+ assert.equal((await scalar('select public.read_fuel_price_snapshot()')).updateState,'failed');
+ assert.equal(await scalar('select public.claim_fuel_price_refresh()'),null);
+ assert.equal(await scalar('select count(*)::int from knogo_private.fuel_prices'),1);
+ assert.equal(await scalar("select ('2026-10-19T22:00:00Z'::timestamptz at time zone 'Africa/Johannesburg')::date::text"),'2026-10-20');
+ console.log('Fuel SQL QA passed: daily claim, grants, validation, future prices, failure, freshness, bounded state.');
+} finally {await db.close();}

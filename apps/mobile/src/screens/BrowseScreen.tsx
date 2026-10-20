@@ -1,4 +1,4 @@
-import { buildDiscoveryItems, defaultFilters, directoryCategories, filterPlaces, formatDistance, getCuisineOptions, type PlaceCategory } from "@knogo/core";
+import { buildDiscoveryItems, defaultFilters, directoryCategories, filterPlaces, formatDistance, getCuisineOptions, type PlaceCategory, type PlaceFilters } from "@knogo/core";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowRight, Bike, Car, ChevronDown, Clapperboard, Landmark, LayoutGrid, List, MapPin, ShoppingBag, SlidersHorizontal, Store, UtensilsCrossed } from "lucide-react-native";
@@ -68,7 +68,7 @@ export function BrowseScreen() {
           </View>
         </Pressable>
       ); })}
-      {openItems.length ? <View style={styles.statusSection}><View style={styles.statusHead}><View><Text style={styles.statusTitle}>Status now</Text><Text style={styles.statusMeta}>{coordinates ? "Status near your location" : "Community and business updates"}</Text></View><Store color={colours.primary} size={20} /></View><View style={styles.statusGrid}>{openItems.map((item) => item.kind === "group" ? <ExploreGroupTile key={`group-${item.id}`} group={item.group} branches={item.branches} width={tileWidth} layout={width < 768 ? "list" : "grid"} /> : <ExplorePlaceTile key={`place-${item.id}`} place={item.place} width={tileWidth} layout={width < 768 ? "list" : "grid"} saved={isSaved(item.id)} onToggleSaved={(id) => void toggleSaved(id)} />)}</View></View> : null}
+      {openItems.length ? <View style={styles.statusSection}><View style={styles.statusHead}><View><Text style={styles.statusTitle}>Status now</Text><Text style={styles.statusMeta}>{coordinates ? "Status near your location" : "Community and business updates"}</Text></View><Store color={colours.primary} size={20} /></View><View style={styles.statusGrid}>{openItems.map((item) => <View key={`${item.kind}-${item.id}`} style={{borderRadius:radii.surface,overflow:"hidden"}}>{item.kind === "group" ? <ExploreGroupTile group={item.group} branches={item.branches} width={tileWidth} layout={width < 768 ? "list" : "grid"} /> : <ExplorePlaceTile place={item.place} width={tileWidth} layout={width < 768 ? "list" : "grid"} saved={isSaved(item.id)} onToggleSaved={(id) => void toggleSaved(id)} />}</View>)}</View></View> : null}
     </Page>
   );
 }
@@ -169,12 +169,12 @@ function NearbyResultsScreen() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [layout, setLayout] = useExploreLayout();
   const { width: viewportWidth } = useWindowDimensions();
-  const [filters, setFilters] = useState({ ...defaultFilters });
+  const [filters, setFilters] = useState<PlaceFilters>({ ...defaultFilters, maxDistanceKm:25 });
   const areas = useMemo(() => [...new Set(places.map((place) => place.area))].sort(), [places]);
   const cuisines = useMemo(() => getCuisineOptions(places), [places]);
   const selectedAreas = coordinates ? [] : filters.areas.length ? filters.areas : fallbackArea ? [fallbackArea] : [];
   const serviceCategories = useMemo(() => [...new Set(places.map(place => place.category))], [places]);
-  const filteredPlaces = useMemo(() => filterPlaces(places, contextualFilters({ ...filters, areas: selectedAreas }, serviceCategories)), [filters, places, selectedAreas.join("|"), serviceCategories]);
+  const filteredPlaces = useMemo(() => filterPlaces(places, contextualFilters({ ...filters, areas: selectedAreas }, serviceCategories), new Date(), {coordinates}), [filters, places, coordinates, selectedAreas.join("|"), serviceCategories]);
   const items = useMemo(() => buildDiscoveryItems(filteredPlaces, placeGroups, coordinates), [coordinates, filteredPlaces, placeGroups]);
 
   return (
@@ -202,7 +202,7 @@ function NearbyResultsScreen() {
           ? <ExploreGroupTile group={item.group} branches={item.branches} width={width} distance={formatDistance(item.distanceKm)} layout={layout} />
           : <ExplorePlaceTile place={item.place} width={width} distance={formatDistance(item.distanceKm)} saved={isSaved(item.id)} onToggleSaved={(id) => void toggleSaved(id)} layout={layout} />}
       />
-      <FilterSheet places={places} categories={serviceCategories} visible={filtersOpen} filters={filters} areas={areas} cuisines={cuisines} onChange={setFilters} onClose={() => setFiltersOpen(false)} />
+      <FilterSheet nearby={Boolean(coordinates)} places={places} categories={serviceCategories} visible={filtersOpen} filters={filters} areas={areas} cuisines={cuisines} onChange={setFilters} onClose={() => setFiltersOpen(false)} />
     </>
   );
 }
@@ -226,7 +226,7 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   exploreGrid: { flexDirection: "row", flexWrap: "wrap", gap: 3 }
   ,
   locationPanel: { gap: 9, paddingVertical: 4 },
-  locationButton: { minHeight: 48, paddingHorizontal: 16, alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: 8, borderRadius: 999, backgroundColor: colours.primary },
+  locationButton: { minHeight: 48, paddingHorizontal: 16, alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: 8, borderRadius: radii.control, backgroundColor: colours.primary },
   locationButtonText: { color: colours.white, fontFamily: fonts.extraBold, fontSize: 13 },
   locationError: { color: colours.muted, fontFamily: fonts.regular, fontSize: 12, lineHeight: 17 },
   statusSection: { gap: 11, paddingTop: space.sm }, statusHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" }, statusTitle: { paddingBottom: 4, color: colours.text, fontFamily: fonts.extraBold, fontSize: 24, lineHeight: 30 }, statusMeta: { color: colours.muted, fontFamily: fonts.regular, fontSize: 12 }, statusGrid: { flexDirection: "row", flexWrap: "wrap", gap: 3 }

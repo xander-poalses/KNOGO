@@ -2,6 +2,8 @@
 
 Prepared: 19 October 2026.
 
+Automation update, 19 October: per-account 18+ notice acknowledgement, eligible-account/place review, per-request provider aliases, quota readiness, server Cron dispatch, 24-hour retention and receipt wait reasons are deployed. The shared/web suite (304 tests), mobile suite (480 tests), SQL harnesses and type checks pass. Worker version 15 processed three reports across two accounts and three places through Cron. The first scheduled cleanup removed eight expired batches and retained profile counters. No passwords or server secret values were read. Android receipt/layout confirmation and remaining fault drills are not established by this evidence. Managed pg_net grants remain a platform constraint; the app Data API rejects its schema.
+
 Purpose: give another chat the context needed to compare KNOGO with university requirements and return a task list. This is a feature inventory, not a claim that every feature is deployed, tested on a phone or ready for release.
 
 ## 1. Project Context

@@ -1,10 +1,13 @@
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from "react-native";
-import { fonts, useThemeStyles, type ThemeColours } from "../theme";
+import { MapPin } from "lucide-react-native";
+import { fonts, useTheme, useThemeStyles, type ThemeColours } from "../theme";
 
 export function PlaceLogo({ name, style }: { name: string; style?: StyleProp<ViewStyle> }) {
   const styles = useThemeStyles(createStyles);
+  const { colours } = useTheme();
+  const initial = name.trim().match(/^[\p{L}\p{N}]\p{M}*/u)?.[0].toUpperCase();
   return <View style={[styles.root, style]} aria-hidden>
-    <Text style={styles.initial}>{name.trim().charAt(0).toUpperCase()}</Text>
+    {initial ? <Text style={styles.initial}>{initial}</Text> : <MapPin color={colours.muted} size={26} />}
   </View>;
 }
 

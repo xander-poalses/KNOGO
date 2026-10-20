@@ -24,7 +24,7 @@ function over(foreground: number[], background: number[], opacity: number) {
 
 for (const [mode, colours] of Object.entries({ light: lightColours, dark: darkColours })) {
   describe(`${mode} WCAG AA surface tokens`, () => {
-    const surfaces = ["background", "surface", "elevated", "statusSurface", "tripSurface", "sheetSurface", "control", "controlStrong", "primarySoft"] as const;
+    const surfaces = ["background", "surface", "elevated", "statusSurface", "tripSurface", "sheetSurface", "sheetInset", "control", "controlStrong", "primarySoft"] as const;
     for (const surface of surfaces) {
       for (const ink of ["text", "muted", "primary", "success", "warning", "closed"] as const) {
         it(`${ink} on ${surface} keeps 4.5:1, including press feedback`, () => {

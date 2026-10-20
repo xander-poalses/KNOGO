@@ -1,5 +1,28 @@
 # Report-risk queue setup
 
+## Current Implementation: 19 October 2026
+
+The automation change is deployed: report-risk version 15, minute dispatch, hourly retention at minute 36. On 19 October, three reports across two accounts and three places completed through the scheduler. The first scheduled cleanup succeeded at 13:36 SAST and profile-counter preservation was verified. Device receipt confirmation and the remaining fault drills are separate checks. Do not use the historical template below.
+
+1. Review and apply the `20261019` report migrations in timestamp order. They install server notice checks, account/place eligibility, queue readiness, scheduler/retention functions and author receipt reasons. Scheduler jobs and switches start inactive. Existing reports are not opted in.
+2. Deploy the current `report-risk` source with its bearer-secret authentication. It no longer requires `RISK_TEST_ACTOR_ID`. Keep `GEMNINI_API_KEY`, model/free-tier acknowledgement, pseudonym secret and worker secret server-side. Do not inspect or copy their values through tools.
+3. The user adds the same `RISK_WORKER_SECRET` value to **Vault** under `knogo_risk_worker_secret`. Edge Function Secrets and Vault are separate. The endpoint URL is fixed to this project's `report-risk` function, not a second secret.
+4. Verify Vault entry existence only. Verify pg_net response TTL, request-table grants, provider allowance and the current schema before activation. Do not query decrypted values or HTTP headers.
+5. Set the approved application caps to 100/day and five/minute. The existing quota reservation also enforces a rolling 25-hour ceiling. Do not enable billing or claim unlimited free capacity.
+6. After code review and a cleanup dry run, enable the two singleton switches and named Cron jobs. Minute dispatch skips idle, disabled, spent-quota and missing-Vault states. A three-minute dispatch guard prevents overlapping unresolved HTTP requests; a transport timeout alone cannot release it. Each worker processes at most three jobs with lease checks.
+7. Prove an actual scheduled invocation with two consenting adult test accounts and two approved fixture places. Do not invent observations about real businesses. Close the app during part of this check. Manual invocation does not prove automation.
+8. Check the first hourly retention run against its dry-run counts and unchanged profile counters. Keep activation pending if credentials, transport access or hosted proof are missing.
+
+Payload budget: at most 20,000 ASCII characters of context plus fewer than 2,000 ASCII characters of prompt/schema overhead, and 256 output tokens. Even the conservative one-token-per-ASCII-character bound at five calls/minute is below the user-reported 250,000 TPM. This does not account for other consumers in the same Google project or guarantee provider capacity.
+
+Run the existing SQL harness and `scripts/report-automation-qa.mjs` against the installed PGlite runtime. The latter stubs Cron, Vault and pg_net; it sends no HTTP and is not hosted verification.
+
+Managed pg_net grants cannot be revoked by this project's `postgres` role. The attempted transport migration is not evidence of isolation. Hosted checks confirmed app roles cannot log in through SQL and the Data API rejects the `net` profile (406/PGRST106); server-only queue/cleanup function grants also reject app access. Keep `net` unexposed. All trusted SQL login roles must be treated as able to read queued headers. See [Supabase's transport constraint](https://supabase.com/docs/guides/troubleshooting/database-roles-can-read-request-headers-queued-by-pg_net-ad6357).
+
+## Historical Checkpoints
+
+The sections below retain earlier deployment evidence. Their fixture restriction, delay values and manual scheduler template are superseded by the implementation above and must not be used to activate the new queue.
+
 This is a setup guide, not a deployment. No scheduler, secrets or Gemini access have been enabled by this work. Do not run setup against the hosted project until deployment is authorised and the account/free-tier review in `TRUST_TRIP_PROVIDERS.md` is complete.
 
 ## Hosted Checkpoint: 11 October 2026

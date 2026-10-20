@@ -3,7 +3,7 @@ import { ctaHaptic } from "./haptics.native";
 const native = vi.hoisted(() => ({ platform: { OS: "android" }, android: vi.fn(), selection: vi.fn() }));
 vi.mock("react-native", () => ({ Platform: native.platform }));
 vi.mock("expo-haptics", () => ({
-  AndroidHaptics: { Segment_Frequent_Tick: "segment-frequent-tick" },
+  AndroidHaptics: { Segment_Tick: "segment-tick" },
   performAndroidHapticsAsync: native.android, selectionAsync: native.selection
 }));
 beforeEach(() => {
@@ -13,7 +13,7 @@ beforeEach(() => {
 describe("native CTA haptics", () => {
   it("uses the Android selection tick, not a vibration pattern", () => {
     ctaHaptic();
-    expect(native.android).toHaveBeenCalledWith("segment-frequent-tick");
+    expect(native.android).toHaveBeenCalledWith("segment-tick");
     expect(native.selection).not.toHaveBeenCalled();
   });
   it("uses selection feedback on iOS", () => {

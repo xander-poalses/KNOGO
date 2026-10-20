@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from "react";
 import { FlatList, StyleSheet, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { space, useTheme, useThemeStyles, type ThemeColours } from "../theme";
+import { radii, space, useTheme, useThemeStyles, type ThemeColours } from "../theme";
 
 type VirtualizedGridProps<T> = {
   data: T[];
@@ -29,7 +29,7 @@ export function VirtualizedGrid<T>({ data, columns, keyExtractor, renderTile, he
       key={`columns-${columns}`}
       keyExtractor={keyExtractor}
       numColumns={columns}
-      renderItem={({ item, index }) => <View style={{ width: tileWidth, marginBottom: gap, ...(roundedList && columns === 1 ? { overflow: "hidden" as const, borderTopLeftRadius: index === 0 ? 8 : 0, borderTopRightRadius: index === 0 ? 8 : 0, borderBottomLeftRadius: index === data.length - 1 ? 8 : 0, borderBottomRightRadius: index === data.length - 1 ? 8 : 0 } : {}) }}>{renderTile(item, tileWidth)}</View>}
+      renderItem={({ item, index }) => <View style={{ width: tileWidth, marginBottom: gap, ...(roundedList && columns === 1 ? { overflow: "hidden" as const, borderTopLeftRadius: index === 0 ? radii.surface : 0, borderTopRightRadius: index === 0 ? radii.surface : 0, borderBottomLeftRadius: index === data.length - 1 ? radii.surface : 0, borderBottomRightRadius: index === data.length - 1 ? radii.surface : 0 } : {}) }}>{renderTile(item, tileWidth)}</View>}
       columnWrapperStyle={columns > 1 ? styles.row : undefined}
       ListHeaderComponent={header ? <View style={styles.header}>{header}</View> : null}
       ListEmptyComponent={empty ? <View style={styles.empty}>{empty}</View> : null}

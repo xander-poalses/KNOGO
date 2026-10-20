@@ -33,6 +33,13 @@ function withClaim(claim: TrustClaim): Place {
 }
 
 describe("trust claims across discovery cards", () => {
+  it.each(["list", "grid"] as const)("names a blank place in %s without mutating its record", layout => {
+    const place = { ...base, name: " " };
+    render(<ExplorePlaceTile place={place} width={320} layout={layout} saved={false} onToggleSaved={vi.fn()}/>);
+    expect(screen.getByText("Unnamed place")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Unnamed place/ })).toBeTruthy();
+    expect(place.name).toBe(" ");
+  });
   it.each(["list", "grid"] as const)("uses the branch photo, not its legacy logo, in %s", layout => {
     const place = { ...base, imageUrl: "https://example.com/place.jpg", logoUrl: "https://example.com/logo.jpg" };
     render(<ExplorePlaceTile place={place} width={320} layout={layout} saved={false} onToggleSaved={vi.fn()}/>);

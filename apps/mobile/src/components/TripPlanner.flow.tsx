@@ -2,8 +2,14 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mockPlaces, emptyFuelPreferences, type FuelPreferences } from "@knogo/core";
 import { TripPlanner } from "./TripPlanner";
+vi.mock('expo-constants',()=>({default:{expoConfig:{extra:{}}}}));
+vi.mock('../state/PlacesContext',()=>({usePlaces:()=>({coordinates:null})}));
 
-const mocks = vi.hoisted(() => ({ route: vi.fn(), search: vi.fn(), permission: vi.fn(), location: vi.fn(), save: vi.fn(), refresh: vi.fn(), preferences: null as FuelPreferences | null }));
+const mocks = vi.hoisted(() => ({ route: vi.fn(), search: vi.fn(), permission: vi.fn(), location: vi.fn(), save: vi.fn(), refresh: vi.fn(), watch: vi.fn(), loading: false, preferences: null as FuelPreferences | null }));
+vi.mock("./BranchMap", async () => {
+  const { createElement } = await import("react");
+  return { BranchMap: ({ branches, route }: any) => createElement("div", { "data-testid": "trip-map", "data-route-points": route?.length ?? 0 }, branches[0].name) };
+});
 // Entrance sequencing has its own tests; these tests exercise trip state.
 vi.mock("./StagedModal", async () => {
   const { Modal } = await import("react-native");
@@ -17,7 +23,7 @@ vi.mock("../theme", () => ({
   fonts: {}, radii: {}, sizes: {}, space: {},
   useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({})
 }));
-vi.mock("../state/FuelContext", () => ({ useFuel: () => ({ preferences: mocks.preferences ?? emptyFuelPreferences, save: mocks.save, prices: null, refreshPrices: mocks.refresh }) }));
+vi.mock("../state/FuelContext", () => ({ useFuel: () => ({ preferences: mocks.preferences ?? emptyFuelPreferences, save: mocks.save, prices: null, refreshPrices: mocks.refresh, pricesLoading:mocks.loading,watchPrices:mocks.watch }) }));
 vi.mock("./DeparturePicker", async () => {
   const { createElement } = await import("react");
   return { DeparturePicker: () => createElement("span", null, "Date picker") };
@@ -46,6 +52,7 @@ vi.mock("react-native", async () => {
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.preferences = null;
+  mocks.loading = false;
   mocks.permission.mockResolvedValue({ status: "granted" });
   mocks.location.mockResolvedValue({ coords: { latitude: -25.78, longitude: 28.27 } });
   mocks.route.mockResolvedValue({ outbound: { distanceMetres: 8000, durationSeconds: 900 }, attribution: "openrouteservice" });
@@ -55,6 +62,45 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("trip planner flow", () => {
+  it('shows price loading without blocking routes and hides it for a price override',async()=>{
+    mocks.loading=true;
+    const view=render(<TripPlanner place={mockPlaces[0]}/>);
+    fireEvent.click(screen.getByRole('button',{name:'Estimate my trip'}));
+    await screen.findByRole('button',{name:'Open directions'});
+    expect(screen.getByText('Getting prices')).toBeTruthy();
+    mocks.preferences={...emptyFuelPreferences,priceOverrideZarPerLitre:25};
+    view.rerender(<TripPlanner place={mockPlaces[0]}/>);
+    expect(screen.queryByText('Getting prices')).toBeNull();
+  });
+  it("shows the destination map before estimating and the accepted route afterwards", async () => {
+    const path = [{ latitude: -25.78, longitude: 28.27 }, { latitude: mockPlaces[0].latitude, longitude: mockPlaces[0].longitude }];
+    mocks.route.mockResolvedValueOnce({ outbound: { distanceMetres: 8000, durationSeconds: 900 }, attribution: "openrouteservice", path });
+    render(<TripPlanner place={mockPlaces[0]}/>);
+    expect(screen.getByTestId("trip-map").getAttribute("data-route-points")).toBe("0");
+    expect(screen.queryByText("Estimated fuel cost")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
+    await screen.findByRole("button", { name: "Open directions" });
+    expect(screen.getByTestId("trip-map").getAttribute("data-route-points")).toBe("2");
+    expect(mocks.route).toHaveBeenCalledOnce();
+  });
+  it.each([false, true])("does not invent a closing buffer when hours are missing or closed (%s)", async closed => {
+    const openingHours = closed ? mockPlaces[0].openingHours.map(row => ({ ...row, isClosed: true })) : [];
+    render(<TripPlanner place={{ ...mockPlaces[0], openingHours }}/>);
+    fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
+    await screen.findByRole("button", { name: "Open directions" });
+    expect(screen.getByText(closed ? "Outside listed hours" : "Hours not listed")).toBeTruthy();
+    expect(screen.queryByText("Before listed closing")).toBeNull();
+  });
+  it("shows the listed-hours buffer at arrival, without claiming the venue is open", async () => {
+    const openingHours = mockPlaces[0].openingHours.map(row => ({ ...row, openTime: "00:00", closeTime: "00:00", isClosed: false }));
+    render(<TripPlanner place={{ ...mockPlaces[0], openingHours }}/>);
+    fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
+    await screen.findByRole("button", { name: "Open directions" });
+    expect(screen.getByText("Before listed closing")).toBeTruthy();
+    expect(screen.getByText(/\d+hr \d+min/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Hours at arrival" }));
+    expect(screen.getByText("Listed hours are not a check. Reports do not predict conditions at arrival.")).toBeTruthy();
+  });
   it("calculates rand cost from saved consumption and pump price without a price feed", async () => {
     mocks.preferences = { ...emptyFuelPreferences, consumptionLPer100Km: 7.5, priceOverrideZarPerLitre: 23 };
     render(<TripPlanner place={mockPlaces[0]}/>);
@@ -80,7 +126,7 @@ describe("trip planner flow", () => {
     await screen.findByText("15 min");
     expect(screen.getAllByText("15 min")).toHaveLength(1);
     expect(screen.queryByText("15 min drive")).toBeNull();
-    expect(screen.getByText("8.0 km away")).toBeTruthy();
+    expect(screen.queryByText("8.0 km away")).toBeNull();
   });
   it("keeps fuel edits when returning through Back without saving", async () => {
     render(<TripPlanner place={mockPlaces[0]}/>);
@@ -130,7 +176,7 @@ describe("trip planner flow", () => {
     expect(mocks.permission).toHaveBeenCalledTimes(1);
     expect(mocks.location).toHaveBeenCalledTimes(1);
     expect(mocks.route.mock.calls[0][0]).toEqual({ latitude: -25.78, longitude: 28.27 });
-    expect(screen.getByText("8.0 km away")).toBeTruthy();
+    expect(screen.queryByText("8.0 km away")).toBeNull();
     expect(screen.queryByText("Loading route map...")).toBeNull();
   });
   it("ignores repeated taps while the estimate runs", async () => {
@@ -162,13 +208,13 @@ describe("trip planner flow", () => {
     expect(mocks.permission).not.toHaveBeenCalled();
     expect(screen.queryByRole("dialog")).toBeNull();
   });
-  it("departure changes reuse the accepted route and do not spend another request", async () => {
+  it("has no departure, return or explanation controls", async () => {
     render(<TripPlanner place={mockPlaces[0]}/>);
     fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
     await screen.findByRole("button", { name: "Open directions" });
-    fireEvent.click(screen.getByRole("button", { name: "Leaving: Now. Change leaving" }));
-    fireEvent.click(screen.getByRole("button", { name: "Tomorrow" }));
-    fireEvent.click(screen.getByRole("button", { name: "Use this departure" }));
+    expect(screen.queryByRole("button", { name: /Leaving:/ })).toBeNull();
+    expect(screen.queryByLabelText("Include return fuel")).toBeNull();
+    expect(screen.queryByRole("button", { name: "How trip estimates work" })).toBeNull();
     expect(mocks.route).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole("dialog")).toBeNull();
   });
@@ -207,61 +253,11 @@ describe("trip planner flow", () => {
     expect(mocks.route.mock.calls[1][0]).toEqual({ latitude: -25.78, longitude: 28.27 });
     expect(mocks.location).toHaveBeenCalledTimes(1);
   });
-  it("fetches a return leg once and reuses it after toggling", async () => {
-    mocks.route.mockResolvedValue({ outbound: { distanceMetres: 8000, durationSeconds: 900 }, attribution: "openrouteservice" });
+  it("only requests the outbound route", async () => {
     render(<TripPlanner place={mockPlaces[0]}/>);
     fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
     await screen.findByRole("button", { name: "Open directions" });
-    mocks.route.mockResolvedValue({ outbound: { distanceMetres: 9000, durationSeconds: 1000 }, attribution: "openrouteservice" });
-    fireEvent.click(screen.getByLabelText("Include return fuel"));
-    await screen.findByRole("button", { name: "Open directions" });
-    expect(mocks.route.mock.calls[1][0]).toEqual({ latitude: mockPlaces[0].latitude, longitude: mockPlaces[0].longitude });
-    expect(mocks.route.mock.calls[1][1]).toEqual({ latitude: -25.78, longitude: 28.27 });
-    expect(mocks.route.mock.calls[1][2]).toBe(false);
-    fireEvent.click(screen.getByLabelText("Include return fuel"));
-    fireEvent.click(screen.getByLabelText("Include return fuel"));
-    expect(mocks.route).toHaveBeenCalledTimes(2);
-  });
-  it("keeps outbound distance and arrival when a return leg finishes", async () => {
-    const onEstimateChange = vi.fn();
-    render(<TripPlanner place={mockPlaces[0]} onEstimateChange={onEstimateChange}/>);
-    fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
-    await screen.findByRole("button", { name: "Open directions" });
-    await waitFor(() => expect(onEstimateChange.mock.calls.at(-1)?.[0]).toMatchObject({ includeReturn: false }));
-    const original = onEstimateChange.mock.calls.at(-1)![0];
-    mocks.route.mockResolvedValue({ outbound: { distanceMetres: 12000, durationSeconds: 2000 }, attribution: "openrouteservice" });
-    fireEvent.click(screen.getByLabelText("Include return fuel"));
-    await screen.findByRole("button", { name: "Open directions" });
-    await waitFor(() => expect(onEstimateChange.mock.calls.at(-1)?.[0]).toMatchObject({ kilometres: 20, arrival: original.arrival, includeReturn: true }));
-    expect(screen.getByText("8.0 km away")).toBeTruthy();
-    expect(mocks.location).toHaveBeenCalledTimes(1);
-  });
-  it("retains outbound arrival and labels the doubling fallback on return failure", async () => {
-    const onEstimateChange = vi.fn();
-    render(<TripPlanner place={mockPlaces[0]} onEstimateChange={onEstimateChange}/>);
-    fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
-    await screen.findByRole("button", { name: "Open directions" });
-    await waitFor(() => expect(onEstimateChange.mock.calls.at(-1)?.[0]).toMatchObject({ includeReturn: false }));
-    const original = onEstimateChange.mock.calls.at(-1)![0];
-    mocks.route.mockRejectedValue(new Error("Offline"));
-    fireEvent.click(screen.getByLabelText("Include return fuel"));
-    await screen.findByText("Return route unavailable. Using twice the outbound distance for fuel.");
-    expect(screen.getByRole("button", { name: "Open directions" })).toBeTruthy();
-    await waitFor(() => expect(onEstimateChange.mock.calls.at(-1)?.[0]).toMatchObject({ kilometres: 16, arrival: original.arrival, includeReturn: true }));
-    fireEvent.click(screen.getByLabelText("Include return fuel"));
-    expect(screen.queryByText("Return route unavailable. Using twice the outbound distance for fuel.")).toBeNull();
-    await waitFor(() => expect(onEstimateChange.mock.calls.at(-1)?.[0]?.kilometres).toBe(8));
-  });
-  it("does not add a second return request while one is running", async () => {
-    render(<TripPlanner place={mockPlaces[0]}/>);
-    fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
-    await screen.findByRole("button", { name: "Open directions" });
-    let finish!: (value: unknown) => void;
-    mocks.route.mockImplementation(() => new Promise(resolve => { finish = resolve; }));
-    fireEvent.click(screen.getByLabelText("Include return fuel"));
-    fireEvent.click(screen.getByLabelText("Include return fuel"));
-    expect(mocks.route).toHaveBeenCalledTimes(2);
-    finish({ outbound: { distanceMetres: 9000, durationSeconds: 1000 }, attribution: "openrouteservice" });
-    await screen.findByRole("button", { name: "Open directions" });
+    expect(mocks.route).toHaveBeenCalledTimes(1);
+    expect(mocks.route.mock.calls[0][2]).toBe(false);
   });
 });

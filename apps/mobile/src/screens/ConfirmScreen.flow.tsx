@@ -4,15 +4,16 @@ import { mockPlaces } from "@knogo/core";
 import { ConfirmScreen } from "./ConfirmScreen";
 import { ReportAssessmentReceipt } from "../components/ReportAssessmentReceipt";
 
-const mocks = vi.hoisted(() => ({ session: null as object | null, replace: vi.fn(), authLoading: false, configured: true, read: vi.fn(), write: vi.fn(), clear: vi.fn(), submit: vi.fn(), assessment: vi.fn(), places: [] as any[], placeId: "", loading: false }));
+const mocks = vi.hoisted(() => ({ session: null as object | null, replace: vi.fn(), refreshPlace: vi.fn(async()=>{}), authLoading: false, configured: true, read: vi.fn(), write: vi.fn(), clear: vi.fn(), submit: vi.fn(), assessment: vi.fn(), places: [] as any[], placeId: "", loading: false }));
 vi.mock("../supabase", () => ({ supabaseApi: { readReportAssessment: mocks.assessment } }));
+vi.mock("../components/ReportReviewGate",()=>({ReportReviewGate:({children}:any)=>children}));
 vi.mock("../storage", () => ({ mobileStorage: { readPendingReport: mocks.read, writePendingReport: mocks.write, clearPendingReport: mocks.clear } }));
-vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ places: mocks.places, loading: mocks.loading, addConfirmations: mocks.submit, authLoading: mocks.authLoading, hasSupabaseConfig: mocks.configured, session: mocks.session }) }));
+vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ places: mocks.places, loading: mocks.loading, addConfirmations: mocks.submit, refreshPlace:mocks.refreshPlace, authLoading: mocks.authLoading, hasSupabaseConfig: mocks.configured, session: mocks.session }) }));
 vi.mock("expo-router", () => ({ useLocalSearchParams: () => ({ placeId: mocks.placeId }), useRouter: () => ({ replace: mocks.replace }) }));
 vi.mock("../components/PlaceSheet", () => ({ PlaceSheet: ({ visible, title, onClose, children }: any) => visible ? <div role="dialog" aria-label={title}>{children}<button onClick={onClose}>Cancel report</button></div> : null }));
 vi.mock("../telemetry", () => ({ captureEvent: vi.fn(), captureError: vi.fn() }));
 vi.mock("../components/FeedbackToast", () => ({ FeedbackToast: ({ message }: any) => message ? <p role="alert">{message}</p> : null }));
-vi.mock("../theme", () => ({ fonts: {}, shadows: {}, sizes: {}, space: {}, useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({}) }));
+vi.mock("../theme", () => ({ fonts: {}, radii: {}, shadows: {}, sizes: {}, space: {}, useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({}) }));
 vi.mock("lucide-react-native", () => ({ Check: () => null, ChevronRight: () => null }));
 vi.mock("../components/AccountForm", async () => {
   const { createElement } = await import("react");
@@ -47,19 +48,27 @@ function next() { fireEvent.click(screen.getByRole("button", { name: "Continue" 
 function answer(label: string) { fireEvent.click(screen.getByRole("radio", { name: label })); next(); }
 
 describe("report assessment polling", () => {
-  it("stops after six reads and leaves a manual retry", async () => {
+  it("does not keep polling a receipt removed by retention",async()=>{
+    vi.useFakeTimers();mocks.assessment.mockRejectedValue(new Error("Your report assessment is not available."));
+    render(<ReportAssessmentReceipt reportId="report-1"/>);await act(async()=>{});
+    expect(screen.getByText("Review details are no longer available.")).toBeTruthy();
+    await act(async()=>{await vi.advanceTimersByTimeAsync(120_000);});
+    expect(mocks.assessment).toHaveBeenCalledOnce();
+    expect(screen.queryByText("Your report is saved.")).toBeNull();
+  });
+  it("stops after two minutes and leaves a manual retry", async () => {
     vi.useFakeTimers();
     render(<ReportAssessmentReceipt reportId="report-1" />);
     await act(async () => {});
-    for (let check = 0; check < 5; check++) {
+    for (let check = 0; check < 24; check++) {
       await act(async () => { await vi.advanceTimersByTimeAsync(5_000); });
     }
     await act(async () => { await vi.advanceTimersByTimeAsync(60_000); });
-    expect(mocks.assessment).toHaveBeenCalledTimes(6);
+    expect(mocks.assessment).toHaveBeenCalledTimes(25);
     expect(screen.getByRole("button", { name: "Check review" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Check review" }));
     await act(async () => {});
-    expect(mocks.assessment).toHaveBeenCalledTimes(7);
+    expect(mocks.assessment).toHaveBeenCalledTimes(26);
   });
   it("stops polling when the review completes", async () => {
     vi.useFakeTimers();
@@ -188,6 +197,7 @@ describe("report account hand-off", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Submit check" }));
     await screen.findByText("Gemini review complete");
     expect(screen.getByText("More community checks needed. This is not a verdict on your report.")).toBeTruthy();
+    expect(mocks.refreshPlace).toHaveBeenCalledWith(mocks.placeId);
     expect(screen.queryByText("high")).toBeNull();
   });
   it("keeps the report saved when its assessment fails and retries only the read", async () => {
@@ -196,7 +206,7 @@ describe("report account hand-off", () => {
     mocks.assessment.mockRejectedValueOnce(new Error("Offline"));
     render(<ConfirmScreen/>);
     fireEvent.click(await screen.findByRole("button", { name: "Submit check" }));
-    await screen.findByText("Review could not load. Your report is saved.");
+    await screen.findByText("Review could not load. Check your connection and try again.");
     fireEvent.click(screen.getByRole("button", { name: "Check review" }));
     await screen.findByText("Waiting for review");
     expect(mocks.submit).toHaveBeenCalledOnce();

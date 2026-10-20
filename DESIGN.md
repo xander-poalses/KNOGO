@@ -18,11 +18,16 @@ KNOGO helps a person check whether a place is open, serving, and working before 
 
 ## Structure
 
-- Use the tokens in `apps/mobile/src/theme.ts` for colour, spacing, radii, shadows, and control sizes.
+- Use the tokens in `apps/mobile/src/theme.tsx` for colour, spacing, radii, shadows, and control sizes.
 - Keep cards for place records, group records, and framed tools. Do not wrap page sections in cards.
 - Use square image tiles for browse grids and detailed rows for search results.
 - Keep buttons and inputs at least 44px high. Primary controls use 52px where space permits.
 - Use bottom sheets for actions that do not need their own screen.
+- Standalone containers and controls use the 26px corner token. Nested corners subtract their padding: sheets with 14px inset use 40px corners, check containers with 15px inset use 11px tiles, cards with 16px inset use 10px children, and segments with 4px inset use 22px children. Circles and checkbox indicators retain their geometry. The 66px navbar uses 33px corners and 28px selection corners inside its 5px padding. Web CSS uses the same base with inset calculations in its layout units.
+- The Figma Status and Plan trip frames set the typography: DM Sans 26/38 headings and 44/53 status or cost totals. Sheet commands use 66px targets with 22/32 text; other commands keep their existing target size and use 16/24 text.
+- Use `sheetInset` for fields and disclosures on sheets, with `surface` for check tiles. The two-column check grid grows with text. This framed status tool is the exception to the no-nested-cards rule.
+- Report ages belong beside status. Put check evidence behind disclosures, retain conflict and expectation wording, and show only checks the app collects. Trip totals and listed-hours buffers require a calculated route; never use prototype numbers.
+- Route previews reuse the branch map and its native-module guard. Keep map gestures in the expanded view and leave directions available when the map cannot load. Do not request location to display the destination.
 - Keep headings within their content level. Add line height and bottom space for descenders.
 
 ## Interaction States

@@ -1,17 +1,17 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { mockPlaces, type Place, type TrustClaim, type ConfirmationType } from "@knogo/core";
+import { mockPlaces, type Place, type PlaceGroup, type TrustClaim, type ConfirmationType } from "@knogo/core";
 import { PlaceDetailScreen } from "./PlaceDetailScreen";
 
-const mocks = vi.hoisted(() => ({ places: [] as Place[], loading: false, saved: false, toggle: vi.fn(), push: vi.fn(), open: vi.fn(), refresh: vi.fn() }));
+const mocks = vi.hoisted(() => ({ places: [] as Place[], placeGroups: [] as PlaceGroup[], loading: false, saved: false, toggle: vi.fn(), push: vi.fn(), open: vi.fn(), refresh: vi.fn() }));
 vi.mock("expo-router", async () => {
   const { useEffect } = await import("react");
   return { useLocalSearchParams: () => ({ placeId: "test-place" }), useRouter: () => ({ push: mocks.push }), useFocusEffect: (effect: () => void | (() => void)) => useEffect(effect, [effect]) };
 });
-vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ places: mocks.places, loading: mocks.loading, isSaved: () => mocks.saved, toggleSaved: mocks.toggle, refreshPlace: mocks.refresh }) }));
+vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ places: mocks.places, placeGroups: mocks.placeGroups, loading: mocks.loading, isSaved: () => mocks.saved, toggleSaved: mocks.toggle, refreshPlace: mocks.refresh }) }));
 vi.mock("../telemetry", () => ({ captureEvent: vi.fn() }));
 vi.mock("react-native-safe-area-context", () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0 }) }));
-vi.mock("lucide-react-native", () => Object.fromEntries(["CheckCircle2", "ChevronRight", "CircleHelp", "CircleX", "Clock3", "ExternalLink", "Globe", "Heart", "MapPin", "MoreHorizontal", "Navigation", "Phone", "TriangleAlert", "UtensilsCrossed"].map(name => [name, () => null])));
+vi.mock("lucide-react-native", () => Object.fromEntries(["CheckCircle2", "ChevronDown", "ChevronUp", "ChevronRight", "CircleHelp", "CircleX", "Clock3", "ExternalLink", "Globe", "Heart", "MapPin", "MoreHorizontal", "Navigation", "Phone", "TriangleAlert", "UtensilsCrossed"].map(name => [name, () => null])));
 vi.mock("../theme", () => ({ fonts: {}, radii: {}, shadows: {}, sizes: {}, space: {}, useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({}) }));
 vi.mock("../components/PlaceSheet", async () => {
   const { createElement } = await import("react");
@@ -44,6 +44,7 @@ vi.mock("react-native", async () => {
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.places = [{ ...mockPlaces[0], id: "test-place", kitchenHours: undefined, features: [], phone: undefined, website: undefined, menuUrl: undefined }];
+  mocks.placeGroups = [];
   mocks.loading = false; mocks.saved = false;
   mocks.toggle.mockResolvedValue(undefined); mocks.open.mockResolvedValue(undefined);
   mocks.refresh.mockReset().mockResolvedValue(undefined);
@@ -51,13 +52,37 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("place dashboard journey", () => {
+  it("names a blank place without changing or hiding its record", async () => {
+    mocks.places[0] = { ...mocks.places[0], name: " " };
+    await act(async () => { render(<PlaceDetailScreen/>); });
+    expect(screen.getByText("Unnamed place")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Leave a report" })).toBeTruthy();
+    expect(mocks.places[0].name).toBe(" ");
+  });
+  it("leads with report status and keeps supported check tiles behind additional info", async () => {
+    const reportedAt = new Date(Date.now() - 5 * 60_000).toISOString();
+    const expiresAt = new Date(Date.now() + 60 * 60_000).toISOString();
+    const claim = (type: ConfirmationType, value: string): TrustClaim => ({ state: "community_indication", value, reportedAt, expiresAt, rule: "community", evidence: [{ id: type, actorId: "tester", type, value, source: "community", reportedAt, expiresAt }] });
+    mocks.places[0].currentStatus = { ...mocks.places[0].currentStatus, trust: { version: 1, claims: { open_status: claim("open_status", "open"), kitchen_status: claim("kitchen_status", "yes"), card_machine: claim("card_machine", "yes") } } };
+    await act(async () => { render(<PlaceDetailScreen/>); });
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: "View recent reports" })); });
+    const sheet = within(screen.getByRole("dialog", { name: "Status & checks" }));
+    expect(sheet.getByText("Open")).toBeTruthy();
+    expect(sheet.getByText("00:05 ago")).toBeTruthy();
+    expect(sheet.getByText("Additional info")).toBeTruthy();
+    expect(sheet.queryByText("Kitchen")).toBeNull();
+    fireEvent.click(sheet.getByRole("button", { name: "Additional info" }));
+    expect(sheet.getByLabelText("Kitchen: Serving")).toBeTruthy();
+    expect(sheet.getByLabelText("Card machine: Working")).toBeTruthy();
+    expect(sheet.queryByText("Bar")).toBeNull();
+  });
   it("does not show kitchen status for a non-food place", () => {
     mocks.places[0] = { ...mocks.places[0], category: "shops", placeType: "supermarket" };
     render(<PlaceDetailScreen />);
     expect(screen.queryByText("Service expected")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "View recent reports" }));
     expect(screen.queryByText("Kitchen serving")).toBeNull();
-    expect(screen.getByText("No opening reports")).toBeTruthy();
+    expect(screen.queryByText("No opening reports")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Close sheet" }));
     fireEvent.click(screen.getByRole("button", { name: "View listed hours" }));
     expect(screen.queryByText("Kitchen hours not published.")).toBeNull();
@@ -83,8 +108,9 @@ describe("place dashboard journey", () => {
     mocks.places[0].currentStatus.trust = { version: 1, claims: { busy_level: { state: "community_indication", value: "quiet", reportedAt, expiresAt, rule: "community", evidence: [{ id: "busy-check", actorId: "tester", type: "busy_level", value: "quiet", source: "community", reportedAt, expiresAt }] } } };
     render(<PlaceDetailScreen/>);
     fireEvent.click(screen.getByRole("button", { name: "View recent reports" }));
-    expect(screen.getByText("1 of 4 checked")).toBeTruthy();
-    expect(screen.getByText("No opening reports")).toBeTruthy();
+    expect(screen.queryByText("1 of 4 checked")).toBeNull();
+    expect(screen.queryByText("No opening reports")).toBeNull();
+    expect(screen.getByRole("button", {name:"Additional info"})).toBeTruthy();
   });
   it("refreshes on entry and lets a failed report refresh be retried", async () => {
     mocks.refresh.mockRejectedValueOnce(new Error("Offline")).mockRejectedValueOnce(new Error("Offline"));
@@ -99,21 +125,22 @@ describe("place dashboard journey", () => {
   });
   it("keeps detail content behind its commands", () => {
     render(<PlaceDetailScreen/>);
-    for (const name of ["View recent reports", "View listed hours", "Plan your trip", "View place information", "Contact and directions"]) {
+    for (const name of ["View recent reports", "View listed hours", "Plan your trip", "Contact and directions"]) {
       expect(screen.getByRole("button", { name })).toBeTruthy();
     }
     expect(screen.queryByRole("dialog")).toBeNull();
-    expect(screen.queryByText("Practical checks")).toBeNull();
+    expect(screen.queryByRole("button", { name: "View place information" })).toBeNull();
+    expect(screen.queryByText("Additional info")).toBeNull();
   });
   it("opens and closes status checks without starting a trip", () => {
     render(<PlaceDetailScreen/>);
     fireEvent.click(screen.getByRole("button", { name: "View recent reports" }));
     expect(screen.getByRole("dialog", { name: "Status & checks" })).toBeTruthy();
-    expect(screen.getByText("Practical checks")).toBeTruthy();
+    expect(screen.getByText("Additional info")).toBeTruthy();
     expect(screen.queryByText("Walk-ins")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Practical checks" }));
-    expect(screen.getByText("Walk-ins")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Practical checks" }));
+    fireEvent.click(screen.getByRole("button", { name: "Additional info" }));
+    expect(screen.queryByText("Walk-ins")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Additional info" }));
     expect(screen.queryByText("Walk-ins")).toBeNull();
     expect(screen.queryByText("Trip for test-place")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Close sheet" }));
@@ -131,7 +158,8 @@ describe("place dashboard journey", () => {
     render(<PlaceDetailScreen/>);
     fireEvent.click(screen.getByRole("button", { name: "View recent reports" }));
     const sheet = within(screen.getByRole("dialog", { name: "Status & checks" }));
-    expect(sheet.getByText("Reports")).toBeTruthy();
+    expect(sheet.queryByText("No opening reports")).toBeNull();
+    expect(sheet.queryByRole("button",{name:"Additional info"})).toBeNull();
     expect(sheet.getByText("Based on listed hours, not a status check.")).toBeTruthy();
     expect(sheet.queryByText("Outside service hours")).toBeNull();
     fireEvent.click(sheet.getByRole("button", { name: "Leave a report" }));
@@ -159,51 +187,35 @@ describe("place dashboard journey", () => {
     expect(screen.getByRole("dialog", { name: "Plan your trip" })).toBeTruthy();
     expect(screen.getByText("Trip for test-place")).toBeTruthy();
   });
-  it("hides missing features and routes venue access to this place", () => {
+  it("routes representation requests to contact instead of the claim flow", () => {
     render(<PlaceDetailScreen/>);
+    fireEvent.click(screen.getByRole("button", { name: "Contact and directions" }));
+    expect(screen.queryByRole("link", { name: "Represent this place" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "View place information" }));
-    expect(screen.queryByText("Features")).toBeNull();
-    fireEvent.click(screen.getByRole("link", { name: "Represent this venue" }));
-    expect(mocks.push).toHaveBeenCalledWith({ pathname: "/venue/[placeId]", params: { placeId: "test-place" } });
+    fireEvent.click(screen.getByRole("link", { name: "Represent this place" }));
+    expect(mocks.push).toHaveBeenCalledWith({ pathname: "/support", params: { reason: "representation", placeId: "test-place", placeName: mocks.places[0].name } });
     expect(screen.queryByRole("dialog")).toBeNull();
   });
-  it("groups contact actions and keeps listing provenance behind disclosure", async () => {
-    mocks.places[0] = { ...mocks.places[0], phone: "012 123 4567", website: "https://example.com/venue", sourceUrl: "https://example.com/source", sourceCheckedAt: "2026-10-17", dataNotes: "Coordinates mark the shopping centre." };
+  it("shows the description and representation link in place information", () => {
+    mocks.places[0] = { ...mocks.places[0], groupId: "test-group", phone: "012 123 4567", website: "https://example.com/venue", dataNotes: "Coordinates mark the shopping centre." };
+    mocks.placeGroups = [{ id: "test-group", name: "Test group", slug: "test-group", category: mocks.places[0].category, description: "A cafe with a garden.", cuisine: [], features: [], branchIds: ["test-place"] }];
     render(<PlaceDetailScreen/>);
+    fireEvent.click(screen.getByRole("button", { name: "Contact and directions" }));
     fireEvent.click(screen.getByRole("button", { name: "View place information" }));
     const sheet = within(screen.getByRole("dialog", { name: "Place information" }));
-    expect(sheet.getByText("Address")).toBeTruthy();
-    expect(sheet.getByRole("button", { name: "Call 012 123 4567" })).toBeTruthy();
+    expect(sheet.getByText("A cafe with a garden.")).toBeTruthy();
+    expect(sheet.queryByText("Address")).toBeNull();
+    expect(sheet.queryByText("Contact")).toBeNull();
+    expect(sheet.queryByText("Features")).toBeNull();
+    expect(sheet.getByRole("link", { name: "Represent this place" })).toBeTruthy();
     expect(sheet.queryByText("Coordinates mark the shopping centre.")).toBeNull();
-    fireEvent.click(sheet.getByRole("button", { name: "About this listing" }));
-    expect(sheet.getByText("Coordinates mark the shopping centre.")).toBeTruthy();
-    fireEvent.click(sheet.getByRole("button", { name: "View listing source" }));
-    await vi.waitFor(() => expect(mocks.open).toHaveBeenCalledWith("https://example.com/source"));
   });
-  it("does not expose unsafe listing source links", () => {
-    mocks.places[0] = { ...mocks.places[0], sourceUrl: "javascript:alert(1)", dataNotes: "Source needs a check." };
+  it("does not invent a description when none is available", () => {
+    mocks.places[0] = { ...mocks.places[0], groupId: undefined };
     render(<PlaceDetailScreen/>);
+    fireEvent.click(screen.getByRole("button", { name: "Contact and directions" }));
     fireEvent.click(screen.getByRole("button", { name: "View place information" }));
-    fireEvent.click(screen.getByRole("button", { name: "About this listing" }));
-    expect(screen.queryByRole("button", { name: "View listing source" })).toBeNull();
-  });
-  it("keeps photo credit behind listing details and opens its source", async () => {
-    mocks.places[0] = { ...mocks.places[0], imageUrl: "https://example.com/place.jpg", imageSourceUrl: "https://example.com/photos", imageAttribution: "Example photographer", imageCheckedAt: "2026-10-18" };
-    render(<PlaceDetailScreen/>);
-    fireEvent.click(screen.getByRole("button", { name: "View place information" }));
-    expect(screen.queryByText("Photo: Example photographer")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "About this listing" }));
-    expect(screen.getByText("Photo: Example photographer")).toBeTruthy();
-    expect(screen.getByText("Photo checked 2026-10-18")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "View photo source" }));
-    await vi.waitFor(() => expect(mocks.open).toHaveBeenCalledWith("https://example.com/photos"));
-  });
-  it("does not expose an unsafe photo source", () => {
-    mocks.places[0] = { ...mocks.places[0], imageUrl: "https://example.com/place.jpg", imageSourceUrl: "javascript:alert(1)", imageAttribution: "Example photographer" };
-    render(<PlaceDetailScreen/>);
-    fireEvent.click(screen.getByRole("button", { name: "View place information" }));
-    fireEvent.click(screen.getByRole("button", { name: "About this listing" }));
-    expect(screen.queryByRole("button", { name: "View photo source" })).toBeNull();
+    expect(screen.getByText("Description not available yet.")).toBeTruthy();
   });
   it("keeps report evidence behind a control and excludes expired evidence", () => {
     const reportedAt = new Date(Date.now() - 5 * 60_000).toISOString();

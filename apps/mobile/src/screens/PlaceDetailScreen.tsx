@@ -1,7 +1,7 @@
 import {
-  featureLabel,
   formatRelativeTime,
   getCurrentStatus,
+  getPlaceDisplayName,
   getPlaceActionLinks,
   getPlaceOutlook,
   getWeeklyHours,
@@ -14,6 +14,8 @@ import {
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import {
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
   ChevronRight,
   CircleHelp,
   CircleX,
@@ -28,7 +30,7 @@ import {
   TriangleAlert,
   UtensilsCrossed,
 } from "lucide-react-native";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AppState, Linking, StyleSheet, Text, View } from "react-native";
 import { HapticPressable as Pressable } from "../components/HapticPressable";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -55,17 +57,15 @@ export function PlaceDetailScreen() {
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
   const insets = useSafeAreaInsets();
-  const { places, loading, isSaved, toggleSaved, refreshPlace } = usePlaces();
+  const { places, placeGroups, loading, isSaved, toggleSaved, refreshPlace } = usePlaces();
   const [reportRefreshError, setReportRefreshError] = useState(false);
   const [actionsOpen, setActionsOpen] = useState(false);
   const [practicalOpen, setPracticalOpen] = useState(false);
-  const [listingOpen, setListingOpen] = useState(false);
-  const [informationError, setInformationError] = useState<string | null>(null);
   const [sheet, setSheet] = useState<
     "status" | "hours" | "trip" | "details" | null
   >(null);
   useEffect(() => {
-    setPracticalOpen(false); setListingOpen(false); setInformationError(null);
+    setPracticalOpen(false);
   }, [placeId, sheet]);
   const [now, setNow] = useState(() => new Date());
   const place = places.find((item) => item.id === placeId);
@@ -111,13 +111,6 @@ export function PlaceDetailScreen() {
 
   const status = getCurrentStatus(place.currentStatus, now);
   const actions = getPlaceActionLinks(place);
-  const sourceAction = getPlaceActionLinks({ ...place, website: place.sourceUrl }).find(action => action.type === "website");
-  const photoSourceAction = place.imageUrl ? getPlaceActionLinks({ ...place, website: place.imageSourceUrl }).find(action => action.type === "website") : undefined;
-  const hasPhotoCredit = Boolean(place.imageUrl && (place.imageAttribution || place.imageCheckedAt || photoSourceAction));
-  const openInformationLink = (url: string) => {
-    setInformationError(null);
-    void Linking.openURL(url).catch(() => setInformationError("Could not open this link. Try again."));
-  };
   const outlook = getPlaceOutlook(place, now);
   const tradingTone = getOutlookTone(outlook.trading);
   const kitchenTone = getOutlookTone(outlook.kitchen);
@@ -133,8 +126,9 @@ export function PlaceDetailScreen() {
   ];
   if (status.trust && status.busyLevel !== "unknown")
     practicalChecks.push({ type: "busy_level", label: "Busy level", state: null });
-  const hasPrimaryReports = Boolean(status.trust?.claims.open_status?.evidence.length ||
-    (isFoodCategory(place.category) && status.trust?.claims.kitchen_status?.evidence.length));
+  const hasOpeningReports = Boolean(status.trust?.claims.open_status?.evidence.length);
+  const availableChecks = practicalChecks.filter(({type}) => status.trust?.claims[type]?.evidence.length);
+  const hasKitchenReport = isFoodCategory(place.category) && Boolean(status.trust?.claims.kitchen_status?.evidence.length);
   return (
     <>
       <Page
@@ -147,7 +141,7 @@ export function PlaceDetailScreen() {
           <BackButton label="Back" iconOnly />
           <View style={styles.identity}>
             <Text accessibilityRole="header" style={styles.title}>
-              {place.name}
+              {getPlaceDisplayName(place.name)}
             </Text>
             <View style={styles.metaRow}>
               <MapPin color={colours.muted} size={16} />
@@ -172,6 +166,7 @@ export function PlaceDetailScreen() {
           </Pressable>
         </View>
         <View style={styles.overview}>
+          <View style={styles.statusHeading}>
           <Text
             accessibilityRole="header"
             style={[
@@ -181,15 +176,12 @@ export function PlaceDetailScreen() {
           >
             {reportedOpen ? "Open" : outlook.trading.label}
           </Text>
+          {reportAge ? <Text style={styles.meta} accessibilityLabel={`Reported ${Math.floor(reportMinutes / 60)} hours and ${reportMinutes % 60} minutes ago`}>Reported {reportAge} ago</Text> : null}
+          </View>
           {isFoodCategory(place.category) && (outlook.kitchen.basis === "report" ||
           outlook.kitchen.basis === "conflict" ||
           outlook.trading.positive !== false) ? (
             <View style={styles.kitchenLine}>
-              <StatusIcon
-                tone={kitchenTone}
-                scheduled={outlook.kitchen.basis === "schedule"}
-                colours={colours}
-              />
               <Text
                 style={[
                   styles.kitchenText,
@@ -200,7 +192,6 @@ export function PlaceDetailScreen() {
               </Text>
             </View>
           ) : null}
-          {reportAge ? <Text style={styles.meta} accessibilityLabel={`Reported ${Math.floor(reportMinutes / 60)} hours and ${reportMinutes % 60} minutes ago`}>Reported {reportAge} ago</Text> : null}
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="View recent reports"
@@ -252,18 +243,6 @@ export function PlaceDetailScreen() {
               <Text style={styles.toolTitle}>Plan your trip</Text>
             </Pressable>
           </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="View place information"
-            onPress={() => setSheet("details")}
-            style={styles.practicalToggle}
-          >
-            <MapPin color={colours.muted} size={18} />
-            <Text style={[styles.practicalTitle, styles.toolCopy]}>
-              Place information
-            </Text>
-            <ChevronRight color={colours.muted} size={18} />
-          </Pressable>
         </View>
       </Page>
       <Pressable
@@ -277,7 +256,7 @@ export function PlaceDetailScreen() {
           pressed && styles.sharePressed,
         ]}
       >
-        <MoreHorizontal color={colours.text} size={24} />
+        <MoreHorizontal color={colours.background} size={24} />
         <Text style={styles.floatingLabel}>Contact</Text>
       </Pressable>
       <PlaceSheet
@@ -285,64 +264,42 @@ export function PlaceDetailScreen() {
         title="Status & checks"
         onClose={() => setSheet(null)}
       >
+        {reportRefreshError ? <Notice title="Could not refresh reports" message="Showing the last loaded reports." actionLabel="Try again" onAction={() => void refreshReports()} /> : null}
         <View style={styles.reportSummary}>
-          {reportRefreshError ? <Notice title="Could not refresh reports" message="Showing the last loaded reports." actionLabel="Try again" onAction={() => void refreshReports()} /> : null}
-          <Text style={styles.reportHeading}>Reports</Text>
-          {hasPrimaryReports ? <><StatusRow
-            label="Open"
-            value={trustClaimLabel("open_status", status.trust?.claims.open_status)}
-            state={outlook.trading.basis === "report" ? outlook.trading.positive : null}
-            conflict={outlook.trading.basis === "conflict"}
-          />
-          <ClaimEvidence label="Open" claim={status.trust?.claims.open_status} now={now} />
-          {isFoodCategory(place.category) ? <><StatusRow
-            label="Kitchen serving"
-            value={trustClaimLabel("kitchen_status", status.trust?.claims.kitchen_status)}
-            state={outlook.kitchen.basis === "report" ? outlook.kitchen.positive : null}
-            conflict={outlook.kitchen.basis === "conflict"}
-          />
-          <ClaimEvidence
-            label="Kitchen serving"
-            claim={status.trust?.claims.kitchen_status}
-            now={now}
-          /></> : null}</> : <View style={styles.noReports}><CircleHelp color={colours.muted} size={24}/><Text style={styles.confirmed}>No opening reports</Text></View>}
+          <Text accessibilityRole="header" style={[styles.sheetStatus, !reportedOpen && styles.sheetStatusDetail, tradingTone !== "neutral" && { color: tradingTone === "success" ? colours.primary : colours[tradingTone] }]}>{reportedOpen ? "Open" : outlook.trading.label}</Text>
+          {reportAge ? <View style={styles.reportAge}><Text style={styles.confirmed}>Reported</Text><Text style={styles.confirmed}>{reportAge} ago</Text></View> : null}
         </View>
-        {outlook.trading.basis !== "report" && outlook.trading.basis !== "conflict" ? (
-          <View style={styles.scheduleNote}>
-            <Clock3 color={colours.muted} size={20} />
-            <View style={styles.toolCopy}>
-              <Text style={styles.summaryLabel}>Listed hours</Text>
-              <Text style={styles.practicalTitle}>{outlook.trading.label}</Text>
-              <Text style={styles.confirmed}>{outlook.trading.detail}</Text>
-            </View>
-          </View>
-        ) : null}
-        <View style={styles.practicalSection}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Practical checks" accessibilityState={{ expanded: practicalOpen }} aria-expanded={practicalOpen} onPress={() => setPracticalOpen(value => !value)} style={styles.practicalToggle}>
-            <View style={styles.practicalCopy}><Text style={styles.practicalTitle}>Practical checks</Text><Text style={styles.practicalSummary}>{practicalChecks.filter(({ type }) => status.trust?.claims[type]?.evidence.length).length} of {practicalChecks.length} checked</Text></View>
-            <ChevronRight color={colours.muted} size={18} style={{ transform: [{ rotate: practicalOpen ? "90deg" : "0deg" }] }} />
+        {hasOpeningReports ? <ClaimEvidence label="Open" claim={status.trust?.claims.open_status} now={now} /> : null}
+        {outlook.trading.basis !== "report" && outlook.trading.basis !== "conflict" ? <Text style={styles.confirmed}>{outlook.trading.detail}</Text> : null}
+        {hasKitchenReport || availableChecks.length ? <View style={styles.practicalSection}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Additional info" accessibilityState={{ expanded: practicalOpen }} aria-expanded={practicalOpen} onPress={() => setPracticalOpen(value => !value)} style={styles.practicalToggle}>
+            <View style={styles.practicalCopy}><Text style={styles.additionalTitle}>Additional info</Text></View>
+            <View style={styles.accordionIcon}>{practicalOpen ? <ChevronUp color={colours.sheetInset} size={18} strokeWidth={3}/> : <ChevronDown color={colours.sheetInset} size={18} strokeWidth={3}/>}</View>
           </Pressable>
-          {practicalOpen ? <View style={styles.practicalRows}>
-            {practicalChecks.map(({ type, label, state }) => {
+          {practicalOpen ? <>
+          <View style={styles.practicalRows}>
+            {hasKitchenReport ? <StatusRow label="Kitchen" value={trustClaimLabel("kitchen_status", status.trust?.claims.kitchen_status)} state={outlook.kitchen.basis === "report" ? outlook.kitchen.positive : null} conflict={outlook.kitchen.basis === "conflict"} /> : null}
+            {availableChecks.map(({ type, label, state }) => {
               const claim = status.trust?.claims[type];
               return (
-                <View key={label}>
                   <StatusRow
+                    key={type}
                     label={label}
                     value={trustClaimLabel(type, claim)}
                     state={state}
                     conflict={claim?.state === "disagree"}
                   />
-                  <ClaimEvidence label={label} claim={claim} now={now} />
-                </View>
               );
             })}
-          </View> : null}
-        </View>
-        <Text style={styles.practicalSummary}>Reports describe a check, not a guarantee.</Text>
+          </View>
+          {isFoodCategory(place.category) ? <ClaimEvidence label="Kitchen serving" claim={status.trust?.claims.kitchen_status} now={now}/> : null}
+          {practicalChecks.map(({ type, label }) => <ClaimEvidence key={type} label={label} claim={status.trust?.claims[type]} now={now}/>)}
+          </> : null}
+        </View> : null}
         <ActionButton
           label="Leave a report"
           tone="green"
+          size="large"
           onPress={() => {
             setSheet(null);
             router.push({ pathname: "/confirm/[placeId]", params: { placeId: place.id } });
@@ -359,10 +316,7 @@ export function PlaceDetailScreen() {
           kitchen={isFoodCategory(place.category) ? place.kitchenHours : undefined}
           supportsKitchen={isFoodCategory(place.category)}
         />
-        {place.dataNotes ? <Text style={styles.confirmed}>{place.dataNotes}</Text> : null}
-        <Text style={styles.confirmed}>
-          Published schedules are not a check that the place is working now.
-        </Text>
+        {place.dataNotes ? <View accessible={false} style={{height:64}}/> : null}
       </PlaceSheet>
       <PlaceSheet
         visible={sheet === "trip"}
@@ -376,92 +330,13 @@ export function PlaceDetailScreen() {
         title="Place information"
         onClose={() => setSheet(null)}
       >
-        <View style={styles.informationSection}>
-          <Text style={styles.reportHeading}>Address</Text>
-          <View style={styles.addressRow}><MapPin color={colours.primary} size={20}/><Text style={styles.address}>{place.address}</Text></View>
-          {actions.filter(action => action.type === "directions").map(action => <Pressable key={action.type} accessibilityRole="button" accessibilityLabel="Get directions" style={styles.actionRow} onPress={() => openInformationLink(action.url)}><Navigation color={colours.primary} size={19}/><Text style={styles.actionText}>Get directions</Text><ExternalLink color={colours.muted} size={16}/></Pressable>)}
-        </View>
-        {actions.some(action => action.type !== "directions") ? <View style={styles.informationSection}>
-          <Text style={styles.reportHeading}>Contact</Text>
-          {actions.filter(action => action.type !== "directions").map(action => <Pressable key={action.type} accessibilityRole="button" accessibilityLabel={action.type === "call" ? `Call ${place.phone}` : action.label} style={styles.actionRow} onPress={() => openInformationLink(action.url)}>
-            {actionIcon(action.type, colours)}<View style={styles.toolCopy}><Text style={styles.actionText}>{action.label}</Text>{action.type === "call" ? <Text style={styles.confirmed}>{place.phone}</Text> : null}</View><ExternalLink color={colours.muted} size={16}/>
-          </Pressable>)}
-        </View> : null}
-        {informationError ? <Text accessibilityRole="alert" style={styles.linkError}>{informationError}</Text> : null}
-        {place.groupSlug && place.groupName ? (
-          <Pressable
-            accessibilityLabel={`View all ${place.groupName} branches`}
-            accessibilityRole="link"
-            onPress={() => {
-              setSheet(null);
-              router.push({
-                pathname: "/restaurants/groups/[groupSlug]",
-                params: { groupSlug: place.groupSlug! },
-              });
-            }}
-            style={styles.actionRow}
-          >
-            <View style={styles.toolCopy}><Text style={styles.practicalTitle}>{place.groupName}</Text><Text style={styles.confirmed}>All branches</Text></View><ChevronRight color={colours.muted} size={18}/>
-          </Pressable>
-        ) : null}
-        {place.dataNotes || place.sourceCheckedAt || sourceAction || hasPhotoCredit ? <View style={styles.informationSection}>
-          <Pressable accessibilityRole="button" accessibilityLabel="About this listing" accessibilityState={{ expanded: listingOpen }} aria-expanded={listingOpen} onPress={() => setListingOpen(value => !value)} style={styles.practicalToggle}>
-            <Text style={[styles.practicalTitle, styles.toolCopy]}>About this listing</Text><ChevronRight color={colours.muted} size={18} style={{ transform: [{ rotate: listingOpen ? "90deg" : "0deg" }] }}/>
-          </Pressable>
-          {listingOpen ? <View style={styles.listingDetails}>
-            {place.sourceCheckedAt ? <Text style={styles.practicalSummary}>Source checked {place.sourceCheckedAt}</Text> : null}
-            {place.dataNotes ? <Text style={styles.confirmed}>{place.dataNotes}</Text> : null}
-            {sourceAction ? <Pressable accessibilityRole="button" accessibilityLabel="View listing source" style={styles.actionRow} onPress={() => openInformationLink(sourceAction.url)}><Globe color={colours.primary} size={18}/><Text style={styles.actionText}>View source</Text><ExternalLink color={colours.muted} size={16}/></Pressable> : null}
-            {hasPhotoCredit ? <>
-              {place.imageAttribution ? <Text style={styles.confirmed}>Photo: {place.imageAttribution}</Text> : null}
-              {place.imageCheckedAt ? <Text style={styles.practicalSummary}>Photo checked {place.imageCheckedAt}</Text> : null}
-              {photoSourceAction ? <Pressable accessibilityRole="button" accessibilityLabel="View photo source" style={styles.actionRow} onPress={() => openInformationLink(photoSourceAction.url)}><Globe color={colours.primary} size={18}/><Text style={styles.actionText}>Photo source</Text><ExternalLink color={colours.muted} size={16}/></Pressable> : null}
-            </> : null}
-          </View> : null}
-        </View> : null}
-        <View style={styles.informationFooter}>
-        {place.features.length ? (
-          <Section title="Features">
-            <View style={styles.features}>
-              {place.features.map((feature) => (
-                <Text key={feature} style={styles.feature}>
-                  {featureLabel(feature)}
-                </Text>
-              ))}
-            </View>
-          </Section>
-        ) : null}
-        <Pressable
-          accessibilityRole="link"
-          onPress={() => {
-            setSheet(null);
-            router.push({
-              pathname: "/venue/[placeId]",
-              params: { placeId: place.id },
-            });
-          }}
-          style={styles.actionRow}
-        >
-          <Text style={styles.footerLink}>Represent this venue</Text><ChevronRight color={colours.muted} size={16}/>
-        </Pressable>
-        <Pressable
-          accessibilityRole="link"
-          onPress={() => {
-            setSheet(null);
-            router.push({
-              pathname: "/support",
-              params: { placeId: place.id },
-            });
-          }}
-          style={styles.actionRow}
-        >
-          <Text style={styles.footerLink}>Report wrong place information</Text><ChevronRight color={colours.muted} size={16}/>
-        </Pressable>
-        </View>
+        <Text style={styles.address}>{placeGroups.find(group => group.id === place.groupId)?.description?.trim() || "Description not available yet."}</Text>
+        <Pressable accessibilityRole="link" onPress={() => { setSheet(null); router.push({ pathname: "/support", params: { reason: "representation", placeId: place.id, placeName: getPlaceDisplayName(place.name) } }); }} style={styles.actionRow}><Text style={styles.actionText}>Represent this place</Text><ChevronRight color={colours.muted} size={17}/></Pressable>
       </PlaceSheet>
       <ActionSheet
         visible={actionsOpen}
         onClose={() => setActionsOpen(false)}
+        onInformation={() => { setActionsOpen(false); setSheet("details"); }}
         actions={actions}
         contactMissing={!actions.some((action) => action.type === "call" || action.type === "website")}
       />
@@ -482,11 +357,13 @@ function ActionSheet({
   onClose,
   actions,
   contactMissing,
+  onInformation,
 }: {
   visible: boolean;
   onClose: () => void;
   actions: PlaceActionLink[];
   contactMissing: boolean;
+  onInformation: () => void;
 }) {
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
@@ -518,6 +395,9 @@ function ActionSheet({
           <ExternalLink color={colours.muted} size={17} />
         </Pressable>
       ))}
+      <Pressable accessibilityRole="button" accessibilityLabel="View place information" onPress={onInformation} style={styles.actionRow}>
+        <MapPin color={colours.text} size={20}/><Text style={styles.actionText}>Place information</Text><ChevronRight color={colours.muted} size={17}/>
+      </Pressable>
       {error ? (
         <Text accessibilityRole="alert" style={styles.linkError}>
           {error}
@@ -583,7 +463,11 @@ function StatusRow({
       : state === false
         ? "closed"
         : "neutral";
-  const displayValue = value === "Status unknown" ? "No recent check" : value;
+  const shortValue = value.replace(/^(Community reports|Venue reports) /, "");
+  const displayValue = shortValue === "yes" ? (label === "Kitchen" ? "Serving" : label === "Card machine" ? "Working" : "Yes")
+    : shortValue === "no" ? "No" : shortValue === "serving" ? "Serving" : shortValue === "not serving" ? "Not serving"
+    : shortValue === "normal" && label === "Power" ? "Working" : shortValue === "Status unknown" || shortValue === "No recent check" ? "No check"
+    : shortValue.charAt(0).toUpperCase() + shortValue.slice(1);
   return (
     <View
       accessible
@@ -591,15 +475,14 @@ function StatusRow({
       style={styles.checkRow}
     >
       <Text style={styles.checkLabel}>{label}</Text>
-      <View style={styles.checkResult}><StatusIcon tone={tone} colours={colours} />
       <Text
         style={[
           styles.checkValue,
-          { color: tone === "neutral" ? colours.muted : colours[tone] },
+          { color: tone === "closed" || tone === "warning" ? colours[tone] : colours.text },
         ]}
       >
         {displayValue}
-      </Text></View>
+      </Text>
     </View>
   );
 }
@@ -625,16 +508,6 @@ function ClaimEvidence({ label, claim, now }: { label: string; claim?: TrustClai
         <Text style={styles.confirmed}>{item.source === "venue" ? "Verified venue representative" : item.checkedBy === "in_person" ? "At the venue" : item.checkedBy === "phone" ? "By phone" : item.checkedBy === "online" ? "Online" : "Check method not listed"}</Text>
         <Text style={styles.practicalSummary}>Expires at {new Date(item.expiresAt).toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Johannesburg" })} (SA time)</Text>
       </View>) : null}
-    </View>
-  );
-}
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  const styles = useThemeStyles(createStyles);
-  return (
-    <View>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      {children}
     </View>
   );
 }
@@ -776,12 +649,10 @@ const createStyles = (colours: ThemeColours) =>
     tool: {
       flex: 1,
       minWidth: 0,
-      minHeight: 88,
+      minHeight: 100,
       justifyContent: "center",
       gap: space.sm,
       padding: space.md,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colours.border,
       borderRadius: radii.surface,
       backgroundColor: colours.surface,
     },
@@ -806,12 +677,12 @@ const createStyles = (colours: ThemeColours) =>
       flexDirection: "row",
       alignItems: "center",
       gap: space.sm,
-      borderRadius: radii.round,
-      backgroundColor: colours.elevated,
+      borderRadius: radii.control,
+      backgroundColor: colours.primary,
       ...shadows.floating,
     },
     floatingLabel: {
-      color: colours.text,
+      color: colours.background,
       fontFamily: fonts.extraBold,
       fontSize: 14,
       lineHeight: 20,
@@ -830,8 +701,9 @@ const createStyles = (colours: ThemeColours) =>
       paddingHorizontal: space.md,
       paddingTop: space.md,
       paddingBottom: space.xs,
-      backgroundColor: colours.statusSurface,
+      backgroundColor: colours.background,
     },
+    statusHeading: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", columnGap: space.md, rowGap: space.xs },
     summaryLabel: {
       color: colours.muted,
       fontFamily: fonts.medium,
@@ -841,8 +713,8 @@ const createStyles = (colours: ThemeColours) =>
     outlookTitle: {
       color: colours.text,
       fontFamily: fonts.extraBold,
-      fontSize: 28,
-      lineHeight: 36,
+      fontSize: 38,
+      lineHeight: 46,
       paddingBottom: 4,
     },
     kitchenLine: { flexDirection: "row", alignItems: "center", gap: 8 },
@@ -864,7 +736,7 @@ const createStyles = (colours: ThemeColours) =>
       minHeight: 52,
       paddingHorizontal: space.md,
       marginTop: space.xs,
-      borderRadius: radii.surface,
+      borderRadius: radii.control,
       backgroundColor: colours.surface,
       flexDirection: "row",
       alignItems: "center",
@@ -876,7 +748,12 @@ const createStyles = (colours: ThemeColours) =>
     evidenceLink: { flex: 1, color: colours.primary, fontFamily: fonts.medium, fontSize: 13, lineHeight: 20 },
     evidenceItem: { gap: 3, paddingVertical: space.sm, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colours.border },
     evidenceHead: { flexDirection: "row", justifyContent: "space-between", gap: space.sm },
-    reportSummary: { gap: 0 },
+    reportSummary: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", columnGap: space.md, rowGap: space.xs, paddingHorizontal: space.sm, paddingVertical: space.sm },
+    sheetStatus: { flexShrink: 1, color: colours.text, fontFamily: fonts.extraBold, fontSize: 44, lineHeight: 53 },
+    sheetStatusDetail: { fontSize: 32, lineHeight: 40 },
+    reportAge: { alignItems: "flex-end" },
+    additionalTitle: { color: colours.text, fontFamily: fonts.extraBold, fontSize: 22, lineHeight: 32 },
+    accordionIcon: { width: 24, height: 24, borderRadius: radii.round, backgroundColor: colours.muted, alignItems: "center", justifyContent: "center" },
     noReports: { minHeight: 80, flexDirection: "row", alignItems: "center", gap: space.sm },
     reportHeading: {
       color: colours.text,
@@ -921,7 +798,7 @@ const createStyles = (colours: ThemeColours) =>
       minHeight: 44,
       justifyContent: "center",
       paddingHorizontal: 12,
-      borderRadius: 6,
+      borderRadius: radii.control,
     },
     viewTabSelected: { backgroundColor: colours.primarySoft },
     viewTabText: {
@@ -936,8 +813,8 @@ const createStyles = (colours: ThemeColours) =>
       height: 190,
       marginHorizontal: -16,
       marginTop: -16,
-      borderTopRightRadius: 8,
-      borderTopLeftRadius: 8,
+      borderTopRightRadius: radii.control,
+      borderTopLeftRadius: radii.control,
     },
     heroTop: {
       flexDirection: "row",
@@ -998,27 +875,31 @@ const createStyles = (colours: ThemeColours) =>
     },
     statusClosed: { color: colours.closed, borderLeftColor: colours.closed },
     checkRow: {
-      minHeight: 48,
-      paddingVertical: 10,
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 12,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: colours.border,
+      flexGrow: 1,
+      flexBasis: "45%",
+      minWidth: 0,
+      minHeight: 100,
+      padding: 8,
+      gap: 7,
+      borderRadius: radii.check,
+      backgroundColor: colours.surface,
     },
     checkLabel: {
-      flex: 1,
-      color: colours.text,
-      fontFamily: fonts.semibold,
+      color: colours.muted,
+      fontFamily: fonts.regular,
       fontSize: 14,
-      lineHeight: 20,
+      lineHeight: 21,
+      paddingHorizontal: 10,
+      paddingVertical: 2,
+      borderRadius: radii.checkLabel,
+      backgroundColor: colours.sheetInset,
     },
     checkValue: {
       flexShrink: 1,
-      textAlign: "right",
-      fontFamily: fonts.regular,
-      fontSize: 14,
-      lineHeight: 20,
+      fontFamily: fonts.extraBold,
+      fontSize: 26,
+      lineHeight: 38,
+      paddingHorizontal: 10,
     },
     checkResult: { flex: 1.2, minWidth: 0, flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: space.xs },
     informationSection: { gap: space.xs },
@@ -1028,8 +909,11 @@ const createStyles = (colours: ThemeColours) =>
     listingDetails: { gap: space.sm, paddingBottom: space.sm },
     footerLink: { flex: 1, minWidth: 0, color: colours.muted, fontFamily: fonts.medium, fontSize: 13, lineHeight: 20 },
     practicalSection: {
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: colours.border,
+      backgroundColor: colours.sheetInset,
+      borderRadius: radii.inset,
+      paddingHorizontal: 15,
+      paddingTop: space.xs,
+      paddingBottom: 15,
     },
     practicalToggle: {
       minHeight: 56,
@@ -1051,7 +935,7 @@ const createStyles = (colours: ThemeColours) =>
       fontSize: 12,
       lineHeight: 18,
     },
-    practicalRows: { paddingBottom: 8 },
+    practicalRows: { flexDirection: "row", flexWrap: "wrap", gap: 10, paddingBottom: space.sm },
     good: { color: colours.success },
     bad: { color: colours.closed },
     neutral: { color: colours.muted },
@@ -1076,7 +960,7 @@ const createStyles = (colours: ThemeColours) =>
       flexDirection: "row",
       alignItems: "center",
       gap: 11,
-      borderRadius: 8,
+      borderRadius: radii.control,
       backgroundColor: colours.primary,
     },
     reportButtonPressed: { opacity: 0.76 },
@@ -1147,7 +1031,7 @@ const createStyles = (colours: ThemeColours) =>
     hoursRowToday: {
       marginVertical: 3,
       borderBottomWidth: 0,
-      borderRadius: 8,
+      borderRadius: radii.control / 2,
       backgroundColor: colours.primarySoft,
     },
     dayCell: {
@@ -1174,7 +1058,7 @@ const createStyles = (colours: ThemeColours) =>
       fontFamily: fonts.regular,
       fontSize: 11,
       backgroundColor: colours.featureTint,
-      borderRadius: 999,
+      borderRadius: radii.control,
     },
     fab: {
       position: "absolute",
@@ -1183,7 +1067,7 @@ const createStyles = (colours: ThemeColours) =>
       height: 56,
       alignItems: "center",
       justifyContent: "center",
-      borderRadius: 28,
+      borderRadius: radii.control,
       backgroundColor: colours.primary,
       ...shadows.floating,
     },
@@ -1195,8 +1079,8 @@ const createStyles = (colours: ThemeColours) =>
     sheet: {
       padding: 18,
       gap: 4,
-      borderTopRightRadius: 12,
-      borderTopLeftRadius: 12,
+      borderTopRightRadius: radii.sheet,
+      borderTopLeftRadius: radii.sheet,
       backgroundColor: colours.sheetSurface,
       ...shadows.floating,
     },
@@ -1204,7 +1088,7 @@ const createStyles = (colours: ThemeColours) =>
     sheetHandle: {
       width: 42,
       height: 4,
-      borderRadius: 2,
+      borderRadius: radii.round,
       backgroundColor: colours.border,
     },
     close: {

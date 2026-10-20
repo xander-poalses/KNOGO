@@ -1,6 +1,32 @@
 # Fuel data setup and source review
 
-Checked 1 October 2026. No provider, trial, billing account or API key has been activated. There is no fuel dataset bundled as a price in effect today. The app's feed is disabled.
+Updated 19 October 2026. KNOGO now has code for a shared daily DMPR source check. Hosted activation and proof are recorded below. No paid provider, trial, billing account or API key is used. Prices are not bundled as defaults.
+
+## DMPR Integration
+
+The server reads the [DMPR index](https://www.dmpr.gov.za/Branches/Petroleum-Resources/Fuel-Prices), follows its reviewed ZIP link and reads the breakdown DOCX table. It does not use Gemini, Search grounding, PDF OCR or spreadsheet formulas. The October source download returned HTTP 200, 576,486 bytes, SHA-256 `7443da1f8f54d6a975eadf025aef7dadbc8e9e856b1409ae03a1654c637637ea`. The parsed document hash is `e52a7dcdca53b3156ecd934d555cca232a98caac52ec1bbc44dd38798ac0efb8`.
+
+The [terms checked on 19 October](https://www.dmpr.gov.za/Terms-Conditions) permit reproduction without payment for non-commercial use with accuracy, acknowledgement, source URL and copyright status. The chosen breakdown document identifies the government source and contains no third-party copyright notice in its price text. This test integration copies numeric facts, not document files, photos, logos or third-party CEF publications. It makes no transmission to Gemini. Attribution appears in trip details. This is the source-use basis for this non-commercial test release, not permission to monetise or reuse third-party material. Review rights before commercial launch or switching documents.
+
+- POST `/functions/v1/fuel-prices`, with no payload, reads and requests the daily check. GET only reads. Guests need no sign-in. The app uses its existing Supabase URL and public key; no new phone environment settings.
+- The database owns the SAST date and permits one claim per day across accounts. Background work continues after the response. Failure does not enable same-day retry.
+- Upstream limits: three redirects, 15 seconds per fetch, 60 seconds total, 2 MiB index, 10 MiB ZIP, 64 entries, 20 MiB declared expansion, 2 MiB selected XML/document. Actual selected output is counted too. Only the reviewed HTTPS source hosts/paths are accepted.
+- Six references: petrol 93/95 inland/coastal and diesel 50/500 ppm inland. The breakdown does not supply coastal diesel; KNOGO never derives it from a zone or transport difference. Diesel is wholesale, not a pump quote.
+- Feed and cache version 2 accepts an explicit null expiry. The source has no expiry; freshness is bounded to 48 hours since the last successful source check. A future announcement never becomes an automatic reference before its effective date. An old reference is not extended after a failed check.
+- One private singleton stores at most two publications with six rows each, dates, hashes and one error code. No daily archive, ZIP, raw document, prompt, account, trip origin or location is saved.
+- App entry/foreground requests the shared check. Visible price consumers poll GET at five-second intervals for at most 90 seconds; stop on background/unmount/completion/failure. Reference prices remain visible while checking. No reference while pending: `Getting prices`; failure: `Price unavailable`. Manual price entry always works and overrides references.
+
+The historical provider audit below records rejected alternatives, not active connections. Legacy `EXPO_PUBLIC_FUEL_*` custom-feed settings are no longer used by the mobile adapter. Do not use the version-1 examples below for this endpoint.
+
+### Hosted Proof
+
+Enabled on KNOGO project `ivzofixdjcgkwalfzmmy` on 19 October 2026. Migration `20261019202911_background_fuel_prices`, Edge function `fuel-prices` version 1. Two guest POSTs returned pending; background source work finished after those responses in about three seconds. A later GET returned six prices in effect from 7 October and `updateState: idle`. Repeated POSTs retained the same attempt timestamp, proving no same-day upstream rerun. One private state row, one publication, 989 bytes for the stored publication value at this check. There is no growing archive.
+
+The production core client accepted this hosted response and used inland petrol 95 at R30.25/litre in a memory-only calculation: 8 km at 7.5 L/100 km yielded R18.15. No user preferences were changed. Hosted checks confirmed anon cannot claim and authenticated cannot finish. The security advisor returned no finding for fuel objects; existing report/auth advisories remain outside this change.
+
+Verification: 306 root tests, 509 mobile tests, eight Deno tests, disposable fuel SQL QA and root/core/mobile TypeScript checks passed. Browser planner opened without a fuel error. Android hardware, a next-calendar-day trigger and accounts on two physical devices have not been tested. The guest endpoint has no account-specific path; no tester passwords were needed.
+
+To try: reload the development app. In Settings fuel setup, choose grade/region and consumption; leave price override blank to use the reference. An override wins. No APK rebuild is needed because these changes add no native module. A standalone build without Metro needs its JS update or rebuild through the existing release process.
 
 ## Sources checked
 

@@ -149,7 +149,7 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   intro: { gap: space.sm, paddingBottom: space.xs },
   progressHead: { flexDirection: "row", alignItems: "center", gap: space.sm },
   progress: { flex: 1, height: 4, flexDirection: "row", gap: 6 },
-  progressPart: { flex: 1, height: 4, borderRadius: 2, backgroundColor: colours.controlStrong },
+  progressPart: { flex: 1, height: 4, borderRadius: radii.round, backgroundColor: colours.controlStrong },
   progressComplete: { backgroundColor: colours.primary },
   stepLabel: { color: colours.muted, fontFamily: fonts.medium, fontSize: 12, lineHeight: 18 },
   divider: { flexDirection: "row", alignItems: "center", gap: space.sm },

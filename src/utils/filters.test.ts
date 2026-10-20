@@ -14,6 +14,32 @@ function reported(place: Place, answers: Array<[ConfirmationType, string]>, expi
 }
 
 describe("filterPlaces", () => {
+  it.each(["Cafe", "Caf\u00e9", "CAFE\u0301"])("matches accents and composed forms (%s)", query => {
+    const place = { ...mockPlaces[0], name: "Caf\u00e9 S\u00e3o Jo\u00e3o" };
+    expect(filterPlaces([place], { ...base, query })).toHaveLength(1);
+  });
+  it.each(["\u738b\u79c0\u82f1", "\u0646\u0648\u0631"])("keeps non-Latin search letters (%s)", query => {
+    const place = { ...mockPlaces[0], id: "unicode", name: query };
+    expect(filterPlaces([mockPlaces[0], place], { ...base, query }).map(item => item.id)).toEqual(["unicode"]);
+  });
+  it("does not treat a symbol-only search as no query", () => {
+    expect(filterPlaces(mockPlaces, { ...base, query: "\ud83c\udf7d\ufe0f" })).toHaveLength(0);
+  });
+  it('matches Other outside named options but not missing information',()=>{
+    const named={...mockPlaces[0],id:'named',area:'Menlyn',cuisine:['Pizza']};
+    const other={...named,id:'other',area:'New area',cuisine:['New cuisine']};
+    const missing={...named,id:'missing',area:'',cuisine:[]};
+    const context={namedOptions:{areas:['Menlyn'],cuisines:['Pizza']}};
+    expect(filterPlaces([named,other,missing],{...base,areas:['__other__']},now,context).map(p=>p.id)).toEqual(['other']);
+    expect(filterPlaces([named,other,missing],{...base,cuisines:['__other__']},now,context).map(p=>p.id)).toEqual(['other']);
+  });
+  it('applies a nearby radius to individual branches before grouping',()=>{
+    const start={latitude:-25.78,longitude:28.27};
+    const near={...mockPlaces[0],...start,id:'near'};
+    const far={...near,id:'far',latitude:-26.78};
+    expect(filterPlaces([near,far],{...base,maxDistanceKm:25},now,{coordinates:start}).map(p=>p.id)).toEqual(['near']);
+    expect(filterPlaces([near,far],{...base,maxDistanceKm:'other'},now,{coordinates:start}).map(p=>p.id)).toEqual(['far']);
+  });
   it("filters by place type and matches any selected service tag", () => {
     const shop = { ...mockPlaces[0], id: "shop", category: "shops" as const, placeType: "hardware_store", cuisine: ["Tools", "Building supplies"] };
     const workshop = { ...shop, id: "workshop", category: "automotive" as const, placeType: "vehicle_repair_workshop", cuisine: ["Repairs"] };

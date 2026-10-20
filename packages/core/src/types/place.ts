@@ -128,7 +128,12 @@ export type ReportAssessment = {
   risk: "low" | "medium" | "high" | "unknown" | null;
   model: string | null;
   assessedAt: string | null;
+  reason: "quota" | "disabled" | "setup" | "attempts" | "notice" | null;
+  retryAt: string | null;
 };
+
+export const reportReviewNoticeVersion = "2026-10-19";
+export type ReportReviewNotice = { version: typeof reportReviewNoticeVersion; accepted: boolean };
 
 export type PlaceFilters = {
   query: string;
@@ -136,10 +141,11 @@ export type PlaceFilters = {
   placeTypes?: string[];
   tags?: string[];
   openNow: boolean;
-  openAfter: "none" | "20:00" | "21:00";
+  openAfter: "none" | "20:00" | "21:00" | "other";
   kitchenServing: boolean;
   walkIns: boolean;
-  busyLevel: BusyLevel | "any";
+  busyLevel: BusyLevel | "any" | "other";
+  maxDistanceKm?: number | "other";
   backupPower: boolean;
   cardWorking: boolean;
   cuisines: string[];

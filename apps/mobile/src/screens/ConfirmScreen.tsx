@@ -9,11 +9,12 @@ import { PlaceSheet } from "../components/PlaceSheet";
 import { HapticPressable as Pressable } from "../components/HapticPressable";
 import { ActionButton, Chip, BackButton, Notice, Page } from "../components/Ui";
 import { usePlaces } from "../state/PlacesContext";
-import { fonts, shadows, sizes, space, useTheme, useThemeStyles, type ThemeColours } from "../theme";
+import { radii, fonts, shadows, sizes, space, useTheme, useThemeStyles, type ThemeColours } from "../theme";
 import { captureError, captureEvent } from "../telemetry";
 import { mobileStorage } from "../storage";
 import { FeedbackToast } from "../components/FeedbackToast";
 import { ReportAssessmentReceipt } from "../components/ReportAssessmentReceipt";
+import { ReportReviewGate } from "../components/ReportReviewGate";
 
 type CheckStep = {
   type: ConfirmationType;
@@ -33,7 +34,8 @@ const steps: CheckStep[] = [
 
 export function ConfirmScreen() {
   const { placeId, outcome, source } = useLocalSearchParams<{ placeId: string; outcome?: ReportOutcome; source?: ReportSource }>();
-  return <VenueReportForm key={JSON.stringify([placeId, outcome, source])} />;
+  const { session } = usePlaces();
+  return <VenueReportForm key={JSON.stringify([placeId, outcome, source, session?.userId])} />;
 }
 
 function VenueReportForm() {
@@ -41,7 +43,7 @@ function VenueReportForm() {
   const styles = useThemeStyles(createStyles);
   const { placeId, outcome: callbackOutcome, source: callbackSource } = useLocalSearchParams<{ placeId: string; outcome?: ReportOutcome; source?: ReportSource }>();
   const router = useRouter();
-  const { places, loading: placesLoading, addConfirmations, authLoading, hasSupabaseConfig, session } = usePlaces();
+  const { places, loading: placesLoading, addConfirmations, refreshPlace, authLoading, hasSupabaseConfig, session } = usePlaces();
   const place = places.find((item) => item.id === placeId);
   const supportsKitchen = !place || isFoodCategory(place.category);
   const [error, setError] = useState<string | null>(null);
@@ -120,7 +122,7 @@ function VenueReportForm() {
         ? "The checks include opposing reports. KNOGO keeps both sources visible rather than choosing a side."
         : "Other checks may be needed before the status changes.";
     const resultSource = reportSource ?? callbackSource;
-    return <Page contentContainerStyle={styles.centerPage}><BackButton label="Back to place" iconOnly /><View style={styles.done}><Check color={colours.primary} size={46} /><Text style={styles.title}>{title}</Text><Text style={styles.helper}>{message}</Text>{resultSource ? <Text style={styles.unverified}>Checked by {resultSource === "in_person" ? "a person at the venue" : resultSource === "phone" ? "phone" : "an online source"}.</Text> : null}{hasSupabaseConfig && session && reportId ? <ReportAssessmentReceipt key={`${session.userId}:${reportId}`} reportId={reportId} /> : null}<ActionButton label="Back to place" tone="green" onPress={() => router.replace({ pathname: "/restaurants/[placeId]", params: { placeId: place.id } })} /></View></Page>;
+    return <Page contentContainerStyle={styles.centerPage}><BackButton label="Back to place" iconOnly /><View style={styles.done}><Check color={colours.primary} size={46} /><Text style={styles.title}>{title}</Text><Text style={styles.helper}>{message}</Text>{resultSource ? <Text style={styles.unverified}>Checked by {resultSource === "in_person" ? "a person at the venue" : resultSource === "phone" ? "phone" : "an online source"}.</Text> : null}{hasSupabaseConfig && session && reportId ? <ReportAssessmentReceipt key={`${session.userId}:${reportId}`} reportId={reportId} onReviewed={() => { void refreshPlace(place.id).catch(() => undefined); }} /> : null}<ActionButton label="Back to place" tone="green" onPress={() => router.replace({ pathname: "/restaurants/[placeId]", params: { placeId: place.id } })} /></View></Page>;
   }
 
   const current = steps[step];
@@ -135,7 +137,7 @@ function VenueReportForm() {
   const nextStep = step === 2 || step === 5 ? 6 : step === 0 && !supportsKitchen ? 2 : step + 1;
   const sourceReady = reportSource !== null && (reportSource !== "online" || /^https?:\/\/[^\s/]+\.[^\s/]+/i.test(sourceUrl.trim()));
 
-  return (
+  const survey = (
     <Page contentContainerStyle={styles.surveyPage}>
       <View style={styles.survey}>
         <View style={styles.surveyHeading}><BackButton label="Back to place" iconOnly/><Text style={styles.kicker}>{place.name}</Text></View>
@@ -178,6 +180,7 @@ function VenueReportForm() {
       </View>
     </Page>
   );
+  return hasSupabaseConfig && session ? <ReportReviewGate accountId={session.userId}>{survey}</ReportReviewGate> : survey;
 }
 
 const createStyles = (colours: ThemeColours) => StyleSheet.create({
@@ -187,16 +190,16 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   questionNavigation: { flexDirection: "row", gap: space.sm },
   navigationButton: { flex: 1, minWidth: 0 },
   surveyPage: { justifyContent: "flex-start", paddingTop: space.xs, paddingBottom: space.sm },
-  progressTrack: { height: 6, borderRadius: 3, overflow: "hidden", backgroundColor: colours.controlStrong },
-  progressFill: { height: "100%", borderRadius: 3, backgroundColor: colours.primary },
-  radioRing: { width: 20, height: 20, borderRadius: 10, borderWidth: 1, borderColor: colours.controlBorder },
+  progressTrack: { height: 6, borderRadius: radii.round, overflow: "hidden", backgroundColor: colours.controlStrong },
+  progressFill: { height: "100%", borderRadius: radii.round, backgroundColor: colours.primary },
+  radioRing: { width: 20, height: 20, borderRadius: radii.round, borderWidth: 1, borderColor: colours.controlBorder },
   reviewRow: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: space.sm, paddingVertical: space.xs, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: colours.border },
   flex: { flex: 1, backgroundColor: colours.background }, centerPage: { justifyContent: "flex-start" },
-  card: { width: "100%", maxWidth: 560, alignSelf: "center", padding: 18, gap: space.md, borderWidth: 1, borderColor: colours.border, borderRadius: 8, backgroundColor: colours.surface, ...shadows.floating },
+  card: { width: "100%", maxWidth: 560, alignSelf: "center", padding: 18, gap: space.md, borderWidth: 1, borderColor: colours.border, borderRadius: radii.control, backgroundColor: colours.surface, ...shadows.floating },
   done: { flexGrow: 1, justifyContent: "center", width: "100%", maxWidth: 560, alignSelf: "center", alignItems: "center", gap: space.md },
   kicker: { color: colours.primary, fontFamily: fonts.extraBold, fontSize: 13 }, title: { paddingBottom: 4, color: colours.text, fontFamily: fonts.extraBold, fontSize: 32, lineHeight: 37 }, helper: { color: colours.muted, fontFamily: fonts.regular, fontSize: 14, lineHeight: 20 }, unverified: { color: colours.muted, fontFamily: fonts.semibold, fontSize: 12, textAlign: "center" },
-  input: { minHeight: 52, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colours.control, borderWidth: 1, borderColor: colours.controlBorder, color: colours.text, fontFamily: fonts.regular, fontSize: 15 }, codeInput: { minHeight: 60, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colours.control, borderWidth: 1, borderColor: colours.controlBorder, color: colours.text, fontFamily: fonts.extraBold, fontSize: 28, textAlign: "center" },
-  error: { color: colours.closed, fontFamily: fonts.extraBold, fontSize: 13, lineHeight: 18 }, progress: { minHeight: 30, flexDirection: "row", alignItems: "center", gap: 8 }, dot: { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: colours.control, borderWidth: 1, borderColor: colours.border }, dotActive: { backgroundColor: colours.primary, borderColor: colours.primary }, dotText: { color: colours.muted, fontFamily: fonts.extraBold, fontSize: 11 }, dotTextActive: { color: colours.background },
-  options: { gap: space.sm }, option: { minHeight: 54, paddingHorizontal: 15, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1, borderColor: colours.controlBorder, borderRadius: 8, backgroundColor: colours.control, ...shadows.card }, optionSelected: { borderColor: colours.primary, borderWidth: 2 }, optionText: { color: colours.text, fontFamily: fonts.extraBold, fontSize: 14, textTransform: "capitalize" }, submitGroup: { gap: space.sm, paddingTop: space.xs }, saving: { color: colours.primary, fontFamily: fonts.extraBold, fontSize: 13 }
-  ,sourceLabel: { color: colours.text, fontFamily: fonts.extraBold, fontSize: 14 }, sourceOptions: { gap: space.sm }, sourcePill: { minHeight: sizes.touch, minWidth: sizes.touch, paddingVertical: space.xs, paddingHorizontal: 13, alignItems: "center", justifyContent: "center", borderRadius: 20, borderWidth: 1, borderColor: colours.controlBorder, backgroundColor: colours.control }, sourcePillSelected: { borderColor: colours.primary, backgroundColor: colours.primary }, sourcePillText: { color: colours.text, fontFamily: fonts.semibold, fontSize: 12 }, sourcePillTextSelected: { color: colours.background }
+  input: { minHeight: 52, paddingHorizontal: 14, borderRadius: radii.control, backgroundColor: colours.control, borderWidth: 1, borderColor: colours.controlBorder, color: colours.text, fontFamily: fonts.regular, fontSize: 15 }, codeInput: { minHeight: 60, paddingHorizontal: 14, borderRadius: radii.control, backgroundColor: colours.control, borderWidth: 1, borderColor: colours.controlBorder, color: colours.text, fontFamily: fonts.extraBold, fontSize: 28, textAlign: "center" },
+  error: { color: colours.closed, fontFamily: fonts.extraBold, fontSize: 13, lineHeight: 18 }, progress: { minHeight: 30, flexDirection: "row", alignItems: "center", gap: 8 }, dot: { width: 28, height: 28, borderRadius: radii.round, alignItems: "center", justifyContent: "center", backgroundColor: colours.control, borderWidth: 1, borderColor: colours.border }, dotActive: { backgroundColor: colours.primary, borderColor: colours.primary }, dotText: { color: colours.muted, fontFamily: fonts.extraBold, fontSize: 11 }, dotTextActive: { color: colours.background },
+  options: { gap: space.sm }, option: { minHeight: 54, paddingHorizontal: 15, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1, borderColor: colours.controlBorder, borderRadius: radii.control, backgroundColor: colours.control, ...shadows.card }, optionSelected: { borderColor: colours.primary, borderWidth: 2 }, optionText: { color: colours.text, fontFamily: fonts.extraBold, fontSize: 14, textTransform: "capitalize" }, submitGroup: { gap: space.sm, paddingTop: space.xs }, saving: { color: colours.primary, fontFamily: fonts.extraBold, fontSize: 13 }
+  ,sourceLabel: { color: colours.text, fontFamily: fonts.extraBold, fontSize: 14 }, sourceOptions: { gap: space.sm }, sourcePill: { minHeight: sizes.touch, minWidth: sizes.touch, paddingVertical: space.xs, paddingHorizontal: 13, alignItems: "center", justifyContent: "center", borderRadius: radii.control, borderWidth: 1, borderColor: colours.controlBorder, backgroundColor: colours.control }, sourcePillSelected: { borderColor: colours.primary, backgroundColor: colours.primary }, sourcePillText: { color: colours.text, fontFamily: fonts.semibold, fontSize: 12 }, sourcePillTextSelected: { color: colours.background }
 });

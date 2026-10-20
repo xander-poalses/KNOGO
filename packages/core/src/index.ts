@@ -17,5 +17,6 @@ export * from "./utils/filters";
 export * from "./utils/categories";
 export * from "./utils/discovery";
 export * from "./utils/placeActions";
+export * from "./utils/placeName";
 export * from "./utils/status";
 export * from "./utils/time";

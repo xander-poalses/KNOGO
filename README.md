@@ -16,6 +16,12 @@ Created by Xander Poalses at Open Window for DV300 and UX300.
 
 <!-- Add Xander's mockups and photos here when supplied. Include alt text. -->
 
+## Project video
+
+[![Watch KNOGO's promo](docs/media/knogo-promo-poster.png)](docs/media/knogo-launch-59s.mp4)
+
+[Watch the promo (59 seconds)](docs/media/knogo-launch-59s.mp4).
+
 ## Features
 
 - Discover places by category, area and search.
@@ -173,3 +179,6 @@ Dependency versions are recorded in the workspace manifests and lockfile.
 
 This repository does not include a project licence. Third-party dependencies
 and assets retain their own licences and ownership.
+
+Promo music usage rights have not been verified. Confirm them before publishing
+the video.

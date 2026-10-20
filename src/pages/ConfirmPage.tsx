@@ -1,10 +1,11 @@
 import { ChevronRight } from "lucide-react";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { hasSupabaseConfig, readSupabaseSession, signInWithEmail, signUpWithEmail } from "../lib/supabaseApi";
+import { hasSupabaseConfig, readSupabaseSession, signInWithEmail, signUpWithEmail, readReportReviewNotice, acceptReportReviewNotice, submitSupabaseReport } from "../lib/supabaseApi";
 import { usePlaces } from "../state/PlacesContext";
-import type { ConfirmationType } from "@knogo/core/types/place";
+import { reportReviewNoticeVersion, isFoodCategory, reportValidationError, type ConfirmationType, type ConfirmationAnswer, type ReportSource } from "@knogo/core";
 import styles from "./ConfirmPage.module.css";
+import { ReportAssessmentReceipt } from "./ReportAssessmentReceipt";
 
 type Step = {
   type: ConfirmationType;
@@ -13,6 +14,7 @@ type Step = {
 };
 
 const steps: Step[] = [
+  {type:"open_status",question:"Is the place open?",options:[{label:"Open",value:"open"},{label:"Closed",value:"closed"}]},
   {
     type: "kitchen_status",
     question: "Were they still serving?",
@@ -65,9 +67,10 @@ const steps: Step[] = [
 
 export function ConfirmPage() {
   const { placeId } = useParams();
-  const { places, addConfirmation } = usePlaces();
-  const [index, setIndex] = useState(0);
+  const { places, addConfirmation, refreshPlace } = usePlaces();
+  const [index, setIndex] = useState(-1);
   const [done, setDone] = useState(false);
+  const [reportId,setReportId]=useState<string|null>(null);
   const [session, setSession] = useState(() => readSupabaseSession());
   const [authMode, setAuthMode] = useState<"sign-in" | "sign-up">("sign-in");
   const [email, setEmail] = useState("");
@@ -75,8 +78,26 @@ export function ConfirmPage() {
   const [authError, setAuthError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [noticeAccount,setNoticeAccount]=useState<string|null>(null);
+  const [noticeLoading,setNoticeLoading]=useState(false);
+  const [adult,setAdult]=useState(false);
+  const [reportSource,setReportSource]=useState<ReportSource|null>(null);
+  const [sourceUrl,setSourceUrl]=useState("");
+  const [answers,setAnswers]=useState<ConfirmationAnswer[]>([]);
   const place = places.find((item) => item.id === placeId);
-  const step = steps[index];
+  const questions=place && !isFoodCategory(place.category)?steps.filter(step=>step.type!=="kitchen_status"):steps;
+  const step = questions[index];
+  useEffect(()=>{
+    let active=true;
+    setNoticeAccount(null);setAdult(false);
+    if(hasSupabaseConfig && session){
+      setNoticeLoading(true);
+      void readReportReviewNotice().then(value=>{if(active && value.accepted)setNoticeAccount(session.userId);})
+        .catch(()=>{if(active)setSubmitError("Could not load the report notice. Reload to try again.");})
+        .finally(()=>{if(active)setNoticeLoading(false);});
+    }
+    return()=>{active=false;};
+  },[session?.userId]);
 
   if (!place) {
     return (
@@ -103,17 +124,25 @@ export function ConfirmPage() {
     }
   };
 
-  const answer = async (value: string) => {
+  const answer = (value: string) => {
+    setAnswers(current=>[...current.filter(answer=>answer.type!==step.type),...(value==="not_sure"?[]:[{type:step.type,value}])]);
+    setIndex(index+1);
+  };
+  const submit = async () => {
+    if(isSubmitting)return;
     setSubmitError("");
     setIsSubmitting(true);
 
     try {
-      await addConfirmation(place.id, step.type, value);
-      if (index === steps.length - 1) {
-        setDone(true);
-      } else {
-        setIndex(index + 1);
+      const validation=reportValidationError({answers,reportSource,sourceUrl});
+      if(validation)throw new Error(validation);
+      if(hasSupabaseConfig) {
+        const result=await submitSupabaseReport({placeId:place.id,answers,reportSource:reportSource!,sourceUrl:sourceUrl.trim()||undefined});
+        setReportId(result.reportId);
+        void refreshPlace(place.id).catch(()=>undefined);
       }
+      else for(const answer of answers) await addConfirmation(place.id,answer.type,answer.value);
+      setDone(true);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "Could not save your confirmation.");
     } finally {
@@ -126,7 +155,9 @@ export function ConfirmPage() {
       <div className={`${styles.page} ${styles.doneShell}`}>
         <section className={styles.donePage}>
           <p className={styles.kicker}>{place.name}</p>
-          <h1>Thanks. You helped someone avoid a wasted trip.</h1>
+          <h1>Report received.</h1>
+          <p>Other checks may be needed before the status changes.</p>
+          {reportId&&session?<ReportAssessmentReceipt key={`${session.userId}:${reportId}`} reportId={reportId} onReviewed={()=>{void refreshPlace(place.id).catch(()=>undefined);}}/>:null}
           <div className={styles.actions}>
             <Link to={`/restaurants/${place.id}`}>Continue</Link>
           </div>
@@ -174,10 +205,31 @@ export function ConfirmPage() {
             {authMode === "sign-in" ? "Need an account?" : "Already have an account?"}
           </button>
         </section>
-      ) : (
+      ) : hasSupabaseConfig && noticeAccount!==session?.userId ? <section className={styles.card}>
+        <Link to={`/restaurants/${place.id}`}>Back to place</Link>
+        <h1>{noticeLoading?"Checking report access":"Before you report"}</h1>
+        {!noticeLoading?<>
+          <p>Reporting is for testers aged 18 or over. Gemini reviews coded answers and timing patterns, not truth. Google may use this data to improve its unpaid service, with human review. Your email, location and source links are excluded.</p>
+          <p>Report detail is removed after 24 hours during cleanup. Your account keeps a contribution count.</p>
+          <label><input type="checkbox" checked={adult} onChange={event=>setAdult(event.target.checked)}/> I am 18 or over and agree to this use</label>
+          <button className={styles.authSubmit} disabled={!adult||isSubmitting} onClick={async()=>{setIsSubmitting(true);setSubmitError("");try{await acceptReportReviewNotice({version:reportReviewNoticeVersion,adultConfirmed:adult});setNoticeAccount(session!.userId);}catch{setSubmitError("Could not save the report notice. Try again.");}finally{setIsSubmitting(false);}}}>Agree and continue</button>
+        </>:null}
+        {submitError?<p role="alert" className={styles.error}>{submitError}</p>:null}
+      </section> : index===-1 ? <section className={styles.card}>
+        <Link to={`/restaurants/${place.id}`}>Back to place</Link><h1>How did you check?</h1>
+        <div className={styles.options}>{([['in_person','At the venue'],['phone','By phone'],['online','Online']] as const).map(([value,label])=><button key={value} aria-pressed={reportSource===value} onClick={()=>setReportSource(value)}>{label}</button>)}</div>
+        {reportSource==="online"?<label>Source website<input value={sourceUrl} onChange={event=>setSourceUrl(event.target.value)} type="url"/></label>:null}
+        <button className={styles.authSubmit} disabled={!reportSource||(reportSource==="online"&&!/^https?:\/\/[^\s/]+/.test(sourceUrl.trim()))} onClick={()=>setIndex(0)}>Continue</button>
+      </section> : index===questions.length ? <section className={styles.card}>
+        <h1>Review your check</h1>
+        {answers.map(answer=><p key={answer.type}>{questions.find(step=>step.type===answer.type)?.question} {answer.value}</p>)}
+        {submitError?<p role="alert" className={styles.error}>{submitError}</p>:null}
+        <button className={styles.authSubmit} disabled={isSubmitting||!answers.length} onClick={()=>void submit()}>Submit check</button>
+        <button className={styles.skip} disabled={isSubmitting} onClick={()=>setIndex(0)}>Edit answers</button>
+      </section> : (
       <section className={styles.card}>
-        <div className={styles.progress} aria-label={`Step ${index + 1} of ${steps.length}`}>
-          {steps.map((progressStep, stepIndex) => (
+        <div className={styles.progress} aria-label={`Step ${index + 1} of ${questions.length}`}>
+          {questions.map((progressStep, stepIndex) => (
             <button
               key={progressStep.type}
               type="button"
@@ -203,7 +255,7 @@ export function ConfirmPage() {
           ))}
         </div>
         {submitError ? <p className={styles.error}>{submitError}</p> : null}
-        <button className={styles.skip} type="button" disabled={isSubmitting} onClick={() => (index === steps.length - 1 ? setDone(true) : setIndex(index + 1))}>
+        <button className={styles.skip} type="button" disabled={isSubmitting} onClick={() => {setAnswers(current=>current.filter(answer=>answer.type!==step.type));setIndex(index+1);}}>
           Skip
         </button>
       </section>

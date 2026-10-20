@@ -19,7 +19,7 @@
   display: grid;
   overflow: hidden;
   border: 1px solid rgba(var(--rgb-border), 0.7);
-  border-radius: 1.35rem;
+  border-radius: var(--radius-control);
   background: var(--color-surface);
   box-shadow: var(--shadow-small);
 }

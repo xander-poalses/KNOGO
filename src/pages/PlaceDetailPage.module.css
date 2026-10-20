@@ -24,7 +24,7 @@
 .panel,
 .empty {
   border: 1px solid rgba(var(--rgb-border), 0.72);
-  border-radius: 1.2rem;
+  border-radius: var(--radius-control);
   background: rgba(var(--rgb-surface), 0.82);
   box-shadow: var(--shadow-small);
 }
@@ -38,7 +38,7 @@
 .heroImage {
   overflow: hidden;
   margin: -1rem -1rem 0;
-  border-radius: 1.2rem 1.2rem 0 0;
+  border-radius: var(--radius-control) var(--radius-control) 0 0;
   background: var(--color-elevated);
 }
 
@@ -149,7 +149,7 @@
   min-height: 2.85rem;
   padding: 0 0.95rem;
   border: 0;
-  border-radius: 0.85rem;
+  border-radius: var(--radius-control);
   background: var(--color-control);
   color: var(--color-text);
   text-decoration: none;
@@ -246,7 +246,7 @@
   align-items: center;
   min-height: 1.95rem;
   padding: 0 0.7rem;
-  border-radius: 10000px;
+  border-radius: var(--radius-control);
   background: rgba(var(--rgb-primary), 0.07);
   color: var(--color-muted);
   font-size: 0.8rem;
@@ -258,7 +258,7 @@
   gap: 0.45rem;
   min-height: 2.55rem;
   padding: 0 0.9rem;
-  border-radius: 10000px;
+  border-radius: var(--radius-control);
   background: var(--color-control);
   color: var(--color-primary);
   text-decoration: none;
