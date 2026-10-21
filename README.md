@@ -18,11 +18,6 @@ Created by Xander Poalses at Open Window for DV300 and UX300.
 
 [Features](#features) | [Reporting](#how-reporting-works) | [Trip planning](#trip-planning) | [Code](#inside-the-code) | [Setup](#get-started) | [Documentation](#documentation)
 
-## Project video
-
-<video src="https://github.com/user-attachments/assets/b11d7e23-af80-480a-86d3-e479a36f1fa8" controls muted playsinline></video>
-
-[Watch the promo (59 seconds)](docs/media/knogo-launch-59s.mp4).
 
 ## Features
 
