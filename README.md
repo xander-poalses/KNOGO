@@ -435,11 +435,3 @@ Xander Poalses, student number 241322, Open Window.
 Developed for DV300 and UX300. DV300 lecturer: Tsungai Katsuro.
 The project uses Expo, React Native, Supabase, Google Gemini, DM Sans and Lucide.
 Dependency versions are recorded in the workspace manifests and lockfile.
-
-## Licence
-
-This repository does not include a project licence. Third-party dependencies
-and assets retain their own licences and ownership.
-
-Promo music usage rights have not been verified. Confirm them before publishing
-the video.
