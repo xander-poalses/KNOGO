@@ -1,5 +1,4 @@
--- FNB Grove Home Affairs service guidance only; no hours or report-status changes.
--- Not applied. Do not run without user approval of the fields listed in RESEARCH.md.
+-- Update
 begin;
 do $cap$ begin if pg_database_size(current_database()) > 113970579 then raise exception 'Pretoria East expansion reached its 100 MB growth cap'; end if; end $cap$;
 do $before$ begin

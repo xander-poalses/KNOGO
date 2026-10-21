@@ -1,3 +1,4 @@
+// Imports
 import { ChevronRight, FileText, Fuel, LogOut, Moon, Palette, ShieldCheck, Sun } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useRef, useState, type ReactNode } from "react";
@@ -12,7 +13,7 @@ import { useFuel } from "../state/FuelContext";
 import { FuelPreferencesForm } from "../components/FuelPreferencesForm";
 import { fuelRegionForLocation } from "@knogo/core";
 
-// Hallmark: P5 H5 E4 S5 R5 V4. Account anchor, grouped rows, detail sheets.
+// Components
 export function SettingsScreen() {
   const { colours, preference, setPreference } = useTheme();
   const { session, signOut, coordinates } = usePlaces();
@@ -67,6 +68,7 @@ export function SettingsScreen() {
   );
 }
 
+// Styles
 const createStyles = (colours: ThemeColours) => StyleSheet.create({
   header: { paddingTop: space.sm }, title: { paddingBottom: space.xs, color: colours.text, fontFamily: fonts.extraBold, fontSize: 28, lineHeight: 38 },
   account: { gap: space.md, padding: space.md, borderRadius: radii.surface, backgroundColor: colours.surface },

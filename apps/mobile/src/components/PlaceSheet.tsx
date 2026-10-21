@@ -1,3 +1,4 @@
+// Imports
 import type { ReactNode } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { StagedModal } from "./StagedModal";
@@ -7,6 +8,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { HapticPressable } from "./HapticPressable";
 import { fonts, radii, sizes, space, useTheme, useThemeStyles, type ThemeColours } from "../theme";
 
+// Components
 export function PlaceSheet({ visible, title, onClose, children }: { visible: boolean; title: string; onClose: () => void; children: ReactNode }) {
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
@@ -25,7 +27,7 @@ export function PlaceSheet({ visible, title, onClose, children }: { visible: boo
   </StagedModal>;
 }
 
-// Hallmark critique: P5 H4 E4 S5 R5 V4. Existing theme, one task per sheet.
+// Styles
 const createStyles = (colours: ThemeColours) => StyleSheet.create({
   overlay: { flex: 1, justifyContent: "flex-end" },
   sheet: { width: "100%", maxWidth: 720, alignSelf: "center", flexShrink: 1, borderTopLeftRadius: radii.sheet, borderTopRightRadius: radii.sheet, backgroundColor: colours.sheetSurface, overflow: "hidden" },

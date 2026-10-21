@@ -1,8 +1,8 @@
+// Android Build Configuration
 allprojects { project ->
     ['com.android.application', 'com.android.library'].each { plugin ->
         project.plugins.withId(plugin) {
             project.extensions.getByName('androidComponents').finalizeDsl { android ->
-                // Keep CMake output out of pnpm's long dependency paths on Windows.
                 def staging = new File(rootProject.projectDir, "../../../.codex-artifacts/android-cxx/${project.name}").canonicalFile
                 assert staging.path.length() < 160 : 'CMake staging path is too long'
                 android.externalNativeBuild.cmake.buildStagingDirectory = staging

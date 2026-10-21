@@ -1,4 +1,4 @@
--- Generated KNOGO import: 2026-10-17-07-menlyn-pet-stores
+-- Import
 begin;
 do $cap$ begin if pg_database_size(current_database()) > 113970579 then raise exception 'Pretoria East expansion reached its 100 MB growth cap'; end if; end $cap$;
 do $snapshot$ begin

@@ -1,9 +1,10 @@
+// Imports
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 
-// Run against an in-memory Postgres instance, never against the hosted project.
 if (!process.env.KNOGO_PGLITE_MODULE) throw new Error('Set KNOGO_PGLITE_MODULE to the installed PGlite module path.');
+// State and Helpers
 const { PGlite } = await import(pathToFileURL(process.env.KNOGO_PGLITE_MODULE).href);
 const db = new PGlite();
 try {
@@ -124,7 +125,6 @@ try {
   assert.deepEqual(await Promise.all([reserve('routes'),reserve('routes'),reserve('routes')]), [true,true,false]);
   await db.exec('reset role');
   assert.equal((await db.query("select calls from knogo_private.provider_usage where provider='routes'")).rows[0].calls,2);
-  // Moving a day counter does not bypass the rolling minute window.
   await db.exec("update knogo_private.provider_usage set day=day-1 where provider='routes'");
   assert.equal(await reserve('routes'),false);
   await db.exec("update knogo_private.provider_call_windows set reserved_at=array[clock_timestamp()-interval '61 seconds'] where provider='routes'");
@@ -133,7 +133,6 @@ try {
   assert.deepEqual(await Promise.all([reserve('routes'),reserve('routes'),reserve('routes')]),[true,true,false]);
   assert.equal((await db.query("select calls from knogo_private.provider_usage where provider='routes' and day=(now() at time zone 'UTC')::date")).rows[0].calls,3);
   await assert.rejects(db.query("update knogo_private.provider_limits set minute_limit=31 where provider='routes'"), /check constraint/);
-  // A provider day must not receive another allowance at UTC midnight.
   await db.exec("update knogo_private.provider_limits set enabled=true,daily_limit=3,minute_limit=2 where provider='gemini'");
   await db.exec(`insert into knogo_private.provider_usage(provider,day,calls)
     values('gemini',(now() at time zone 'UTC')::date-1,3);
@@ -196,7 +195,6 @@ try {
   await db.exec('set role authenticated');
   await assert.rejects(db.query('select * from public.claim_report_risk_job()'),/permission denied/);
   await db.exec('reset role');
-  // These rows live only in the disposable in-memory database.
   await db.exec('delete from knogo_private.report_risk_jobs');
   await db.exec("insert into public.report_batches(id,place_id,user_id,report_source) values ('11111111-1111-4111-8111-111111111111','validation','00000000-0000-0000-0000-000000000002','phone'),('22222222-2222-4222-8222-222222222222','validation','00000000-0000-0000-0000-000000000002','phone')");
   assert.equal((await db.query('select count(*)::int as n from knogo_private.report_risk_jobs')).rows[0].n,2);
@@ -281,7 +279,6 @@ try {
   await login(1);
   await assert.rejects(db.query("select public.publish_venue_update('negative-trust','open_status','open',false)"),/Verify access/);
   await db.exec('reset role');
-  // Move the request history only in this disposable fixture to test a new day.
   await db.exec("update knogo_private.venue_claim_challenges set created_at=now()-interval '25 hours'");
   const expiredClaim=await startClaim('claim-checks',otherClaimUser);
   assert.equal(await attachDelivery(expiredClaim.challengeId,otherClaimUser),true);
@@ -296,7 +293,6 @@ try {
   await startClaim('claim-change',claimUser);
   await startClaim('claim-failure',claimUser);
   await assert.rejects(startClaim('negative-trust',claimUser),/verification limit/);
-  // Anonymous Auth sessions carry the authenticated role, unlike signed-out visitors.
   await db.exec("insert into auth.users(id,is_anonymous) values('00000000-0000-0000-0000-000000000004',true); insert into public.places(id) values('anonymous-report');");
   await db.exec('set role authenticated');
   await login(4);
@@ -307,7 +303,6 @@ try {
   await db.exec('set role service_role');
   await assert.rejects(startClaim('claim-change','00000000-0000-0000-0000-000000000004'), /Sign in/);
   await db.exec('reset role');
-  // Legacy anonymous evidence cannot become a public indication or AI context.
   await db.exec(`with batch as (
     insert into public.report_batches(place_id,user_id,report_source)
     values('anonymous-report','00000000-0000-0000-0000-000000000004','phone') returning *
@@ -452,7 +447,6 @@ try {
   await db.exec('reset role');
   const untouched = (await db.query("select state,attempts from knogo_private.report_risk_jobs where report_id in ('66666666-6666-4666-8666-666666666666','77777777-7777-4777-8777-777777777777')")).rows;
   assert.deepEqual(untouched, [{ state: 'waiting', attempts: 0 }, { state: 'waiting', attempts: 0 }]);
-  // Notice enforcement is tested after the historical migration assertions above.
   await db.exec(await readFile(new URL('../supabase/migrations/20261019110050_report_review_notice.sql', import.meta.url), 'utf8'));
   await db.exec("insert into public.places(id) values ('notice-report')");
   await db.exec('set role anon');

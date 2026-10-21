@@ -1,10 +1,13 @@
+// Imports
 import { positiveNumber, usableFuelPrice, type FuelPriceRecord } from "./trip";
 import { storageKeys } from "./storage";
 
+// Types
 export type FuelFeedPolicy = { feedUrl: string; termsUrl: string; maxCacheAgeSeconds: number; termsConfirmed: boolean };
 export type FuelFeedCache = { version: 2; feedUrl: string; termsUrl: string; fetchedAt: string; records: FuelPriceRecord[] };
 export type FuelFeedResult = { source: "live" | "cache" | "none"; cache: FuelFeedCache | null; error: string | null; updateState: "idle" | "pending" | "failed" };
 type Storage = { getItem: (key: string) => Promise<string | null>; setItem: (key: string, value: string) => Promise<void> };
+// State and Helpers
 const cacheKey = storageKeys.fuelPriceCache;
 const object = (value: unknown): value is Record<string, unknown> => Boolean(value && typeof value === "object" && !Array.isArray(value));
 const timestamp = (value: unknown): value is string => {
@@ -18,6 +21,7 @@ const https = (value: unknown): value is string => {
   catch { return false; }
 };
 
+// Functions
 export function fuelFeedConfigured(policy: FuelFeedPolicy) {
   return policy.termsConfirmed && https(policy.feedUrl) && https(policy.termsUrl) && Number.isSafeInteger(policy.maxCacheAgeSeconds) && policy.maxCacheAgeSeconds > 0 && policy.maxCacheAgeSeconds <= 604800;
 }
@@ -51,7 +55,7 @@ export function createFuelFeed(policy: FuelFeedPolicy, storage: Storage, fetcher
   const load = async (method: "GET" | "POST"): Promise<FuelFeedResult> => {
     if (!fuelFeedConfigured(policy)) return { source: "none", cache: null, error: "Price unavailable", updateState: "failed" };
     let cached: FuelFeedCache | null = null;
-    try { const raw = await storage.getItem(cacheKey); cached = readFuelFeedCache(raw ? JSON.parse(raw) : null, policy); } catch { /* A storage failure must not stop a live request or price entry. */ }
+    try { const raw = await storage.getItem(cacheKey); cached = readFuelFeedCache(raw ? JSON.parse(raw) : null, policy); } catch {   }
     const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout> | undefined;
     try {
@@ -72,7 +76,6 @@ export function createFuelFeed(policy: FuelFeedPolicy, storage: Storage, fetcher
       catch { return { source: "live", cache, error: "Price data loaded, but could not be saved on this device.", updateState }; }
       return { source: "live", cache, error: null, updateState };
     } catch {
-      // Recheck the interval after a failed request, not just before it started.
       const fallback = cached && readFuelFeedCache(cached, policy);
       return { source: fallback ? "cache" : "none", cache: fallback, error: "Fuel-price data could not be refreshed. You can enter a price in Settings.", updateState: "failed" };
     } finally { clearTimeout(timer); }
@@ -84,7 +87,6 @@ export function createFuelFeed(policy: FuelFeedPolicy, storage: Storage, fetcher
   };
   return {
     configured: fuelFeedConfigured(policy),
-    // The server owns the daily limit; a client force flag cannot bypass it.
     load: (_force = false) => request("POST"),
     poll: () => request("GET"),
     currentCache: (cache: FuelFeedCache | null) => readFuelFeedCache(cache, policy)

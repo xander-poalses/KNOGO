@@ -1,4 +1,4 @@
--- Version matches the hosted migration recorded by Supabase.
+-- Background Fuel Prices
 create schema if not exists knogo_private;
 create table knogo_private.fuel_prices (
  singleton boolean primary key default true check (singleton),

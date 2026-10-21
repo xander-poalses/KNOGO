@@ -1,4 +1,4 @@
-// Hallmark: decision-led place flow; KNOGO tokens; P5 H5 E4 S5 R5 V4.
+// Imports
 import { compareArrivalWithHours, createTripApi, estimateFuel, fuelRegionForLocation, planJourney, positiveNumber, usableFuelPrice, validTripPoint, type AddressResult, type Place, type TripPoint } from "@knogo/core";
 import * as Location from "expo-location";
 import { ArrowUpRight, ChevronLeft, Fuel, MapPin, Navigation, Search } from "lucide-react-native";
@@ -15,11 +15,14 @@ import { getTripPosition } from "../tripLocation";
 import { BranchMap } from "./BranchMap";
 import { usePlaces } from "../state/PlacesContext";
 
+// State and Helpers
 const api = createTripApi({ url: process.env.EXPO_PUBLIC_TRIP_API_URL, publishableKey: process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY });
+// Types
 export type TripEstimateSummary = { costZar: number | null; litres: number | null; kilometres: number; arrival: string };
 type Sheet = "origin" | "fuel" | "arrival" | null;
 const clock = (date: Date) => date.toLocaleTimeString("en-ZA", { timeZone: "Africa/Johannesburg", hour: "2-digit", minute: "2-digit", hour12: false });
 
+// Components
 export function TripPlanner({ place, onEstimateChange }: { place: Place; onEstimateChange?: (summary: TripEstimateSummary | null) => void }) {
   const styles = useThemeStyles(createStyles);
   const { colours } = useTheme();
@@ -198,6 +201,7 @@ function TripSheet({ title, visible, onClose, onDismiss, onShow, children }: { t
     <View style={styles.sheetContent}>{children}</View>
   </View>;
 }
+// Styles
 const createStyles = (colours: ThemeColours) => StyleSheet.create({
   section: { gap: space.md },
   note: { color: colours.muted, fontFamily: fonts.regular, fontSize: 14, lineHeight: 22 },

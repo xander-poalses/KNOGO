@@ -1,5 +1,7 @@
+// Imports
 import type { ConfirmationType, ReportSource } from "./types/place";
 
+// Types
 export type RiskLevel = "low" | "medium" | "high" | "unknown";
 export type TrustEvidence = {
   id: string;
@@ -25,7 +27,7 @@ export type TrustClaim = {
 };
 export type TrustSnapshot = { version: 1; claims: Partial<Record<ConfirmationType, TrustClaim>> };
 
-// Product choices, not statistical estimates of accuracy or independence.
+// State and Helpers
 export const trustRules = {
   version: 1,
   evidenceLifetimeMs: 4 * 60 * 60 * 1000,
@@ -49,6 +51,7 @@ const record = (value: unknown): value is Record<string, unknown> => Boolean(val
 const text = (value: unknown): value is string => typeof value === "string" && value.length > 0;
 const date = (value: unknown): value is string => text(value) && Number.isFinite(Date.parse(value));
 
+// Functions
 function parseEvidence(value: unknown, type: ConfirmationType): TrustEvidence | null {
   if (!record(value) || !text(value.id) || !text(value.actorId) || value.type !== type ||
     typeof value.value !== "string" || !allowedValues[type].includes(value.value) ||
@@ -63,7 +66,6 @@ function parseEvidence(value: unknown, type: ConfirmationType): TrustEvidence | 
     ...(value.source === "venue" ? { verifiedRepresentative: true } : {}) };
 }
 
-// Validate the public contract, not the private risk/account eligibility rules.
 export function parseTrustSnapshot(value: unknown): TrustSnapshot | null {
   if (!record(value) || value.version !== 1 || !record(value.claims)) return null;
   const claims: TrustSnapshot["claims"] = {};

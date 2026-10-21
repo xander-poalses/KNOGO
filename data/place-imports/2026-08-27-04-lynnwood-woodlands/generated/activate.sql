@@ -1,4 +1,4 @@
--- Generated KNOGO activation: 2026-08-27-04-lynnwood-woodlands
+-- Activate
 begin;
 update public.places set is_active = true, updated_at = now() where id in ('cowfish-lynnwood-bridge', 'forti-too', 'kings-meat-deli-lynnwood-bridge', 'lupa-osteria-lynnwood-bridge', 'stephnies-lynnwood-bridge', 'tashas-lynnwood-bridge', 'tribeca-standard-lynnwood-bridge', 'vee-and-forti', 'vida-e-caffe-lynnwood-bridge', 'vovo-telo-lynnwood-bridge', 'heat-grill-room-woodlands');
 insert into public.live_statuses (place_id, busy_level, confidence_score, source) select id, 'unknown', 0, 'unknown' from public.places where id in ('cowfish-lynnwood-bridge', 'forti-too', 'kings-meat-deli-lynnwood-bridge', 'lupa-osteria-lynnwood-bridge', 'stephnies-lynnwood-bridge', 'tashas-lynnwood-bridge', 'tribeca-standard-lynnwood-bridge', 'vee-and-forti', 'vida-e-caffe-lynnwood-bridge', 'vovo-telo-lynnwood-bridge', 'heat-grill-room-woodlands') on conflict (place_id) do nothing;

@@ -1,4 +1,4 @@
--- Apply after 008_closed_beta_reports.sql and 009_report_advisor_fixes.sql.
+-- Checkin Hardening
 begin;
 
 alter table public.live_statuses add column if not exists signal_confirmed_at jsonb not null default '{}'::jsonb;
@@ -23,7 +23,6 @@ declare
   v_stamps jsonb := '{}'::jsonb;
 begin
   if v_user_id is null then raise exception 'You need to sign in before reporting a status.' using errcode = '42501'; end if;
-  -- Serialise a user's rate-limit check and each place's consensus calculation.
   perform pg_advisory_xact_lock(hashtextextended('report-user:' || v_user_id::text, 0));
   perform pg_advisory_xact_lock(hashtextextended('report-place:' || coalesce(p_place_id, ''), 0));
   if not exists (select 1 from public.places where id = p_place_id and is_active) then raise exception 'This place is not available.' using errcode = '22023'; end if;
@@ -55,7 +54,6 @@ begin
   insert into public.confirmations(place_id, user_id, confirmation_type, value, location_verified, report_batch_id)
   select p_place_id, v_user_id, item->>'type', trim(item->>'value'), false, v_report_id from jsonb_array_elements(p_answers) item;
 
-  -- Each account has one vote per check: its last report in the four-hour window.
   for v_answer in select value from jsonb_array_elements(p_answers) loop
     v_type := v_answer->>'type';
     v_value := trim(v_answer->>'value');
@@ -75,12 +73,10 @@ begin
     end if;
   end loop;
 
-  -- A conflicting batch never writes any public status.
   if v_conflict then v_accepted := '{}'; end if;
   if cardinality(v_accepted) > 0 then
     insert into public.live_statuses(place_id, busy_level, confidence_score, source)
     values (p_place_id, 'unknown', 0, 'unknown') on conflict (place_id) do nothing;
-    -- Values from the old shared timestamp cannot be assigned a per-check age.
     update public.live_statuses set
       is_open = null, is_service_available = null, accepts_walk_ins = null,
       busy_level = 'unknown', has_backup_power = null, card_machine_working = null

@@ -1,3 +1,4 @@
+-- Replace Areas With Regions
 create table if not exists public.regions (
   id text primary key,
   name text not null,
@@ -28,7 +29,6 @@ on conflict (id) do update set
   parent_id = excluded.parent_id,
   sort_order = excluded.sort_order;
 
--- Fresh installs already use regions; only legacy databases have areas to move.
 do $$
 begin
 if to_regclass('public.areas') is not null then

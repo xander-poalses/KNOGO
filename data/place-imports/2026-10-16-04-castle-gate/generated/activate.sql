@@ -1,4 +1,4 @@
--- Generated KNOGO activation: 2026-10-16-04-castle-gate
+-- Activate
 begin;
 update public.places set is_active = true, updated_at = now() where id in ('builders-warehouse-castle-gate', 'checkers-castle-gate', 'dis-chem-castle-gate', 'freedom-of-movement-castle-gate', 'oasis-water-castle-gate', 'pick-n-pay-clothing-castle-gate', 'the-crazy-store-castle-gate', 'wellness-warehouse-castle-gate', 'woolworths-castle-gate', 'wordsworth-books-castle-gate', 'destinations-by-frasers-castle-gate', 'eskort-castle-gate', 'kloppers-castle-gate', 'food-lovers-market-castle-gate', 'mambos-castle-gate', 'mr-price-home-castle-gate', 'pna-castle-gate', 'uniq-castle-gate', 'weylandts-castle-gate', 'yuppiechef-castle-gate', 'planet-fitness-castle-gate');
 update public.place_groups set is_active = true, updated_at = now() where id in ('builders-warehouse', 'checkers', 'dis-chem', 'freedom-of-movement', 'oasis-water', 'pick-n-pay-clothing', 'the-crazy-store', 'wellness-warehouse', 'woolworths', 'wordsworth-books', 'destinations-by-frasers', 'eskort', 'kloppers', 'food-lovers-market', 'mambos', 'mr-price-home', 'pna', 'uniq', 'weylandts', 'yuppiechef', 'planet-fitness');

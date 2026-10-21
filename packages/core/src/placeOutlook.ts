@@ -1,8 +1,10 @@
+// Imports
 import type { Place } from "./types/place";
 import { compareArrivalWithHours } from "./trip";
 import { getCurrentStatus } from "./utils/status";
 import { trustClaimLabel } from "./trust";
 
+// Types
 export type PlaceOutlook = {
   label: string;
   basis: "schedule" | "report" | "conflict" | "unlisted";
@@ -10,7 +12,7 @@ export type PlaceOutlook = {
   detail: string;
 };
 
-// Expectations are presentation only. They never become live-status answers.
+// Functions
 export function getPlaceOutlook(place: Place, now = new Date()) {
   const status = getCurrentStatus(place.currentStatus, now);
   const outlook = (kitchen: boolean): PlaceOutlook => {

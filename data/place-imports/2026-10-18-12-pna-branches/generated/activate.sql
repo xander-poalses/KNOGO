@@ -1,4 +1,4 @@
--- Activate only the two new PNA branches after readback verification.
+-- Activate
 begin;
 do $cap$ begin if pg_database_size(current_database()) > 113970579 then raise exception 'Pretoria East expansion reached its 100 MB growth cap'; end if; end $cap$;
 do $check$ begin

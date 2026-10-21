@@ -1,10 +1,14 @@
+// Imports
 import { DOMParser } from "npm:@xmldom/xmldom@0.9.12";
 import { Unzip, UnzipInflate } from "npm:fflate@0.8.3";
 
+// Types
 export type FuelPublicationRow = { grade: 'petrol_93' | 'petrol_95' | 'diesel_50ppm' | 'diesel_500ppm'; region: 'inland' | 'coastal'; zarPerLitre: number; kind: 'retail_reference' | 'wholesale_reference' };
 export type FuelPublication = { effectiveAt: string; effectiveUntil: null; sourceUrl: string; hash: string; records: FuelPublicationRow[] };
+// State and Helpers
 export const fuelIndexUrl = 'https://www.dmpr.gov.za/Branches/Petroleum-Resources/Fuel-Prices';
 const months = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+// Functions
 function publicationDate(text: string) {
   const match = /^(\d{1,2})\s+([a-z]+)\s+(\d{4})$/i.exec(text.trim());
   if (!match) throw new Error('source_date');
@@ -36,7 +40,6 @@ export function parseFuelBreakdown(xml: string, effectiveAt: string): FuelPublic
       rows.push({grade,region,zarPerLitre:Math.round(+match[1]*100)/10000,kind:heading === 'petrol' ? 'retail_reference' : 'wholesale_reference'});
     }
   }
-  // shortcut: this source supplies six broad-region pairs; review the parser if its table changes.
   const expected = ['petrol_93:inland','petrol_93:coastal','petrol_95:inland','petrol_95:coastal','diesel_500ppm:inland','diesel_50ppm:inland'];
   if (rows.length !== expected.length || expected.some(pair => !pairs.has(pair))) throw new Error('source_incomplete');
   return rows;

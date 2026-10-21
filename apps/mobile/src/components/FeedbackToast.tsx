@@ -1,9 +1,10 @@
+// Imports
 import { StyleSheet, Text, View } from "react-native";
 import { CircleAlert, X } from "lucide-react-native";
 import { HapticPressable as Pressable } from "./HapticPressable";
 import { radii, fonts, useTheme, useThemeStyles, type ThemeColours } from "../theme";
 
-// Hallmark: P5 H4 E4 S4 R5 V4. Form feedback stays beside its recovery action.
+// Components
 export function FeedbackToast({ message, onDismiss }: { message: string | null; onDismiss: () => void }) {
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
@@ -16,6 +17,7 @@ export function FeedbackToast({ message, onDismiss }: { message: string | null; 
   </View>;
 }
 
+// Styles
 const createStyles = (colours: ThemeColours) => StyleSheet.create({
   toast: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: colours.surface, borderRadius: radii.control, borderWidth: 1, borderColor: colours.controlBorder, paddingLeft: 12 },
   message: { flex: 1, minWidth: 0, color: colours.text, fontFamily: fonts.medium, fontSize: 14, lineHeight: 20, paddingVertical: 10 },

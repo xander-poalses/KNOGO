@@ -1,6 +1,8 @@
+// Imports
 import { createElement } from "react";
 import { useTheme } from "../theme";
 
+// Functions
 export function rememberFocus() {
   const trigger = typeof document !== "undefined" ? document.activeElement : null;
   const label = trigger?.getAttribute("aria-label");
@@ -8,7 +10,6 @@ export function rememberFocus() {
     if (typeof HTMLElement === "undefined" || !(trigger instanceof HTMLElement)) return;
     if (trigger.isConnected) { trigger.focus(); return; }
     if (!label) return;
-    // A sheet step can unmount its trigger, then recreate it with a changed value.
     const replacement = Array.from(document.querySelectorAll<HTMLElement>("button[aria-label]")).find(element => {
       const candidate = element.getAttribute("aria-label");
       return candidate === label || (label.includes(": ") && candidate?.startsWith(`${label.split(": ")[0]}: `));
@@ -17,6 +18,7 @@ export function rememberFocus() {
   };
 }
 
+// Components
 export function AccessibilityStyles() {
   const { colours } = useTheme();
   return createElement("style", null, `

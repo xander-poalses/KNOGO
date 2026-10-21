@@ -1,12 +1,15 @@
 // @vitest-environment node
+// Imports
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { runInNewContext } from "node:vm";
 import { describe, expect, it, vi } from "vitest";
 
+// State and Helpers
 const requireMobile = createRequire(new URL("../../package.json", import.meta.url));
 const source = readFileSync(requireMobile.resolve("expo-router/build/react-navigation/native/useLinking.native.js"), "utf8");
 
+// Functions
 function linkingHook(getInitialURL: () => string | Promise<string>) {
   const effects: (() => void | (() => void))[] = [];
   const cleanups: (() => void)[] = [];
@@ -22,7 +25,6 @@ function linkingHook(getInitialURL: () => string | Promise<string>) {
     "../core": { useNavigationIndependentTree: () => false },
     "./extractPathFromURL": { extractPathFromURL: (_prefixes: string[], url: string) => url.replace("knogo://", "/") }
   };
-  // Hold effects until commit to reproduce a URL resolving before the router mounts.
   runInNewContext(source, { exports, require: (name: string) => {
     if (!(name in modules)) throw new Error(`Unexpected router import: ${name}`);
     return modules[name];
@@ -39,6 +41,7 @@ function linkingHook(getInitialURL: () => string | Promise<string>) {
   };
 }
 
+// Tests
 describe("Expo Router initial native links", () => {
   it("waits for mount when the initial URL resolves first", async () => {
     const router = linkingHook(() => Promise.resolve("knogo://auth/callback?code=test"));

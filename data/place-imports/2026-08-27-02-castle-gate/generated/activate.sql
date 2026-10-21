@@ -1,4 +1,4 @@
--- Generated KNOGO activation: 2026-08-27-02-castle-gate
+-- Activate
 begin;
 update public.places set is_active = true, updated_at = now() where id in ('burger-king-castle-gate', 'burnt-castle-gate', 'doppio-zero-castle-gate', 'fireroom-castle-gate', 'kauai-castle-gate', 'kfc-castle-gate', 'krispy-kreme-castle-gate', 'lucky-bread-castle-gate', 'old-school-castle-gate', 'seattle-coffee-castle-gate', 'starbucks-castle-gate');
 update public.place_groups set is_active = true, updated_at = now() where id in ('doppio-zero');

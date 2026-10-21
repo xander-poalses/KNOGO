@@ -1,5 +1,4 @@
--- Follow-up seed fix after seed_chain_restaurants.sql.
--- Crawdaddy's is mainstream enough to keep, but it should be grouped like other chains.
+-- Seed Crawdaddys Group Fix
 
 insert into public.regions (id, name, slug, region_type, parent_id, sort_order) values
   ('shere', 'Shere', 'shere', 'suburb_area', 'pretoria', 15)

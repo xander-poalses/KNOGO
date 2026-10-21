@@ -1,3 +1,4 @@
+-- Trust Model And Venue Claims
 begin;
 create schema if not exists knogo_private;
 revoke all on schema knogo_private from public, anon, authenticated;
@@ -46,7 +47,6 @@ end;
 $$;
 create trigger queue_report_risk after insert on public.report_batches for each row execute function knogo_private.enqueue_report_risk();
 
--- Only a server-held, independently sourced number may receive a claim code.
 create table knogo_private.venue_phone_sources (
   place_id text primary key references public.places(id) on delete cascade,
   phone_e164 text not null check (phone_e164 ~ '^\+[1-9][0-9]{7,14}$'),
@@ -145,7 +145,6 @@ language sql security definer set search_path='' stable as $$
     and not exists(select 1 from public.blocked_contributors b where b.user_id=r.user_id and (b.blocked_until is null or b.blocked_until>now())));
 $$;
 
--- Only the server handler may call these functions. The app cannot choose a phone or mark a code as verified.
 create function public.start_venue_claim(p_place_id text,p_user_id uuid,p_channel text) returns jsonb
 language plpgsql security definer set search_path='' as $$
 declare source knogo_private.venue_phone_sources%rowtype; challenge uuid;
@@ -293,7 +292,6 @@ $$;
 revoke all on function public.read_place_trust(text) from public;
 grant execute on function public.read_place_trust(text) to anon,authenticated;
 
--- Keep the existing validation, cooldown and report insert transaction private.
 alter function public.submit_status_report(text,text,text,jsonb) set schema knogo_private;
 alter function knogo_private.submit_status_report(text,text,text,jsonb) rename to capture_report;
 create or replace function knogo_private.capture_report(p_place_id text,p_report_source text,p_source_url text,p_answers jsonb)
@@ -363,7 +361,6 @@ $$;
 revoke all on function public.publish_venue_update(text,text,text,boolean) from public,anon;
 grant execute on function public.publish_venue_update(text,text,text,boolean) to authenticated;
 
--- Access lookup is scoped to the caller; no phone or other account is exposed.
 create function public.read_venue_access(p_place_id text) returns jsonb
 language plpgsql security definer set search_path='' as $$
 declare representative knogo_private.venue_representatives%rowtype;
@@ -379,7 +376,6 @@ $$;
 revoke all on function public.read_venue_access(text) from public,anon;
 grant execute on function public.read_venue_access(text) to authenticated;
 
--- Public status is computed from evidence, never from the legacy consensus row.
 create or replace view public.current_live_statuses with(security_invoker=true) as
 select p.id as place_id,
   case snapshot#>>'{claims,open_status,value}' when 'open' then true when 'closed' then false end as is_open,
@@ -418,14 +414,12 @@ language plpgsql security definer set search_path='' as $$
 declare max_calls integer; max_minute_calls integer; is_enabled boolean; reserved integer; minute_calls integer;
   request_time timestamptz; recent_calls timestamptz[];
 begin
- -- Hold only the reservation lock, never a provider HTTP request.
  select daily_limit,minute_limit,enabled into max_calls,max_minute_calls,is_enabled
  from knogo_private.provider_limits where provider=p_provider for update;
  if not coalesce(is_enabled,false) then return false; end if;
  request_time:=clock_timestamp();
  select coalesce(array_agg(call_time),'{}'::timestamptz[]) into recent_calls
  from knogo_private.provider_call_windows w cross join lateral unnest(w.reserved_at) as calls(call_time)
- -- Cover a Pacific quota day, including a 25-hour daylight-saving transition.
  where w.provider=p_provider and call_time>request_time-interval '25 hours';
  if cardinality(recent_calls)>=max_calls then return false; end if;
  select count(*) into minute_calls from unnest(recent_calls) as calls(call_time)

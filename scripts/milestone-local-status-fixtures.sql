@@ -1,5 +1,5 @@
+-- Local-Only Milestone Status Fixtures
 \set ON_ERROR_STOP on
--- Local Docker demo only. Invented venues/reports; no Gemini assessments.
 begin;
 do $$
 begin

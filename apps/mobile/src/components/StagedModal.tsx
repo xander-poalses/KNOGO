@@ -1,11 +1,13 @@
+// Imports
 import { useEffect, useRef, type ReactNode } from "react";
 import { AccessibilityInfo, Animated, Modal, StyleSheet, View, type ModalProps } from "react-native";
 import { useTheme } from "../theme";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+// State and Helpers
 const entrance = { backdropMs: 120, sheetMs: 220, offset: 48 };
 
-// Hallmark: P5 H4 E4 S5 R5 V4. Backdrop precedes motion; reduced motion skips it.
+// Components
 export function StagedModal({ children, visible, onShow, onReady, backdropColour, ...props }: ModalProps & { children: ReactNode; backdropColour?: string; onReady?: () => void }) {
   const { colours } = useTheme();
   const backdrop = useRef(new Animated.Value(0)).current;

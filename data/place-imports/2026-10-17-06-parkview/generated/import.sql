@@ -1,4 +1,4 @@
--- Generated KNOGO import: 2026-10-17-06-parkview
+-- Import
 begin;
 do $cap$ begin if pg_database_size(current_database()) > 113970579 then raise exception 'Pretoria East expansion reached its 100 MB growth cap'; end if; end $cap$;
 do $new$ begin if exists (select 1 from public.places where id in ('parkview-shopping-centre', 'clicks-parkview', 'postnet-woodhill', 'wolwespruit-mtb-trail-park')) then raise exception 'Batch 06 contains a place ID that already exists; recheck before importing'; end if; end $new$;

@@ -1,4 +1,4 @@
--- Closed beta community reports: provenance, rate limits and two-user consensus.
+-- Closed Beta Reports
 
 create table if not exists public.report_batches (
   id uuid primary key default gen_random_uuid(),

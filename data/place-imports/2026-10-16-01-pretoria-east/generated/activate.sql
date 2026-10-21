@@ -1,4 +1,4 @@
--- Generated KNOGO activation: 2026-10-16-01-pretoria-east
+-- Activate
 begin;
 update public.places set is_active = true, updated_at = now() where id in ('shell-lynnwood-motors', 'shell-glenwood', 'shell-moreleta-motors', 'supa-quick-menlyn', 'builders-warehouse-woodlands');
 update public.place_groups set is_active = true, updated_at = now() where id in ('shell', 'supa-quick', 'builders-warehouse');

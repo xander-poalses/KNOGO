@@ -1,12 +1,16 @@
+// Imports
 import type { RouteLeg } from "./trip";
 
+// Types
 export type TripPoint = { latitude: number; longitude: number };
 export type AddressResult = TripPoint & { id: string; label: string };
 export type TripRoute = { outbound: RouteLeg; returnLeg?: RouteLeg; attribution: string; path?: TripPoint[] };
+// State and Helpers
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
 export const validTripPoint = (point: unknown): point is TripPoint => isRecord(point) && typeof point.latitude === "number" && typeof point.longitude === "number" && Number.isFinite(point.latitude) && Number.isFinite(point.longitude) && Math.abs(point.latitude) <= 90 && Math.abs(point.longitude) <= 180;
 const validLeg = (leg: unknown): leg is RouteLeg => isRecord(leg) && typeof leg.distanceMetres === "number" && Number.isFinite(leg.distanceMetres) && leg.distanceMetres >= 0 && typeof leg.durationSeconds === "number" && Number.isFinite(leg.durationSeconds) && leg.durationSeconds >= 0;
 const validText = (value: unknown, limit: number): value is string => typeof value === "string" && value.trim().length > 0 && value.length <= limit;
+// Functions
 export function createTripApi(config: { url?: string; publishableKey?: string; fetcher?: typeof fetch; timeoutMs?: number }) {
   async function request(body: unknown, signal?: AbortSignal): Promise<unknown> {
     if (!config.url) throw new Error("Trip planning is not connected yet. Browsing and reporting are still available.");
@@ -20,7 +24,6 @@ export function createTripApi(config: { url?: string; publishableKey?: string; f
       timer = setTimeout(() => { controller.abort(); reject(new Error("Trip service took too long. Try again.")); }, config.timeoutMs ?? 20000);
     });
     try {
-      // Bound both the connection and response parsing, even if a fetch adapter ignores abort.
       return await Promise.race([stopped, (async () => {
         let response: Response;
         try {

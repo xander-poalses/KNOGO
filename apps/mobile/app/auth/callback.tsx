@@ -1,3 +1,4 @@
+// Imports
 import * as Linking from "expo-linking";
 import { useRouter } from "expo-router";
 import { AlertCircle } from "lucide-react-native";
@@ -12,8 +13,10 @@ import { completeBrowserAuthPopup } from "../../src/auth/googleSignIn";
 import { isRecoveryCallback } from "@knogo/core";
 import { PasswordResetForm } from "../../src/components/PasswordResetForm";
 
+// State and Helpers
 const popupHandled = completeBrowserAuthPopup().type === "success";
 
+// Components
 export default function AuthCallbackScreen() {
   const router = useRouter();
   const { colours } = useTheme();
@@ -72,7 +75,7 @@ export default function AuthCallbackScreen() {
       } catch (cause) {
         const status = (cause as { status?: number } | null)?.status;
         let expired = status === 401;
-        try { const url = new URL(callbackUrl); expired ||= url.searchParams.get("error_code") === "otp_expired" || new URLSearchParams(url.hash.slice(1)).get("error_code") === "otp_expired"; } catch { /* Invalid URLs use the connection fallback. */ }
+        try { const url = new URL(callbackUrl); expired ||= url.searchParams.get("error_code") === "otp_expired" || new URLSearchParams(url.hash.slice(1)).get("error_code") === "otp_expired"; } catch {   }
         if (mounted.current) setError(status === 429 ? "Too many attempts. Wait before opening the link again." : expired ? "This link has expired. Request another link." : "This link could not finish. Check your connection, then reopen the link.");
       }
     };
@@ -80,13 +83,14 @@ export default function AuthCallbackScreen() {
   }, [callbackUrl, router]);
 
   let reportPlaceId: string | null = null;
-  try { const id = callbackUrl ? new URL(callbackUrl).searchParams.get("placeId") : null; if (id && /^[a-z0-9][a-z0-9_-]{0,199}$/.test(id)) reportPlaceId = id; } catch { /* A failed link can still request recovery. */ }
+  try { const id = callbackUrl ? new URL(callbackUrl).searchParams.get("placeId") : null; if (id && /^[a-z0-9][a-z0-9_-]{0,199}$/.test(id)) reportPlaceId = id; } catch {   }
   const requestLink = () => router.replace({ pathname: "/auth/recover", params: reportPlaceId ? { placeId: reportPlaceId } : {} });
   if (recoveryReady) return <Page contentContainerStyle={styles.center}><PasswordResetForm onRequestLink={requestLink} onComplete={() => { void mobileStorage.readPendingReport().then(draft => { if (draft && reportPlaceId === draft.placeId) router.replace({ pathname: "/confirm/[placeId]", params: { placeId: draft.placeId } }); else router.replace("/settings"); }).catch(() => router.replace("/settings")); }}/></Page>;
   if (!error) return <Page contentContainerStyle={styles.center}><Notice title="Finishing sign-in" loading /></Page>;
   return <Page contentContainerStyle={styles.center}><View style={styles.content}><AlertCircle color={colours.closed} size={32} /><Text style={styles.title}>The link did not work.</Text><Text style={styles.body}>{error}</Text>{callbackUrl && isRecoveryCallback(callbackUrl) ? <ActionButton label="Request another link" tone="green" onPress={requestLink}/> : null}<ActionButton label="Return to KNOGO" tone="light" onPress={() => router.replace("/settings")} /></View></Page>;
 }
 
+// Styles
 const createStyles = (colours: ThemeColours) => StyleSheet.create({
   center: { justifyContent: "center" },
   content: { width: "100%", maxWidth: 520, alignSelf: "center", gap: space.md },

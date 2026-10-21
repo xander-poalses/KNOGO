@@ -1,3 +1,4 @@
+-- Report Risk Automation Queue
 begin;
 
 create view knogo_private.reviewable_reports with (security_invoker=true) as
@@ -95,7 +96,6 @@ begin
 end;
 $$;
 
--- The former fixture overload cannot bypass account eligibility.
 revoke execute on function public.claim_report_risk_job(uuid,text) from service_role;
 
 commit;

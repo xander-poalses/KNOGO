@@ -1,2 +1,2 @@
-// Browser controls stay silent, including browsers with a vibration API.
+// Functions
 export function ctaHaptic(): void {}

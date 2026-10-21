@@ -1,13 +1,17 @@
+// Imports
 import * as Sentry from "@sentry/react-native";
 import { PostHog } from "posthog-react-native";
 import { placeCategoryIds } from "@knogo/core";
 
+// Types
 type EventName = "app_opened" | "search_completed" | "place_opened" | "place_saved" | "report_submitted" | "report_failed";
 type EventProperties = Record<string, string | number | boolean | null>;
 
+// State and Helpers
 let enabled = false;
 let posthog: PostHog | null = null;
 
+// Functions
 export function enableTelemetry() {
   if (enabled) return;
   enabled = true;
@@ -78,6 +82,5 @@ export function captureEvent(name: EventName, properties: EventProperties = {}) 
 export function captureError(_error: unknown, context: "auth" | "data" | "report" | "navigation") {
   if (!enabled) return;
   if (!["auth", "data", "report", "navigation"].includes(context)) return;
-  // Provider messages and exception stacks can contain credentials or report data.
   Sentry.captureMessage("KNOGO operation failed", { level: "error", tags: { context } });
 }

@@ -1,9 +1,10 @@
+// Imports
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 
-// Disposable Postgres only. Network, Vault and Cron are stubs, not deployment proof.
 if (!process.env.KNOGO_PGLITE_MODULE) throw new Error('Set KNOGO_PGLITE_MODULE to the installed PGlite module path.');
+// State and Helpers
 const { PGlite } = await import(pathToFileURL(process.env.KNOGO_PGLITE_MODULE).href);
 const db = new PGlite();
 const migration = async name => db.exec(await readFile(new URL(`../supabase/migrations/${name}`, import.meta.url), 'utf8'));
@@ -76,7 +77,6 @@ try {
  await assert.rejects(db.query('select knogo_private.purge_expired_reports()'),/permission denied/);
  await db.exec('reset role');
  await assert.rejects(db.query('select knogo_private.purge_expired_reports(0)'),/batch size/);
- // A fixed transaction clock makes the exact 24-hour boundary test meaningful.
  await db.exec(`begin;
   insert into public.report_batches(id,place_id,user_id,report_source,created_at) values
    ('20000000-0000-0000-0000-000000000001','automation-fixture','00000000-0000-0000-0000-000000000001','phone',now()-interval '24 hours 1 second'),

@@ -1,12 +1,13 @@
+// Imports
 import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
 
 process.loadEnvFile(new URL('../apps/mobile/.env.local', import.meta.url));
+// State and Helpers
 const base = process.env.EXPO_PUBLIC_SUPABASE_URL;
 assert.equal(base, 'http://127.0.0.1:54321', 'This check is restricted to the local testing backend.');
 const headers = { apikey: process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY, 'Content-Type': 'application/json' };
 const email = `milestone-${Date.now()}@example.test`;
-// A disposable local test credential, never a hosted account password.
 const password = 'MilestoneOnly-LocalTest-2026!';
 const request = (path, body, token) => fetch(`${base}${path}`, { method: 'POST', headers: { ...headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify(body) });
 

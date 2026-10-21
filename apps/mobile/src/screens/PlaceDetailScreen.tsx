@@ -1,3 +1,4 @@
+// Imports
 import {
   getCurrentStatus,
   getPlaceDisplayName,
@@ -49,6 +50,7 @@ import { captureEvent } from "../telemetry";
 import { getOutlookTone, type StatusTone } from "../statusPresentation";
 import { AccordionMotion, AccordionArrow, AccordionBody, SaveMotion, StateMotion } from "../components/Motion";
 
+// Components
 export function PlaceDetailScreen() {
   const { placeId } = useLocalSearchParams<{ placeId: string }>();
   const router = useRouter();
@@ -338,6 +340,7 @@ export function PlaceDetailScreen() {
   );
 }
 
+// Functions
 function actionIcon(type: PlaceActionLink["type"], colours: ThemeColours) {
   if (type === "directions")
     return <Navigation color={colours.text} size={20} />;
@@ -594,9 +597,9 @@ function HoursComparison({
   );
 }
 
+// Styles
 const createStyles = (colours: ThemeColours) =>
   StyleSheet.create({
-    // Hallmark critique: P5 H4 E4 S5 R5 V4. Existing tokens and hours; no map or cost invented.
     topBar: {
       flexDirection: "row",
       alignItems: "center",

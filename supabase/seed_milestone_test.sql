@@ -1,4 +1,4 @@
--- Local report tests only. Never apply this fixture to hosted Supabase.
+-- Local-Only Milestone Test Seed
 insert into public.places(id,slug,name,category_id,region_id,address,latitude,longitude,is_active)
 values
   ('milestone-test-venue','milestone-test-venue','Report Test Venue','restaurant','pretoria','Test fixture, not a destination',0,0,true),

@@ -1,3 +1,4 @@
+// Imports
 import { validTripPoint, type Place, type TripPoint } from "@knogo/core";
 import Constants, { ExecutionEnvironment } from "expo-constants";
 import { useEffect, useRef, useState } from "react";
@@ -12,6 +13,7 @@ import { getTripPosition } from "../tripLocation";
 import { ExpoGoSkeleton } from "./ExpoGoSkeleton";
 import { fonts, radii, shadows, useTheme, useThemeStyles, type ThemeColours } from "../theme";
 
+// Types
 type BranchMapProps = {
   branches: Place[];
   selectedId?: string;
@@ -19,6 +21,7 @@ type BranchMapProps = {
   route?: TripPoint[];
 };
 
+// Components
 export function BranchMap({ branches, selectedId, onSelect, route }: BranchMapProps) {
   const { colours, isDark } = useTheme();
   const insets = useSafeAreaInsets();
@@ -66,7 +69,6 @@ export function BranchMap({ branches, selectedId, onSelect, route }: BranchMapPr
 
   useEffect(() => {
     if (mapUnavailable) return;
-    // Bundle the SDK without async chunks, but evaluate it only after the native-module check.
     try {
       setMapbox(loadMapbox());
     } catch { setMapFailed(true); }
@@ -120,7 +122,6 @@ export function BranchMap({ branches, selectedId, onSelect, route }: BranchMapPr
   const map = (
     <View style={expanded ? styles.expandedMap : [styles.mapWrap, route !== undefined && styles.tripMap]}>
       {tokenReady ? <Mapbox.MapView key={isDark ? "dark" : "light"} styleURL={isDark ? Mapbox.StyleURL.Dark : Mapbox.StyleURL.Light} scaleBarEnabled={false} compassEnabled={false} scrollEnabled={expanded} zoomEnabled={expanded} requestDisallowInterceptTouchEvent={expanded} rotateEnabled={false} pitchEnabled={false} onDidFinishLoadingMap={handleMapLoaded} onMapLoadingError={() => setMapFailed(true)} style={styles.map}>
-        {/* Keep the fallback at the bottom so it cannot cover roads or labels. */}
         {!isDark ? <Mapbox.BackgroundLayer id="land" existing layerIndex={0} style={{ backgroundColor: colours.controlStrong }} /> : null}
         {!isDark ? <Mapbox.SymbolLayer id="poi-label" existing style={{ textColor: "#050505", textFont: ["Open Sans Semibold", "Arial Unicode MS Regular"], textHaloColor: "rgba(255,255,255,0.55)", textHaloWidth: 0.5, textHaloBlur: 0.5 }} /> : null}
         <Mapbox.Camera
@@ -158,6 +159,7 @@ export function BranchMap({ branches, selectedId, onSelect, route }: BranchMapPr
   return expanded ? <Modal visible animationType="none" onRequestClose={() => { setExpanded(false); setMapReady(false); }}>{map}</Modal> : map;
 }
 
+// Styles
 const createStyles = (colours: ThemeColours) => StyleSheet.create({
   buildNotice: { padding: 16, backgroundColor: colours.surface, borderRadius: radii.control },
   mapWrap: { height: 310, overflow: "hidden", borderRadius: radii.control, borderWidth: 1, borderColor: colours.border, backgroundColor: colours.elevated },

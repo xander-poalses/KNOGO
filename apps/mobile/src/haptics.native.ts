@@ -1,6 +1,8 @@
+// Imports
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 
+// Functions
 export function ctaHaptic(): void {
   try {
     const feedback = Platform.OS === "android"
@@ -8,6 +10,5 @@ export function ctaHaptic(): void {
       : Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     void feedback.catch(() => undefined);
   } catch {
-    // Feedback must not interrupt the action when hardware is unavailable.
   }
 }

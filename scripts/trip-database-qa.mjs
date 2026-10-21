@@ -1,14 +1,15 @@
+// Imports
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 
 if (!process.env.KNOGO_PGLITE_MODULE) throw new Error('Set KNOGO_PGLITE_MODULE to the PGlite module path.');
+// State and Helpers
 const { PGlite } = await import(pathToFileURL(process.env.KNOGO_PGLITE_MODULE).href);
 const db = new PGlite();
 const migration = await readFile(new URL('../supabase/migrations/20261001221614_trip_provider_caps.sql', import.meta.url), 'utf8');
 try {
   await db.exec('create role anon; create role authenticated; create role service_role;');
-  // Deliberately no place/report tables or trust migration: this must stand alone.
   await db.exec(migration);
   const reserve = async (provider) => (await db.query('select public.reserve_trip_provider_call($1) as allowed', [provider])).rows[0].allowed;
   const counters = async () => (await db.query('select * from knogo_trip_private.provider_usage order by provider,day')).rows;
@@ -45,13 +46,13 @@ try {
   await db.exec('reset role');
   assert.equal((await counters())[0].calls, 2);
   await db.exec("update knogo_trip_private.provider_usage set day=day-1 where provider='routes'");
-  assert.equal(await reserve('routes'), false); // Midnight does not bypass the minute cap.
+  assert.equal(await reserve('routes'), false);
   await db.exec("update knogo_trip_private.provider_call_windows set reserved_at=array[clock_timestamp()-interval '61 seconds'] where provider='routes'");
   assert.equal(await reserve('routes'), true);
   await db.exec("update knogo_trip_private.provider_call_windows set reserved_at='{}' where provider='routes'");
   assert.deepEqual(await Promise.all([reserve('routes'), reserve('routes'), reserve('routes')]), [true, true, false]);
   const before = await counters();
-  await db.exec(migration); // Reapplication must not reset usage, caps or enablement.
+  await db.exec(migration);
   assert.deepEqual(await counters(), before);
   assert.equal((await db.query("select enabled from knogo_trip_private.provider_limits where provider='routes'")).rows[0].enabled, true);
   assert.equal(await reserve('routes'), false);

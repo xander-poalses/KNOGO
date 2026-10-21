@@ -1,4 +1,4 @@
--- Generated KNOGO activation: 2026-10-17-07-menlyn-pet-stores
+-- Activate
 begin;
 do $check$ begin
   if (select count(*) from public.places where id in ('clicks-menlyn-park', 'clicks-menlyn-maine', 'absolute-pets-menlyn-maine', 'absolute-pets-parkview') and not is_active and source_checked_at = '2026-10-17') <> 4 then raise exception 'Expected four new inactive places'; end if;

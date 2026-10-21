@@ -1,3 +1,4 @@
+-- Seed
 insert into public.regions (id, name, slug, region_type, parent_id, sort_order) values
   ('south-africa', 'South Africa', 'south-africa', 'country', null, 1),
   ('gauteng', 'Gauteng', 'gauteng', 'province', 'south-africa', 1),
@@ -20,12 +21,7 @@ on conflict (id) do update set
   parent_id = excluded.parent_id,
   sort_order = excluded.sort_order;
 
--- Place and status seed data will be added after the Pretoria East restaurant list is curated.
 
--- Pretoria East restaurant seed.
--- Public source pass: Google result snippets, Dineplan, official restaurant sites, mall pages and restaurant directories on 2026-07-07.
--- Live signals such as kitchen serving, card machine state and backup power are intentionally left not confirmed.
--- Split-service hours are flattened for v1 because place_hours supports one range per day.
 
 insert into public.places (
   id,

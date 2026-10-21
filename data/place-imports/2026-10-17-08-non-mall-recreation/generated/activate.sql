@@ -1,4 +1,4 @@
--- Generated KNOGO activation: 2026-10-17-08-non-mall-recreation
+-- Activate
 begin;
 do $check$ begin
   if (select count(*) from public.places where id in ('thrashers-garsfontein', 'create-wolwespruit') and not is_active and source_checked_at = '2026-10-17') <> 2 then raise exception 'Expected two new inactive recreation places'; end if;

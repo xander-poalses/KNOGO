@@ -1,3 +1,4 @@
+// Imports
 import {
   defaultSettings,
   getCurrentStatus,
@@ -24,6 +25,7 @@ import { captureEvent } from "../telemetry";
 import { useStatusClock } from "./useStatusClock";
 import { completeGoogleCallback } from "../auth/googleSignIn";
 
+// Types
 type PlacesContextValue = {
   places: Place[];
   placeGroups: PlaceGroup[];
@@ -67,8 +69,10 @@ type PlacesContextValue = {
   updateSettings: (settings: LocalSettings) => Promise<void>;
 };
 
+// State and Helpers
 export const PlacesContext = createContext<PlacesContextValue | null>(null);
 
+// Components
 export function PlacesProvider({ children }: { children: ReactNode }) {
   const [places, setPlaces] = useState<Place[]>(useMockData ? mockPlaces : []);
   const [placeGroups, setPlaceGroups] = useState<PlaceGroup[]>([]);
@@ -202,7 +206,6 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
       setSettings(storedSettings);
       setSettingsLoaded(true);
     }).catch(() => {
-      // A storage failure must not replace a saved diagnostics choice.
     });
     const restore = <T,>(read: Promise<T>, apply: (value: T) => void) => {
       void read.then(value => { if (active) apply(value); }).catch(() => undefined);
@@ -231,7 +234,6 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
     Promise.resolve(supabaseApi.readSession()).then((storedSession) => {
       if (active && restoreRevision === authRevision.current) setSession(storedSession);
     }).catch(() => {
-      // A failed restore must not replace an account action made while waiting.
     }).finally(() => {
       if (active) setAuthLoading(false);
     });
@@ -370,6 +372,7 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
   return <PlacesContext.Provider value={value}>{children}</PlacesContext.Provider>;
 }
 
+// Functions
 export function usePlaces() {
   const context = useContext(PlacesContext);
   if (!context) throw new Error("usePlaces must be used within PlacesProvider");

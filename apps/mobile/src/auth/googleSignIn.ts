@@ -1,3 +1,4 @@
+// Imports
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import Constants from "expo-constants";
@@ -8,15 +9,18 @@ import { Platform } from "react-native";
 import type { SupabaseSession } from "@knogo/core";
 import { mobileStorage } from "../storage";
 
+// State and Helpers
 const extra = Constants.expoConfig?.extra as { supabaseUrl?: string; supabasePublishableKey?: string } | undefined;
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL || extra?.supabaseUrl;
 const key = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY || extra?.supabasePublishableKey;
 export const googleSignInEnabled = process.env.EXPO_PUBLIC_GOOGLE_AUTH_ENABLED === "true" && Boolean(url && key);
 export const googleSignInSupported = Platform.OS === "web" || Constants.executionEnvironment !== "storeClient";
+// Types
 type GoogleRequest = { url: string; redirectTo: string; flowId: string | null };
 let client: SupabaseClient | null = null;
 const exchanges = new Map<string, Promise<SupabaseSession>>();
 
+// Functions
 function getClient() {
   if (!url || !key) throw new Error("Account access is not configured.");
   if (Platform.OS !== "web") {
@@ -30,7 +34,6 @@ function getClient() {
     } });
     if (!globalThis.crypto) Object.defineProperty(globalThis, "crypto", { value: crypto });
   }
-  // Only proof keys use this SDK storage. KNOGO owns session storage and refresh.
   client ??= createClient(url, key, { auth: {
     flowType: "pkce", autoRefreshToken: false, detectSessionInUrl: false,
     persistSession: true, storageKey: "knogo.oauth",
@@ -78,7 +81,6 @@ export function completeGoogleCallback(callbackUrl: string, flowId?: string | nu
     return session;
   })();
   exchanges.set(code, exchange);
-  // Share concurrent native browser/link handlers, but retain no callback tokens.
   void exchange.finally(() => { setTimeout(() => exchanges.delete(code), 30_000); }).catch(() => undefined);
   return exchange;
 }

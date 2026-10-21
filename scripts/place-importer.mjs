@@ -1,14 +1,17 @@
+// Imports
 import { parse } from "csv-parse/sync";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+// State and Helpers
 export const PLACE_FEATURES = new Set(["outdoor_seating", "family_friendly", "wheelchair_accessible", "backup_power", "card_payments", "late_night", "walk_ins", "takeaway", "bar", "halaal_friendly", "vegan_options", "pet_friendly"]);
 export const CATEGORIES = new Set(["restaurant", "quick_bites", "bar", "pharmacy", "cafe", "hardware", "vet", "petrol_station", "government_office", "food_drink", "shops", "automotive", "public_services", "entertainment", "sport_outdoors"]);
 export const REGIONS = new Set(["menlyn", "brooklyn", "hazelwood", "lynnwood", "faerie-glen", "moreleta-park", "garsfontein", "waterkloof", "silver-lakes", "olympus", "rietvalleirand", "equestria", "hazeldean", "erasmuskloof", "erasmus-park", "shere", "die-wilgers"]);
 export const HOURS_TYPES = new Set(["opening", "kitchen"]);
 export const DAYS = new Map([["Mon", 1], ["Tue", 2], ["Wed", 3], ["Thu", 4], ["Fri", 5], ["Sat", 6], ["Sun", 7]]);
 
+// Functions
 export function expandHoursRows(rows) {
   const dayNames = [...DAYS.keys()];
   return rows.flatMap((row) => {
@@ -237,7 +240,6 @@ export function generateImportSql(batch, batchName) {
     ...Object.fromEntries(["id", "slug", "name", "group_id", "category_id", "region_id", "address", "phone", "website", "menu_url", "image_url", "image_source_url", "image_attribution", "image_checked_at", "logo_url", "logo_source_url", "logo_checked_at", "place_type", "source_url", "source_checked_at", "map_url", "data_notes"].map(key => [key, sqlString(row[key])])),
     latitude: Number(row.latitude), longitude: Number(row.longitude), features: sqlArray(row.features), tags: sqlArray(row.tags), service_details: `${sqlString(row.service_details || "{}")}::jsonb`
   }, ["image_url", "image_source_url", "image_attribution", "image_checked_at", "logo_url", "logo_source_url", "logo_checked_at", "phone", "menu_url"]);
-  // Unknown days stay absent; updating evidence must not erase other published hours.
   for (const row of expandHoursRows(batch.hours)) statements.push(`insert into public.place_hours (place_id, hours_type, day_of_week, open_time, close_time, is_closed, sort_order, source_url, source_checked_at) values (${sqlString(row.place_id)}, ${sqlString(row.hours_type)}, ${sqlString(row.day_of_week)}, ${sqlString(row.open_time)}, ${sqlString(row.close_time)}, ${parseBoolean(row.is_closed)}, ${Number(row.sort_order)}, ${sqlString(row.source_url)}, ${sqlString(row.source_checked_at)}) on conflict (place_id, hours_type, day_of_week) do update set open_time = excluded.open_time, close_time = excluded.close_time, is_closed = excluded.is_closed, sort_order = excluded.sort_order, source_url = excluded.source_url, source_checked_at = excluded.source_checked_at;`);
   statements.push("commit;", "");
   return statements.join("\n");

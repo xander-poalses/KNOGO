@@ -1,3 +1,4 @@
+-- Report Assessment Receipts
 begin;
 
 create function public.read_report_assessment(p_report_id uuid) returns jsonb
@@ -32,7 +33,6 @@ begin
     receipt_state:='unavailable';
   end if;
 
-  -- No other reporters, pattern reasons or worker credentials leave this boundary.
   return jsonb_build_object(
     'reportId',report.id,'state',receipt_state,
     'risk',case when receipt_state='complete' then assessment.risk end,

@@ -1,5 +1,3 @@
-<!-- Hallmark pre-emit critique: P5 H5 E4 S5 R4 V4 -->
-
 # KNOGO Design System
 
 ## Product Job

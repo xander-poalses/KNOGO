@@ -1,9 +1,13 @@
+// Imports
 import type { OpeningHours } from "./types/place";
 
+// Types
 export type FuelGrade = "petrol_93" | "petrol_95" | "diesel_50ppm" | "diesel_500ppm";
 export type FuelRegion = "inland" | "coastal";
 export type FuelPreferences = { consumptionLPer100Km: number | null; consumptionUnit?: "l_per_100km" | "km_per_litre"; grade: FuelGrade | null; region: FuelRegion | null; priceOverrideZarPerLitre: number | null };
+// State and Helpers
 export const emptyFuelPreferences: FuelPreferences = { consumptionLPer100Km: null, grade: null, region: null, priceOverrideZarPerLitre: null };
+// Functions
 export function positiveNumber(value: unknown, maximum = 1000): number | null {
   if (typeof value !== "number" || !Number.isFinite(value) || value <= 0 || value > maximum) return null;
   return value;
@@ -22,7 +26,6 @@ export function calculateTankConsumption(kilometres: number, litres: number, fil
   return positiveNumber(litres / kilometres * 100, 100);
 }
 export function fuelRegionForLocation(point: {latitude:number;longitude:number} | null): FuelRegion | null {
-  // shortcut: only the supported Pretoria East area is mapped; retain the chooser elsewhere until zone polygons are available.
   return point && point.latitude >= -25.95 && point.latitude <= -25.65 && point.longitude >= 28.15 && point.longitude <= 28.5 ? "inland" : null;
 }
 export function estimateFuel(kilometres: number, consumption: number | null, price: number | null) {
@@ -63,7 +66,6 @@ export type ArrivalHours = { state: "within" | "outside" | "unknown"; minutesRem
 export function compareArrivalWithHours(arrival: Date, hours?: OpeningHours[]): ArrivalHours {
   const unknown: ArrivalHours = { state: "unknown", minutesRemaining: null, endsAt: null };
   if (!hours?.length || !Number.isFinite(arrival.getTime())) return unknown;
-  // South Africa stays UTC+02:00; no device timezone or DST enters the calculation.
   const local = new Date(arrival.getTime() + 2 * 60 * 60 * 1000);
   const midnight = Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate()) - 2 * 60 * 60 * 1000;
   const today = local.getUTCDay();

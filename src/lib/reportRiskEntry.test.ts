@@ -1,5 +1,7 @@
+// Imports
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+// State and Helpers
 const mocks = vi.hoisted(() => ({ drain: vi.fn(), rpc: vi.fn(), assess: vi.fn() }));
 vi.mock("../../supabase/functions/_shared/riskQueue.ts", () => ({ drainRiskQueue: mocks.drain }));
 vi.mock("../../supabase/functions/_shared/providerServices.ts", () => ({ assessReportRisk: mocks.assess }));
@@ -15,7 +17,6 @@ beforeEach(async () => {
   env = { RISK_WORKER_SECRET: "test-worker", RISK_TEST_ACTOR_ID: '00000000-0000-0000-0000-000000000001', SUPABASE_URL: "https://project.example", SUPABASE_SERVICE_ROLE_KEY: "test-service" };
   vi.stubGlobal("Deno", { env: { get: (key: string) => env[key] }, serve: (callback: typeof handler) => { handler = callback; } });
   mocks.drain.mockResolvedValue({ processed: 0 });
-  // Execute the Deno entry in the harness without adding it to the web TS project.
   const entryPath = "../../supabase/functions/report-risk/index.ts";
   await import(entryPath);
 });
@@ -25,6 +26,7 @@ const request = (body = "{}", method = "POST", token = "test-worker") => new Req
   method, headers: { authorization: `Bearer ${token}` }, ...(method === "POST" ? { body } : {})
 });
 
+// Tests
 describe("risk worker request boundary", () => {
   it.each([[true, undefined], [true, ''], [true, 'not-an-account-id'], [false, undefined], [false, ''], [false, 'not-an-account-id']])("does not require the former test scope (%s, %s)", async (enabled, testActorId) => {
     env.GEMINI_FREE_TIER_CONFIRMED = String(enabled);

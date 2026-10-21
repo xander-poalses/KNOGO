@@ -1,3 +1,4 @@
+// Imports
 import { requestTrip } from "../_shared/providerServices.ts";
 import { jsonResponse, serverRpc } from "../_shared/server.ts";
 
@@ -7,7 +8,7 @@ Deno.serve(async (req:Request)=>{
  if (origin && !approved.includes(origin)) return jsonResponse({error:"Origin not allowed."},403);
  if (req.method==="OPTIONS") return jsonResponse({},200,origin);
  let publishableKeys:string[]=[];
- try { publishableKeys=Object.values(JSON.parse(Deno.env.get("SUPABASE_PUBLISHABLE_KEYS")??"{}")); } catch { /* Fail closed unless the legacy anon key is available. */ }
+ try { publishableKeys=Object.values(JSON.parse(Deno.env.get("SUPABASE_PUBLISHABLE_KEYS")??"{}")); } catch {   }
  const anonKey=Deno.env.get("SUPABASE_ANON_KEY");
  if(anonKey)publishableKeys.push(anonKey);
  if(!publishableKeys.includes(req.headers.get("apikey")??""))return jsonResponse({error:"App key required."},401,origin);

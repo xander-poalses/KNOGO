@@ -38,8 +38,6 @@ If the `android` directory does not exist, run `pnpm --dir apps/mobile exec expo
 
 Create `apps/mobile/.env.local` from `.env.example` and set the project URL and publishable key. Do not use a secret or service-role key in the app.
 
-For branch maps in the browser build, set `EXPO_PUBLIC_GOOGLE_MAPS_BROWSER_KEY` to a Google Maps JavaScript API key restricted to KNOGO's web origins and that API. The browser map is unchanged.
-
 Android and iOS branch maps use Mapbox. Set `EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN` in `.env.local` to a map token, never a server or download secret. This token is bundled into the app, not stored in Supabase secrets. Install an APK rebuilt with the Mapbox plugin before loading this code. Expo Go keeps its placeholder; without a token or when the map fails, the branch list remains usable. Mapbox attribution stays visible and SDK telemetry is disabled. Do not add a payment method for the test account; trial usage limits still apply.
 
 Do not use `127.0.0.1` as the phone's Supabase URL: it points at the phone, not your PC. Use the KNOGO Supabase project URL for this testing setup.

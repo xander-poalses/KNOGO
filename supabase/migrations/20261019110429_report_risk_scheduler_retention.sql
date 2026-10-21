@@ -1,3 +1,4 @@
+-- Report Risk Scheduler Retention
 create extension if not exists pg_cron;
 create extension if not exists pg_net with schema extensions;
 
@@ -40,7 +41,6 @@ begin
  if coalesce(length(worker_secret),0)=0 then
   update knogo_private.report_automation set last_state='missing_secret' where id; return null;
  end if;
- -- pg_net sends after commit; the singleton lock never spans the HTTP request.
  request:=net.http_post(url:=config.worker_url,body:='{}'::jsonb,
   headers:=jsonb_build_object('Content-Type','application/json','Authorization','Bearer '||worker_secret),timeout_milliseconds:=55000);
  update knogo_private.report_automation set request_id=request,dispatched_at=now(),last_state='dispatched' where id;

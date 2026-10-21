@@ -1,10 +1,13 @@
+// Imports
 import { emptyFuelPreferences, parseFuelPreferences, usableFuelPrice, type FuelPreferences, type FuelFeedResult } from "@knogo/core";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { mobileStorage } from "../storage";
 import { fuelFeed } from "../fuelFeed";
 import { AppState } from "react-native";
 
+// State and Helpers
 const FuelContext = createContext<{ preferences: FuelPreferences; save: (value: FuelPreferences) => Promise<void>; prices: FuelFeedResult | null; pricesLoading: boolean; refreshPrices: (force?: boolean) => Promise<void>; watchPrices: () => () => void } | null>(null);
+// Components
 export function FuelProvider({ children }: { children: ReactNode }) {
   const [preferences, setPreferences] = useState<FuelPreferences>({ ...emptyFuelPreferences });
   const [prices, setPrices] = useState<FuelFeedResult | null>(null);
@@ -70,7 +73,6 @@ export function FuelProvider({ children }: { children: ReactNode }) {
   }, []);
   const save = useCallback((value: FuelPreferences) => {
     const normalised = parseFuelPreferences(value);
-    // Keep device storage and the displayed preferences in the same write order.
     const write = writes.current.then(async () => {
       await mobileStorage.writeFuelPreferences(normalised);
       savedRevision.current += 1;
@@ -81,6 +83,7 @@ export function FuelProvider({ children }: { children: ReactNode }) {
   }, []);
   return <FuelContext.Provider value={{ preferences, save, prices, pricesLoading: active && (pricesLoading || prices?.updateState === "pending"), refreshPrices, watchPrices }}>{children}</FuelContext.Provider>;
 }
+// Functions
 export function useFuel() {
   const value = useContext(FuelContext);
   if (!value) throw new Error("useFuel needs FuelProvider");

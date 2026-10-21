@@ -1,8 +1,8 @@
+// Imports
 import { assessReportRisk } from "../_shared/providerServices.ts";
 import { drainRiskQueue, type RiskJob } from "../_shared/riskQueue.ts";
 import { jsonResponse, serverRpc } from "../_shared/server.ts";
 
-// Called by a server worker after commit, never by the mobile app.
 Deno.serve(async (req:Request)=>{
  const workerKey=Deno.env.get("RISK_WORKER_SECRET");
  if(!workerKey || req.headers.get("authorization")!==`Bearer ${workerKey}`)return jsonResponse({error:"Not authorised."},401);
@@ -16,7 +16,6 @@ Deno.serve(async (req:Request)=>{
   }
   const url=Deno.env.get("SUPABASE_URL")!;const key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   if(!url || !key)throw new Error("Server setup missing.");
-  // Reads and lease-checked finishes can retry; claims and Google requests cannot.
   const retryDatabase=async(name:"report_risk_context"|"finish_report_risk_job",args:Record<string,unknown>)=>{
    try{return await serverRpc(url,key,name,args);}
    catch(cause){

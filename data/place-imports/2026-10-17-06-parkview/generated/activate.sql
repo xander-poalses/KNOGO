@@ -1,4 +1,4 @@
--- Generated KNOGO activation: 2026-10-17-06-parkview
+-- Activate
 begin;
 do $check$ begin
   if (select count(*) from public.places where id in ('parkview-shopping-centre', 'clicks-parkview', 'postnet-woodhill', 'wolwespruit-mtb-trail-park') and not is_active and source_checked_at = '2026-10-17') <> 4 then raise exception 'Expected four checked inactive places'; end if;

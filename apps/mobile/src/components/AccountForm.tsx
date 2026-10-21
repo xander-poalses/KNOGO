@@ -1,3 +1,4 @@
+// Imports
 import { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import * as Linking from "expo-linking";
@@ -10,7 +11,7 @@ import { usePlaces } from "../state/PlacesContext";
 import { fonts, radii, sizes, space, useTheme, useThemeStyles, type ThemeColours } from "../theme";
 import { googleSignInEnabled, googleSignInSupported, openGoogleSignIn, prepareGoogleSignIn } from "../auth/googleSignIn";
 
-// Hallmark: P5 H4 E4 S5 R5 V4. One next-step command; existing form tokens.
+// Components
 export function AccountForm({ onAuthenticated, reportPlaceId, venuePlaceId, startRecovery = false }: { onAuthenticated: () => void; reportPlaceId?: string; venuePlaceId?: string; startRecovery?: boolean }) {
   const { signInWithEmail, registerWithEmail, requestPasswordRecovery, hasSupabaseConfig, adoptSession } = usePlaces();
   const { colours } = useTheme();
@@ -76,7 +77,6 @@ export function AccountForm({ onAuthenticated, reportPlaceId, venuePlaceId, star
       if (session) { if (mounted.current) onAuthenticated(); }
       else { setSent(true); setMode("signin"); }
     } catch (cause) {
-      // Do not put provider responses, credentials or account existence in UI/telemetry.
       setError(accountError(cause, mode));
     } finally { running.current = false; setBusy(false); }
   };
@@ -144,6 +144,7 @@ export function AccountForm({ onAuthenticated, reportPlaceId, venuePlaceId, star
   </View>;
 }
 
+// Styles
 const createStyles = (colours: ThemeColours) => StyleSheet.create({
   form: { gap: space.md }, field: { gap: space.xs },
   intro: { gap: space.sm, paddingBottom: space.xs },

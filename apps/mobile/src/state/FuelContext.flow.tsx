@@ -1,9 +1,11 @@
+// Imports
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { emptyFuelPreferences, type FuelPreferences } from "@knogo/core";
 import { FuelProvider, useFuel } from "./FuelContext";
 import { fuelFeed } from "../fuelFeed";
 
+// State and Helpers
 const mocks = vi.hoisted(() => ({ read: vi.fn(), write: vi.fn(), listener:null as ((state:string)=>void)|null }));
 vi.mock("../storage", () => ({ mobileStorage: { readFuelPreferences: mocks.read, writeFuelPreferences: mocks.write } }));
 vi.mock("../fuelFeed", () => ({ fuelFeed: { load: vi.fn(), poll: vi.fn() } }));
@@ -11,12 +13,14 @@ vi.mock("react-native", () => ({AppState:{currentState:'active',addEventListener
 const first: FuelPreferences = { consumptionLPer100Km: 7.5, grade: "petrol_95", region: "inland", priceOverrideZarPerLitre: 23 };
 const second: FuelPreferences = { ...first, consumptionLPer100Km: 6.2, region: "coastal" };
 
+// Functions
 function deferred<T>() {
   let resolve!: (value: T) => void;
   let reject!: (reason: Error) => void;
   const promise = new Promise<T>((yes, no) => { resolve = yes; reject = no; });
   return { promise, resolve, reject };
 }
+// Components
 function Probe({ onSave }: { onSave: (promise: Promise<void>) => void }) {
   const { preferences, save } = useFuel();
   return <><output data-testid="preferences">{JSON.stringify(preferences)}</output>
@@ -34,6 +38,7 @@ beforeEach(() => {
 });
 afterEach(() => {cleanup();vi.useRealTimers();});
 
+// Tests
 describe("fuel preferences provider", () => {
   it("restores persisted settings without an account", async () => {
     mocks.read.mockResolvedValue(first);
@@ -87,7 +92,6 @@ describe("fuel preferences provider", () => {
 
 function PriceProbe() {
  const {prices,pricesLoading,watchPrices}=useFuel();
- // A mounted consumer represents an open price surface.
  React.useEffect(()=>watchPrices(),[watchPrices]);
  return <output data-testid="price-state">{pricesLoading?'loading':prices?.updateState}</output>;
 }

@@ -1,3 +1,4 @@
+// Imports
 import { reportReviewNoticeVersion, type ReportReviewNotice, type ConfirmationType, type Place, type PlaceGroup, type ReportAssessment, type ReportSource, type ReportSubmissionResult } from "../types/place";
 import {
   mapSupabaseConfirmation,
@@ -11,6 +12,7 @@ import {
   type SupabaseRegionRow
 } from "./supabaseMapper";
 
+// Types
 export type SupabaseSession = {
   accessToken: string;
   refreshToken: string;
@@ -44,10 +46,12 @@ type AuthUserResponse = { id?: string; email?: string };
 
 type SupabaseError = { error_description?: string; msg?: string; message?: string; error_code?: string; error?: string };
 
+// Classes
 class AuthRequestError extends Error {
   constructor(message: string, readonly status: number, readonly code?: string) { super(message); }
 }
 
+// Functions
 export function createSupabaseApi(config: {
   url?: string;
   publishableKey?: string;
@@ -238,7 +242,6 @@ export function createSupabaseApi(config: {
 
   async function registerWithEmail(email: string, password: string, redirectTo: string): Promise<SupabaseSession | null> {
     const response = await authRequest(`signup?redirect_to=${encodeURIComponent(redirectTo)}`, { email, password });
-    // Confirmation-required sign-up returns an account without session tokens.
     if (!response.access_token && !response.refresh_token) return null;
     const session = mapAuthResponse(response, email);
     await sessionStorage.write(session);

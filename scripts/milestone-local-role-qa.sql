@@ -1,5 +1,5 @@
+-- Local-Only Milestone Role Checks
 \set ON_ERROR_STOP on
--- Run only through the milestone Docker container. All fixture writes roll back.
 begin;
 
 do $$
@@ -50,7 +50,6 @@ end;
 $$;
 
 reset role;
--- This fixture proves role enforcement, not SMS delivery or ownership verification.
 insert into knogo_private.venue_phone_sources(place_id,phone_e164,source_url,checked_at,enabled)
 values('milestone-browser-venue','+27120000008','https://venue.example/test',now(),true);
 with challenge as (

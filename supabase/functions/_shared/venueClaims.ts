@@ -1,3 +1,4 @@
+// Types
 export type VenueDelivery = {
   send: (input: { phone: string; channel: "sms" | "voice" }) => Promise<{ reference: string }>;
   verify: (input: { phone: string; reference: string; code: string }) => Promise<boolean>;
@@ -10,10 +11,12 @@ type Dependencies = {
   delivery: VenueDelivery | null;
 };
 
+// State and Helpers
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const phone = /^\+[1-9]\d{7,14}$/;
 const record = (value: unknown): value is Record<string, unknown> => Boolean(value && typeof value === "object" && !Array.isArray(value));
 
+// Functions
 async function providerCall<T>(action: () => Promise<T>): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
@@ -25,7 +28,6 @@ async function providerCall<T>(action: () => Promise<T>): Promise<T> {
   }
 }
 
-// Bound streamed bodies too: Content-Length alone does not cover chunked requests.
 async function readBody(req: Request): Promise<unknown> {
   const reader = req.body?.getReader();
   if (!reader) throw new Error("invalid");
@@ -80,7 +82,6 @@ export function createVenueClaimHandler(deps: Dependencies) {
       (verify && (typeof body.challengeId !== "string" || !uuid.test(body.challengeId) || typeof body.code !== "string" || !/^\d{6}$/.test(body.code)))) {
       return reply({ error: "Invalid request." }, 400);
     }
-    // No challenge or delivery is reserved while messaging is behind its approval gate.
     const delivery = deps.delivery;
     if (!delivery) return reply({ error: "Venue phone verification is not configured. Community reports remain available." }, 503);
     try {

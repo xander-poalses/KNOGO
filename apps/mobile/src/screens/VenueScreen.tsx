@@ -1,4 +1,4 @@
-// Hallmark pre-emit critique: Philosophy 4, Hierarchy 4, Execution 4, Specificity 4, Restraint 5, Variety 3.
+// Imports
 import type { ConfirmationType, VenueAccess } from "@knogo/core";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -9,6 +9,7 @@ import { usePlaces } from "../state/PlacesContext";
 import { supabaseApi } from "../supabase";
 import { fonts, useThemeStyles, type ThemeColours } from "../theme";
 
+// State and Helpers
 const checks: Array<{ type: ConfirmationType; label: string; answers: Array<[string, string]> }> = [
   { type: "open_status", label: "Trading", answers: [["open", "Open"], ["closed", "Closed"]] },
   { type: "kitchen_status", label: "Kitchen", answers: [["yes", "Serving"], ["no", "Not serving"]] },
@@ -18,6 +19,7 @@ const checks: Array<{ type: ConfirmationType; label: string; answers: Array<[str
   { type: "busy_level", label: "Busy level", answers: [["quiet", "Quiet"], ["normal", "Normal"], ["busy", "Busy"], ["packed", "Packed"]] }
 ];
 
+// Components
 export function VenueScreen() {
   const { placeId } = useLocalSearchParams<{ placeId: string }>();
   const router = useRouter();
@@ -92,6 +94,7 @@ export function VenueScreen() {
   </Page>;
 }
 
+// Styles
 const createStyles = (colours: ThemeColours) => StyleSheet.create({
   title: { color: colours.text, fontFamily: fonts.extraBold, fontSize: 28, lineHeight: 35, paddingBottom: 5 },
   name: { color: colours.primary, fontFamily: fonts.semibold, fontSize: 17, lineHeight: 24 },

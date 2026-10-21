@@ -1,12 +1,13 @@
+// Imports
 import * as Location from "expo-location";
 
+// Functions
 function cancelled() {
   const error = new Error("Trip location request cancelled.");
   error.name = "AbortError";
   return error;
 }
 
-// Expo cannot cancel a position lookup; stop our wait and ignore its late result.
 export function getTripPosition(signal: AbortSignal): Promise<Location.LocationObject> {
   return new Promise((resolve, reject) => {
     if (signal.aborted) { reject(cancelled()); return; }

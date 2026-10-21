@@ -1,3 +1,4 @@
+// Imports
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mockPlaces, emptyFuelPreferences, type FuelPreferences } from "@knogo/core";
@@ -5,12 +6,12 @@ import { TripPlanner } from "./TripPlanner";
 vi.mock('expo-constants',()=>({default:{expoConfig:{extra:{}}}}));
 vi.mock('../state/PlacesContext',()=>({usePlaces:()=>({coordinates:null})}));
 
+// State and Helpers
 const mocks = vi.hoisted(() => ({ route: vi.fn(), search: vi.fn(), permission: vi.fn(), location: vi.fn(), save: vi.fn(), refresh: vi.fn(), watch: vi.fn(), loading: false, preferences: null as FuelPreferences | null }));
 vi.mock("./BranchMap", async () => {
   const { createElement } = await import("react");
   return { BranchMap: ({ branches, route }: any) => createElement("div", { "data-testid": "trip-map", "data-route-points": route?.length ?? 0 }, branches[0].name) };
 });
-// Entrance sequencing has its own tests; these tests exercise trip state.
 vi.mock("./StagedModal", async () => {
   const { Modal } = await import("react-native");
   return { StagedModal: Modal };
@@ -61,6 +62,7 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
+// Tests
 describe("trip planner flow", () => {
   it('shows price loading without blocking routes and hides it for a price override',async()=>{
     mocks.loading=true;

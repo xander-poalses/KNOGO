@@ -1,4 +1,4 @@
--- Generated KNOGO activation: 2026-10-16-03-grove-home-affairs
+-- Activate
 begin;
 update public.places set is_active = true, updated_at = now() where id in ('home-affairs-fnb-the-grove');
 update public.place_groups set is_active = true, updated_at = now() where id in ('home-affairs');

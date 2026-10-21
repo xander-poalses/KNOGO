@@ -1,6 +1,9 @@
+// Types
 type Point = { latitude: number; longitude: number };
 type Reserve = (provider: "routes" | "addresses" | "gemini") => Promise<boolean>;
+// State and Helpers
 const pointValid = (point: Point) => point && Number.isFinite(point.latitude) && Number.isFinite(point.longitude) && Math.abs(point.latitude)<=90 && Math.abs(point.longitude)<=180;
+// Functions
 export async function requestTrip(body: Record<string, unknown>, config: { orsKey?: string; freeTierConfirmed: boolean; reserve: Reserve; fetcher?: typeof fetch }) {
   if (!config.orsKey || !config.freeTierConfirmed) throw new Error("disabled");
   const fetcher = config.fetcher ?? fetch;
@@ -32,7 +35,7 @@ export async function requestTrip(body: Record<string, unknown>, config: { orsKe
   };
   const outbound=await route(origin,destination);
   let returnLeg;
-  if (body.includeReturn) { try {returnLeg=(await route(destination,origin)).leg;} catch { /* The client labels the doubling fallback. */ } }
+  if (body.includeReturn) { try {returnLeg=(await route(destination,origin)).leg;} catch {   } }
   return {outbound:outbound.leg,path:outbound.path,returnLeg,attribution:"Routing by openrouteservice / OpenStreetMap contributors. No live-traffic prediction. https://openrouteservice.org/attribution/"};
 }
 

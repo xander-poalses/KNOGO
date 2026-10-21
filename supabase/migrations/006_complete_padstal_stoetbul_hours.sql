@@ -1,7 +1,6 @@
+-- Complete Padstal Stoetbul Hours
 begin;
 
--- Branch identity and contact details were checked on the owners' pages on 2026-08-28.
--- Hours were checked against current map listings because the owner pages do not publish full weekly hours.
 delete from public.place_hours
 where place_id in (
   'padstal-lynnwood',

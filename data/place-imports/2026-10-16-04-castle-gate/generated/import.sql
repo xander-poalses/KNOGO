@@ -1,8 +1,6 @@
--- Generated KNOGO import: 2026-10-16-04-castle-gate
+-- Import
 begin;
 do $cap$ begin if pg_database_size(current_database()) > 113970579 then raise exception 'Pretoria East expansion reached its 100 MB growth cap'; end if; end $cap$;
--- Castle Gate publishes its address as Erasmuspark, not Erasmuskloof.
--- Source: https://castlegate.co.za/castle-gate---stores---castle-gate
 insert into public.regions(id,name,slug,region_type,parent_id)
 values('erasmus-park','Erasmus Park','erasmus-park','suburb_area','pretoria')
 on conflict(id) do nothing;

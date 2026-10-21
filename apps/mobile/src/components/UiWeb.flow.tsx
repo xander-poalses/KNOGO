@@ -1,3 +1,4 @@
+// Imports
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ActionButton, Chip } from "./Ui";
@@ -7,9 +8,9 @@ import { FilterSheet } from "./FilterSheet";
 import { defaultFilters } from "@knogo/core";
 import { Text } from "react-native";
 
+// State and Helpers
 const route = vi.hoisted(() => ({ outcome: undefined as "pending" | undefined }));
 
-// React Native Web ships runtime exports here without TypeScript declarations.
 // @ts-expect-error Test the installed web renderer, not a native-component mock.
 vi.mock("react-native", () => import("../../node_modules/react-native-web"));
 vi.mock("expo-router", () => ({ useRouter: () => ({}), useLocalSearchParams: () => ({ placeId: "progress-test", outcome: route.outcome }) }));
@@ -34,6 +35,7 @@ vi.mock("../theme", () => ({
 }));
 afterEach(() => { cleanup(); route.outcome = undefined; vi.restoreAllMocks(); });
 
+// Tests
 describe("rendered web CTA semantics", () => {
   it("uses the Figma command size without losing its label or busy state", () => {
     render(<ActionButton label="Leave a report" tone="green" size="large" loading/>);

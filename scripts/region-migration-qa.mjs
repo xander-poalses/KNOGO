@@ -1,8 +1,10 @@
+// Imports
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 
 if (!process.env.KNOGO_PGLITE_MODULE) throw new Error('Set KNOGO_PGLITE_MODULE to the installed PGlite module path.');
+// State and Helpers
 const { PGlite } = await import(pathToFileURL(process.env.KNOGO_PGLITE_MODULE).href);
 const initial = await readFile(new URL('../supabase/migrations/001_initial_schema.sql', import.meta.url), 'utf8');
 const migration = await readFile(new URL('../supabase/migrations/002_replace_areas_with_regions.sql', import.meta.url), 'utf8');
@@ -16,7 +18,6 @@ for (const legacy of [false, true]) {
       create table auth.users(id uuid primary key);
       create function auth.uid() returns uuid language sql stable as $$ select null::uuid $$;
     `);
-    // PGlite has gen_random_uuid built in but does not bundle pgcrypto.
     await db.exec(initial.replace('create extension if not exists "pgcrypto";', ''));
     if (legacy) {
       await db.exec(`

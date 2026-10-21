@@ -1,8 +1,11 @@
+// Imports
 import type { ConfirmationAnswer } from "./lib/supabaseApi";
 import type { ReportSource, ReportSubmissionResult } from "./types/place";
 import { reportObservationValues } from "./trust";
+// Types
 export type PendingReport = { placeId: string; answers: ConfirmationAnswer[]; reportSource: ReportSource; sourceUrl?: string; createdAt: string };
 
+// Functions
 export function getApplicableReportAnswers(answers: ConfirmationAnswer[], reportSource: ReportSource | null): ConfirmationAnswer[] {
   const openingOnly = reportSource !== "in_person" || answers.some(answer => answer.type === "open_status" && answer.value === "closed");
   return openingOnly ? answers.filter(answer => answer.type === "open_status") : answers;
@@ -43,10 +46,9 @@ export async function finishEmailReport(input: {
   if (isRecoveryCallback(input.url)) return { kind: "recovery" as const };
   const venue = venueCallbackPlaceId(input.url);
   if (venue) return { kind: "venue" as const, placeId: venue };
-  // Account registration must not publish an unrelated report saved earlier.
   try {
     if (new URL(input.url).searchParams.get("intent") === "account") return { kind: "account" as const };
-  } catch { /* Link validity is checked by completeEmailLink. */ }
+  } catch {   }
   const draft = await input.readDraft();
   try {
     const callback = new URL(input.url);
@@ -56,7 +58,7 @@ export async function finishEmailReport(input: {
       return placeId === draft?.placeId
         ? { kind: "recheck" as const, draft } : { kind: "report" as const, placeId };
     }
-  } catch { /* Link validity is checked by completeEmailLink. */ }
+  } catch {   }
   if (!draft) return { kind: "account" as const };
   return { kind: "recheck" as const, draft };
 }

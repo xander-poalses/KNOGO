@@ -1,3 +1,4 @@
+// Imports
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text } from "react-native";
@@ -7,6 +8,7 @@ import { usePlaces } from "../state/PlacesContext";
 import { captureEvent, disableTelemetry, enableTelemetry } from "../telemetry";
 import { fonts, useThemeStyles, type ThemeColours } from "../theme";
 
+// Components
 export function TelemetryGate({ children }: { children: ReactNode }) {
   const { settings, settingsLoaded, updateSettings } = usePlaces();
   const styles = useThemeStyles(createStyles);
@@ -32,5 +34,5 @@ export function TelemetryGate({ children }: { children: ReactNode }) {
   </PlaceSheet></>;
 }
 
-// Hallmark: P5 H4 E4 S5 R5 V4. Shared sheet and action tokens, no added palette.
+// Styles
 const createStyles = (colours: ThemeColours) => StyleSheet.create({ body: { color: colours.muted, fontFamily: fonts.regular, fontSize: 14, lineHeight: 21 } });

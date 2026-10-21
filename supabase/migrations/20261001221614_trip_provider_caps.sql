@@ -1,4 +1,4 @@
--- Trip-only setup. No reporting, status, venue-claim or Gemini changes.
+-- Trip Provider Caps
 create schema if not exists knogo_trip_private;
 revoke all on schema knogo_trip_private from public, anon, authenticated;
 
@@ -38,7 +38,6 @@ declare
   request_time timestamptz;
   recent_calls timestamptz[];
 begin
-  -- Serialise reservations for each provider without holding a lock during HTTP.
   select daily_limit, minute_limit, enabled
     into max_calls, max_minute_calls, is_enabled
   from knogo_trip_private.provider_limits where provider = p_provider for update;

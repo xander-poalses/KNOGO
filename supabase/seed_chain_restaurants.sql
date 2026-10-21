@@ -1,7 +1,4 @@
--- KNOGO mainstream Pretoria East chain seed.
--- Apply after 003_place_groups_and_images.sql.
--- This keeps one visible card per chain, with branches behind the group screen.
--- Image URLs are remote references only. Do not store image binaries in Supabase.
+-- Seed Chain Restaurants
 
 insert into public.regions (id, name, slug, region_type, parent_id, sort_order) values
   ('rietvalleirand', 'Rietvalleirand', 'rietvalleirand', 'suburb_area', 'pretoria', 11),
@@ -149,7 +146,6 @@ on conflict (id) do update set
   sort_order = excluded.sort_order,
   updated_at = now();
 
--- Deactivate current niche-heavy rows. We keep Crawdaddy's, Cappuccinos, Doppio Zero and Papachinos as useful chain/mainstream rows.
 update public.places
 set is_active = false, updated_at = now()
 where id in (
@@ -307,7 +303,6 @@ on conflict (place_id) do update set
   source = excluded.source,
   updated_at = now();
 
--- Simple v1 opening hours. These should be replaced with official branch-level hours during the next curation pass.
 delete from public.place_hours
 where place_id in (
   select id from public.places where group_id is not null

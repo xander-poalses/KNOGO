@@ -1,6 +1,8 @@
+// Imports
 import { createVenueClaimHandler } from "../_shared/venueClaims.ts";
 import { serverRpc } from "../_shared/server.ts";
 
+// State and Helpers
 const url = Deno.env.get("SUPABASE_URL") ?? "";
 const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
@@ -19,6 +21,5 @@ Deno.serve(createVenueClaimHandler({
     return { id: user.id, is_anonymous: user.is_anonymous === true };
   },
   rpc: (name, args) => serverRpc(url, key, name, args),
-  // An approved adapter and spend stop must exist before enabling SMS or voice.
   delivery: null
 }));
