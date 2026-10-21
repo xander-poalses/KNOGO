@@ -187,8 +187,40 @@ Keep your phone and PC on the same Wi-Fi and open the development server in
 KNOGO. Use the development build rather than Expo Go. The APK needs Metro to
 run; it is not a standalone release.
 
-See [Android build and device setup](apps/mobile/README.md) for APK build
-commands, SDK requirements, maps and Google sign-in configuration.
+Set `EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN` in `apps/mobile/.env.local` for maps.
+Use a Mapbox access token, not a download secret. The token is bundled into
+the app. Keep attribution visible. If the module or token is absent, the
+branch list remains available. Reloading Metro cannot add a native module.
+
+### Build Android on Windows
+
+Install Android Studio, its JDK and the Android SDK. Windows long-path support
+is needed for the dependency paths. From the repository root, generate the
+native project if `apps/mobile/android` does not exist:
+
+```powershell
+pnpm --dir apps/mobile exec expo prebuild --platform android --no-install
+```
+
+Do not use `--clean` over native edits. Then build from `apps/mobile/android`:
+
+```powershell
+$env:JAVA_HOME = 'C:\Program Files\Android\Android Studio\jbr'
+$env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"
+$env:Path = "$env:JAVA_HOME\bin;$env:Path"
+.\gradlew.bat :app:assembleDebug --init-script ../android-build.gradle '-PreactNativeArchitectures=arm64-v8a,armeabi-v7a'
+```
+
+The APK is `app/build/outputs/apk/debug/app-debug.apk`. This command targets ARM
+phones; include x86_64 when building for that emulator architecture. The init
+script places CMake output in the ignored `.codex-artifacts/android-cxx` folder
+to avoid Windows path limits. Test/debug signing is not release signing.
+Do not uninstall an existing app to force a signing match: that can erase data.
+
+JavaScript changes can reload through Metro. Native dependencies need an APK
+rebuild. Hosted JS updates are not configured yet; installing expo-updates
+alone does not set up delivery. Expo project ownership, channels and an update
+URL must be configured and checked before promising updates to an installed app.
 
 ### Backend configuration
 
@@ -202,17 +234,140 @@ service-role keys on the server. Do not commit `.env.local` or credentials.
 A phone cannot reach your PC through `127.0.0.1`: that address points to the
 phone itself. Use a backend URL the device can reach.
 
-Backend setup is documented by service:
-
-- [Accounts and authentication](docs/ACCOUNT_SETUP.md)
-- [Reports and database checks](docs/CHECKIN_SETUP_AND_QA.md)
-- [Gemini assessment worker](docs/RISK_QUEUE_SETUP.md)
-- [Trip estimates](docs/ZERO_COST_TRIP_SETUP.md)
-- [Fuel data](docs/FUEL_DATA_SETUP.md)
-
 The migration history needs catalogue seeds between some migrations.
 `supabase db reset` alone does not reproduce the development database.
 Use a test database for fixtures and avoid resetting the hosted database.
+Inspect applied migration versions before changing an existing project; do not
+run a blanket migration push while unrelated migrations are pending.
+
+The early catalogue sequence includes `supabase/seed.sql`,
+`supabase/seed_chain_restaurants.sql` after migration 003, and
+`supabase/seed_crawdaddys_group_fix.sql` after the chain seed. Later catalogue
+changes use the batches under `data/place-imports`; follow their
+[import instructions](data/place-imports/README.md). Review migration
+dependencies and batch contents rather than replaying every historic import.
+`seed_milestone_test.sql` and the milestone scripts are local fixtures, never
+production seeds. Do not publish invented reports to catalogue venues.
+
+### Accounts and authentication
+
+1. Enable email/password sign-in and sign-up in Supabase Auth. Keep email
+   confirmation enabled. Use a sender configured for your testers; default
+   delivery limits do not establish SMTP readiness.
+2. Allow the installed app's return routes in Auth URL Configuration, including
+   `knogo://auth/callback**` for account, report and recovery query parameters.
+   Recovery returns to that callback with `intent=recovery`. Review the allowlist before release;
+   do not permit arbitrary hosts. Keep email templates based on
+   `{{ .ConfirmationURL }}` rather than replacing links with code entry.
+3. For Google, configure the OAuth client in Google Auth Platform. Request
+   openid, email and profile. Register the callback URL supplied by Supabase,
+   then store the client ID/secret in Supabase's Google provider settings.
+   The secret must not enter Expo configuration.
+4. After the provider works, set `EXPO_PUBLIC_GOOGLE_AUTH_ENABLED=true` in the
+   mobile environment and restart Metro. This flag does not configure Google.
+   Use KNOGO's development build, not Expo Go, for the app-scheme return.
+5. Check signup, confirmation, sign-in, recovery, cancellation, restart and
+   sign-out on the phone. Account access must return a report to review,
+   never submit it without the contributor pressing Submit.
+
+The authentication provider settings and email delivery need their own checks.
+Never expose callback tokens, SMTP credentials or passwords in logs or screenshots.
+
+### Report worker
+
+Report automation uses the timestamped `20261019` report migrations. Review
+them in order against the project's migration history. They install notice
+acknowledgements, eligibility, scheduling, retention and receipt handling.
+Keep the existing report transaction, contribution counts and access rules.
+
+- Deploy `supabase/functions/report-risk` with its bearer-secret boundary.
+  The worker uses server-provided `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`.
+- Set `RISK_WORKER_SECRET`, `RISK_PSEUDONYM_SECRET`, `GEMINI_RISK_MODEL` and
+  **`GEMNINI_API_KEY`** in Edge Function Secrets. That spelling is what the
+  worker reads. Do not rename it to GEMINI_API_KEY without changing the code.
+- Set `GEMINI_FREE_TIER_CONFIRMED=true` only after checking the project's
+  allowance, billing state, terms and report-data consent. Other consumers
+  share the provider project's limits. Do not enable billing or a paid fallback.
+- Store the same worker credential in Vault as `knogo_risk_worker_secret`.
+  Edge Secrets and Vault are separate. Check existence without reading its value.
+- Scheduler switches start inactive. Before activation, verify permissions,
+  pg_net retention/grants, quota, dry-run cleanup counts and profile counters.
+  Keep the `net` schema outside the Data API; SQL login roles may read queued
+  headers, so do not expose them through tools or diagnostics.
+- The dispatch job is `knogo-report-risk`, once per minute. Retention is
+  `knogo-report-retention`, hourly. The recorded deployment uses minute 36.
+  Confirm the project's jobs rather than creating duplicates.
+- The recorded application ceilings are 100 per rolling 25 hours/UTC day and
+  five per rolling minute. Reduce them when the provider allowance requires it.
+- Stop assessment through dispatch and provider enablement, not by deleting
+  quota counters. Keep retention separate. Reports expire as evidence after
+  four hours; cleanup deletes detail strictly older than 24 hours without
+  reconstructing or decrementing contribution counts.
+
+The setup uses adult consent and server eligibility, not the former test-account
+gate. Manual invocation does not prove scheduler delivery. Check the phone
+receipt, kill switch and cleanup against the intended environment. See
+[operations](docs/OPERATIONS.md) and [community rules](docs/COMMUNITY_RULES.md).
+
+### Trip service
+
+The `trip-planner` function uses openrouteservice. Store `ORS_API_KEY` on the
+server, never in EXPO_PUBLIC variables. Confirm the account's allowance,
+attribution and release terms before setting `ORS_FREE_TIER_CONFIRMED=true`.
+Configure `TRIP_ALLOWED_ORIGINS` with exact origins for the Vite testing tool;
+native requests still pass through the function's admission and quota checks.
+
+The trip-only migration is
+`supabase/migrations/20261001221614_trip_provider_caps.sql`. Its reservation
+RPC is `reserve_trip_provider_call`; controls live under
+`knogo_trip_private.provider_limits`, separate from Gemini's controls. Enable
+routes and addresses only after checking provider limits. Ceilings are 100
+per UTC day and ten per rolling minute for each; a return route consumes
+another route request. Do not reset usage counters to bypass a limit.
+
+The guest endpoint needs gateway configuration that permits anonymous
+invocation while retaining the handler's app-key and origin checks. Set
+`EXPO_PUBLIC_TRIP_API_URL` to the deployed function URL and restart Metro.
+Disable the provider rows or the confirmation gate to stop upstream requests.
+Check permission denial, address entry, route failure and return assumptions
+on a phone. Provider HTTP success does not prove device behaviour.
+
+### Fuel-price service
+
+The `fuel-prices` function reads DMPR's publication index and parses a DOCX
+price table from its ZIP. It uses code, not Gemini. Review source rights before
+commercial use or switching documents; the recorded source review covered
+non-commercial testing only.
+
+Apply the reviewed `20261019202911_background_fuel_prices.sql` migration and
+deploy `supabase/functions/fuel-prices` with guest access as declared in
+`supabase/config.toml`. The app uses its Supabase URL and publishable key;
+no fuel-provider credential or custom-feed URL is needed in Expo.
+
+GET reads the shared snapshot. POST with no payload requests the daily check.
+Only server RPCs claim or publish prices. Enablement lives in the singleton
+`knogo_private.fuel_prices` row. There is one claim per South African day;
+failure waits until the next day, not a client-forced retry.
+
+Fuel/cache version 2 retains at most two publications. Freshness is 48 hours
+from the last successful source check. A failed check cannot extend it, and
+future prices cannot take effect early. The implemented table supplies petrol
+93/95 inland/coastal and diesel 50/500 ppm inland. Coastal diesel stays unset.
+Diesel is wholesale, not a pump quote. Manual price entry stays available and
+wins over references. Do not use the former EXPO_PUBLIC_FUEL_* feed settings.
+
+### Venue verification
+
+The venue-claim handler and database lifecycle exist, but the production entry
+passes `delivery: null`. SMS/voice delivery remains unavailable until an
+approved provider adapter and spend stop exist. An environment flag cannot
+turn on mock delivery. Do not promise phone-code verification to users yet.
+
+Future configuration uses server-side credentials and independently sourced
+phone numbers in `knogo_private.venue_phone_sources`, not a number entered by
+the claimant. `EXPO_PUBLIC_VENUE_CLAIM_API_URL` is the endpoint URL, not a secret.
+Provider approval is required before enabling a chargeable channel. Venue
+access proves access to that phone at verification time, not legal ownership.
 
 ### Vite testing interface
 
@@ -239,7 +394,11 @@ pnpm exec tsc -b
 
 These cover application logic, mobile flows and TypeScript. Device behaviour,
 provider access and backend integration require their own checks.
-See the [tester guide](docs/DV300_TESTER_GUIDE.md) for tasks and observations.
+Use local fixtures for report tests. Check account return, saved drafts,
+submission retries, expiry, sheets, hardware Back, TalkBack, text scaling,
+permissions and offline recovery on Android. Never use a public venue for
+invented observations. The retained Expo Router patch covers initial-link
+timing; review it when upgrading the router.
 
 ## Project structure
 
@@ -251,17 +410,18 @@ See the [tester guide](docs/DV300_TESTER_GUIDE.md) for tasks and observations.
 | `supabase/migrations` | Database structure, permissions and functions |
 | `supabase/functions` | Trip, report assessment and venue-claim handlers |
 | `scripts` | Catalogue tools and verification scripts |
-| `docs` | Service setup, design decisions and project evidence |
+| `docs` | Policy, operations and design guidance |
 | `data/place-imports` | Catalogue imports and their documentation |
 
 ## Documentation
 
-- [Project and design handoff](docs/KNOGO_PROJECT_HANDOFF.md): product context,
-  fonts, colours, spacing, components, motion and implementation notes.
-- [Feature handover](docs/KNOGO_FEATURE_HANDOVER.md): feature inventory and delivery context.
+- [Design system](DESIGN.md): component and interaction guidance. Tokens,
+  DM Sans families, colours, spacing and radii live in
+  [theme.tsx](apps/mobile/src/theme.tsx).
 - [Privacy](docs/PRIVACY.md) and [community rules](docs/COMMUNITY_RULES.md):
   data handling, provider disclosures and report policy.
 - [Release checklist](docs/RELEASE_CHECKLIST.md): checks needed before a release.
+- [Operations](docs/OPERATIONS.md): provider controls, retention and incidents.
 - [Repository file audit](docs/REPOSITORY_FILE_AUDIT.md): removal candidates,
   files to retain and a file-by-file inventory.
 

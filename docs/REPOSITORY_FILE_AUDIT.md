@@ -1,15 +1,53 @@
 # Repository File Audit
 
+This file records review history. Retention recommendations below describe the
+initial review unless a cleanup section says otherwise. Setup now lives in
+[README.md](../README.md#get-started), not in separate guides or handoffs.
+
 Date: 21 October 2026  
-Scope: all 617 files tracked by Git when this review started, plus the top-level local-output folders. This report and its CSV are new deliverables and are not included in that starting count.
+Scope: all 617 files tracked by Git when the initial review started, plus the top-level local-output folders. This report and its CSV were added after that starting count. The Markdown cleanup below records the subsequent deletions.
 
 ## Decision
 
 There are **seven removal candidates** and **two generated files to stop tracking**. Together they account for about 1.15 MB in the working tree. There are also media, concept artwork and agent-tool files that can be archived, depending on what you want the GitHub repository to contain.
 
-No files have been deleted or untracked. No commit, push or history rewrite was made.
+The initial review deleted no files. The first Markdown cleanup removed eight files. The second cleanup removed 26 Markdown files and 17 coursework-evidence files at the user's request. No app code, configuration, database records, commit, push or history rewrite was part of these cleanups.
 
-The [file-by-file inventory](REPOSITORY_FILE_INVENTORY.csv) contains one row for each of the 617 tracked files: path, byte count, recommendation and reason. Paths in this report are relative to the repository root.
+The [file-by-file inventory](REPOSITORY_FILE_INVENTORY.csv) retains one row for each of the initial 617 files: path, byte count at review, recommendation and reason. Deletions are marked Removed Markdown or Removed Evidence. It is a review record, not a live filesystem listing. Paths in this report are relative to the repository root.
+
+## Setup And Evidence Cleanup
+
+At the user's request, the second pass removed both KNOGO handoffs, the mobile
+README, the combined coursework brief, service setup guides, implementation
+and provider histories, coursework logs, QA notes and all 17 files under
+docs/evidence. This includes screenshots and the milestone board, not the
+mockups and code-excerpt images embedded by the README.
+
+Build, authentication, report worker, trip, fuel and venue setup were moved
+into the root README before deletion. Operations and backlog references were
+updated. The original PDF briefs remain unchanged. Catalogue research and
+import provenance are separate from coursework evidence and remain in place.
+
+After both passes, 90 of the original 124 Markdown files remain. The CSV marks
+34 Markdown deletions and 17 evidence deletions. These are documentation and
+evidence changes, not permission to reset a database or change a release.
+
+## Markdown Cleanup
+
+On 21 October, the user requested removal of unused Markdown files. Removed:
+
+- `docs/PLACE_TRIP_FLOW_QA.md`
+- `docs/TASK_FLOW_RECHECK.md`
+- `docs/superpowers/plans/2026-10-19-background-fuel-prices.md`
+- `docs/superpowers/plans/2026-10-19-fuel-execution.md`
+- `docs/superpowers/plans/2026-10-19-report-automation-and-retention.md`
+- `docs/superpowers/plans/2026-10-19-report-automation-execution.md`
+- `docs/superpowers/specs/2026-10-19-background-fuel-prices-design.md`
+- `docs/superpowers/specs/2026-10-19-report-automation-and-retention-design.md`
+
+These plans, specifications and flow notes had no references from retained readers outside the audit inventory. Their current guidance is covered by KNOGO_PROJECT_HANDOFF.md, FUEL_DATA_SETUP.md, RISK_QUEUE_SETUP.md and OPERATIONS.md. Pending device checks and report-policy limits remain documented there.
+
+Retained setup, policy, design, backlog, coursework, catalogue-provenance and installed skill documents. Documentation does not need a code import to be in use. Markdown count changed from 124 to 116. Application code, configuration, databases and assets were not changed.
 
 ## How Files Were Checked
 
@@ -60,7 +98,6 @@ These are not app dependencies. They still carry design, process or coursework v
 | `KNOGO-style-tile.txt` | 1,655 bytes | Consolidate into DESIGN.md or the project handoff before removing |
 | `docs/media/knogo-launch-59s.mp4`, `docs/media/knogo-promo-poster.png` | 7,292,531 bytes | Not referenced by the README or tracked application code; keep elsewhere if required for submission/promotion |
 | `.agents/` and `skills-lock.json` | 41 files, 76,456 bytes | Optional for running the app, but currently supply agent guidance; remove together only if that guidance is no longer wanted in GitHub |
-| `docs/superpowers/plans/`, `docs/superpowers/specs/` | Six history files | Archive after carrying decisions and outstanding work into current setup/handoff notes |
 | `MyProblems.txt` | Historical issue log | Reconcile outstanding items and update its references before archiving |
 | `briefs/`, `Contextual Info/` | Four files, about 3.50 MB | Keep for coursework unless submission requirements allow moving them; check permission to redistribute lecturer briefs |
 

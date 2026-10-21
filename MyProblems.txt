@@ -92,7 +92,7 @@ Verified in this pass
       supabase/functions/report-risk/index.ts
       supabase/functions/venue-claim/index.ts
 [x] Audited the remaining scope against implementation and test boundaries.
-    TRUST_AND_TRIP_IMPLEMENTATION now maps account, dashboard, trust, Gemini,
+    The implementation checklist mapped account, dashboard, trust, Gemini,
     venue claims, trip, schedules, fuel and QA requirements to evidence and
     missing gates. Venue setup notes now describe AccountForm rather than
     retired email-link-only access. No code/config/runtime state changed.
@@ -326,7 +326,7 @@ Verified in this pass
 Open
 ----
 [ ] CTA and sheet device QA
-    CTA source review follows docs/CTA_AUDIT.md. Venue and trip sheets use a
+    CTA source guidance remains in docs/CTA_GUIDELINES.md. Venue and trip sheets use a
     backdrop-first entrance with reduced-motion support. Phone motion,
     text scaling and screen-reader checks remain before release.
     All 202 mobile tests and mobile TypeScript checks pass. Browser hours/trip
@@ -376,7 +376,7 @@ Open
     Settings now blocks repeat sign-out taps and handles a server failure
     without exposing provider details. Report storage rejects damaged drafts,
     duplicate answers and missing required checks. All 224 mobile tests and
-    mobile TypeScript pass. Setup and account QA: docs/ACCOUNT_SETUP.md.
+    mobile TypeScript pass. Account setup is now in README.md#accounts-and-authentication.
 
 [ ] Trust deployment and hosted QA
     The trust migration and venue/risk handlers have not been deployed.

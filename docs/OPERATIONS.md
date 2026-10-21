@@ -6,7 +6,7 @@
 
 Activation is the singleton's `enabled` flag. Set it false to stop source work and serving reference amounts; manual entries still work. Do not reset `attempt_day` or rotate `attempt_id` to force retries. A failed run waits for the next SAST day. Read `attempt_day`, `attempted_at`, `checked_at` and `error_code` to diagnose, not provider secrets. Source work uses no Gemini or paid API. Public requests still consume Supabase's hosting quota.
 
-Reference freshness is 48 hours from a successful source check. A published replacement expires its predecessor at the replacement's effective time. A failed check never extends either date. No expiry is inferred from a monthly calendar. Review source terms before a commercial release or changing the source document. Details and tested deployment evidence: `FUEL_DATA_SETUP.md`.
+Reference freshness is 48 hours from a successful source check. A published replacement expires its predecessor at the replacement's effective time. A failed check never extends either date. No expiry is inferred from a monthly calendar. Review source terms before a commercial release or changing the source document. Setup is in the [README](../README.md#fuel-price-service).
 
 ## Place Data
 
@@ -27,7 +27,7 @@ Reference freshness is 48 hours from a successful source check. A published repl
 
 ## Report Automation
 
-19 October deployment: report-risk version 15, minute dispatch and hourly retention at minute 36 are active. Three reports across two accounts and three places completed through Cron. First cleanup succeeded at 13:36 SAST, with contribution counters preserved. Follow `RISK_QUEUE_SETUP.md`; do not run its historical scheduler template.
+19 October deployment record: report-risk version 15, minute dispatch and hourly retention at minute 36. Three reports across two accounts and three places completed through Cron. First cleanup succeeded at 13:36 SAST, with contribution counters preserved. This is a dated record, not a fresh deployment check. Follow the [README](../README.md#report-worker) for setup.
 
 - Minute job: `knogo-report-risk`, calling `knogo_private.dispatch_report_risk()` only when eligible work and quota exist.
 - Hourly job: `knogo-report-retention`, calling `knogo_private.purge_expired_reports()` with a 500-row batch per detail family.

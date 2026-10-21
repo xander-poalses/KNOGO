@@ -8,13 +8,13 @@ This file is the project backlog. Add future work here under the closest priorit
   Acceptance: TalkBack, keyboard focus and modal return, 200% text scaling, touch targets, contrast, error messages and safe areas pass across the app. Place/trip surface tokens have contrast regression tests; that alone does not certify the app.
 
 - [ ] Test the R0 trip estimate on an Android phone.
-  Acceptance: one tap uses device location and the current time; address, departure and fuel sheets work; return estimates and permission/network failures pass. Map rendering was removed from the place flow on 2 October. Hosted address/route and rejection tests pass. Commercial-release terms and admission controls remain a release gate. No billing or paid fallback. Setup: `docs/ZERO_COST_TRIP_SETUP.md`.
+  Acceptance: one tap uses device location and the current time; address, departure and fuel sheets work; return estimates and permission/network failures pass. Map rendering was removed from the place flow on 2 October. Hosted address/route and rejection tests pass. Commercial-release terms and admission controls remain a release gate. No billing or paid fallback. Setup: [README](README.md#trip-service).
 
 - [x] Redesign the place and trip flow around expectations and an estimate.
   Acceptance: schedule expectations remain separate from reports; details are on tap; maps and first-open fuel setup do not block the flow; unknown values are not repeated across the opening screen.
 
 - [ ] Complete the trust model and venue trip-planning scope from the 1 October attachment.
-  Acceptance: all gates in `docs/TRUST_AND_TRIP_IMPLEMENTATION.md` are implemented and verified; credential and cost blocks are documented in `docs/TRUST_TRIP_PROVIDERS.md`. No deployment or spending is authorised.
+  Acceptance: account, trust, trip, venue and failure paths are implemented and verified; credential and cost blocks follow the [README](README.md#backend-configuration) and release checklist. No deployment or spending is authorised by this backlog entry.
 
 - [ ] Restore the inactive Supabase project and deploy the check-in hardening migration.
   Acceptance: check-in RPC is present, permissions pass, conflicting batches leave status unchanged and each check expires on its own timestamp.
@@ -61,7 +61,7 @@ This file is the project backlog. Add future work here under the closest priorit
 - [ ] Consider shop-price comparisons after community reporting and trip fuel budgeting.
   Acceptance: scope, sources, rights and update rules are agreed before implementation. No shop-price feed or comparison is part of the current place screen.
 - [ ] Connect the Figma place-screen map after Mapbox access and build choice are agreed.
-  Acceptance: no-card demo limits or billing approval are recorded; no automatic spend; web and Android map gestures, venue marker, theme, attribution and failure hiding pass QA. Native Mapbox needs a development build rather than Expo Go. See `docs/MAPBOX_REVIEW.md`.
+  Acceptance: no-card demo limits or billing approval are recorded; no automatic spend; web and Android map gestures, venue marker, theme, attribution and failure hiding pass QA. Native Mapbox needs a development build rather than Expo Go. See [README](README.md#android-app).
 - [ ] Consider optional location context for in-person reports without blocking remote reports.
   Acceptance: location is consent-based, is not required for phone or online reports, and does not decide whether a report is accepted.
 - [ ] Add first-open onboarding and permission explanations.
