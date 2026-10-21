@@ -75,14 +75,16 @@ describe("rendered web CTA semantics", () => {
   it("exposes the report progress value and updates it after a step", async () => {
     render(<ConfirmScreen/>);
     const progress = await screen.findByRole("progressbar", { name: "Report progress" });
+    fireEvent.click(screen.getByRole("radio", { name: "At the venue" }));
     expect(progress.getAttribute("aria-valuemin")).toBe("1");
     expect(progress.getAttribute("aria-valuemax")).toBe("5");
     expect(progress.getAttribute("aria-valuenow")).toBe("1");
     expect(progress.getAttribute("aria-valuetext")).toBe("Step 1 of 5");
     fireEvent.click(screen.getByRole("radio", { name: "By phone" }));
+    expect(progress.getAttribute("aria-valuemax")).toBe("3");
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
     expect(progress.getAttribute("aria-valuenow")).toBe("2");
-    expect(progress.getAttribute("aria-valuetext")).toBe("Step 2 of 5");
+    expect(progress.getAttribute("aria-valuetext")).toBe("Step 2 of 3");
   });
   it("shows focus without changing the target size and preserves caller events", () => {
     const onFocus = vi.fn(), onBlur = vi.fn();

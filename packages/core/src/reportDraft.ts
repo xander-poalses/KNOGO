@@ -2,6 +2,12 @@ import type { ConfirmationAnswer } from "./lib/supabaseApi";
 import type { ReportSource, ReportSubmissionResult } from "./types/place";
 import { reportObservationValues } from "./trust";
 export type PendingReport = { placeId: string; answers: ConfirmationAnswer[]; reportSource: ReportSource; sourceUrl?: string; createdAt: string };
+
+export function getApplicableReportAnswers(answers: ConfirmationAnswer[], reportSource: ReportSource | null): ConfirmationAnswer[] {
+  const openingOnly = reportSource !== "in_person" || answers.some(answer => answer.type === "open_status" && answer.value === "closed");
+  return openingOnly ? answers.filter(answer => answer.type === "open_status") : answers;
+}
+
 export function isRecoveryCallback(url: string): boolean {
   try {
     const parsed = new URL(url);

@@ -3,7 +3,7 @@ import { type FormEvent, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { hasSupabaseConfig, readSupabaseSession, signInWithEmail, signUpWithEmail, readReportReviewNotice, acceptReportReviewNotice, submitSupabaseReport } from "../lib/supabaseApi";
 import { usePlaces } from "../state/PlacesContext";
-import { reportReviewNoticeVersion, isFoodCategory, reportValidationError, type ConfirmationType, type ConfirmationAnswer, type ReportSource } from "@knogo/core";
+import { getApplicableReportAnswers, reportReviewNoticeVersion, isFoodCategory, reportValidationError, type ConfirmationType, type ConfirmationAnswer, type ReportSource } from "@knogo/core";
 import styles from "./ConfirmPage.module.css";
 import { ReportAssessmentReceipt } from "./ReportAssessmentReceipt";
 
@@ -85,7 +85,8 @@ export function ConfirmPage() {
   const [sourceUrl,setSourceUrl]=useState("");
   const [answers,setAnswers]=useState<ConfirmationAnswer[]>([]);
   const place = places.find((item) => item.id === placeId);
-  const questions=place && !isFoodCategory(place.category)?steps.filter(step=>step.type!=="kitchen_status"):steps;
+  const openingOnly=reportSource!=="in_person"||answers.some(answer=>answer.type==="open_status"&&answer.value==="closed");
+  const questions=steps.filter(step=>(!openingOnly||step.type==="open_status")&&(step.type!=="kitchen_status"||!place||isFoodCategory(place.category)));
   const step = questions[index];
   useEffect(()=>{
     let active=true;
@@ -125,7 +126,7 @@ export function ConfirmPage() {
   };
 
   const answer = (value: string) => {
-    setAnswers(current=>[...current.filter(answer=>answer.type!==step.type),...(value==="not_sure"?[]:[{type:step.type,value}])]);
+    setAnswers(current=>getApplicableReportAnswers([...current.filter(answer=>answer.type!==step.type),...(value==="not_sure"?[]:[{type:step.type,value}])],reportSource));
     setIndex(index+1);
   };
   const submit = async () => {
@@ -217,7 +218,7 @@ export function ConfirmPage() {
         {submitError?<p role="alert" className={styles.error}>{submitError}</p>:null}
       </section> : index===-1 ? <section className={styles.card}>
         <Link to={`/restaurants/${place.id}`}>Back to place</Link><h1>How did you check?</h1>
-        <div className={styles.options}>{([['in_person','At the venue'],['phone','By phone'],['online','Online']] as const).map(([value,label])=><button key={value} aria-pressed={reportSource===value} onClick={()=>setReportSource(value)}>{label}</button>)}</div>
+        <div className={styles.options}>{([['in_person','At the venue'],['phone','By phone'],['online','Online']] as const).map(([value,label])=><button key={value} aria-pressed={reportSource===value} onClick={()=>{setReportSource(value);setAnswers(current=>getApplicableReportAnswers(current,value));}}>{label}</button>)}</div>
         {reportSource==="online"?<label>Source website<input value={sourceUrl} onChange={event=>setSourceUrl(event.target.value)} type="url"/></label>:null}
         <button className={styles.authSubmit} disabled={!reportSource||(reportSource==="online"&&!/^https?:\/\/[^\s/]+/.test(sourceUrl.trim()))} onClick={()=>setIndex(0)}>Continue</button>
       </section> : index===questions.length ? <section className={styles.card}>

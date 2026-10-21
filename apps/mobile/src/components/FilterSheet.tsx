@@ -1,6 +1,8 @@
 import { defaultFilters, otherFilterValue, type Place, type PlaceCategory, type PlaceFilters } from "@knogo/core";
 import { directoryFilterOptions, filterCapabilities } from "../filterContext";
-import { ChevronDown, ChevronUp, X } from "lucide-react-native";
+import { ChevronDown, X } from "lucide-react-native";
+import { SwipeSheet } from "./SwipeSheet";
+import { AccordionMotion, AccordionArrow, AccordionBody } from "./Motion";
 import { useEffect, useState, type ReactNode } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { StagedModal } from "./StagedModal";
@@ -16,13 +18,13 @@ function Section({ title, summary, children, list = false, defaultOpen = false }
   const { colours } = useTheme();
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <View style={styles.section}>
+    <AccordionMotion style={styles.section}>
       <Pressable accessibilityRole="button" accessibilityLabel={`${title}: ${summary}`} accessibilityState={{ expanded: open }} aria-expanded={open} onPress={() => setOpen(current => !current)} style={styles.sectionHead}>
         <View style={styles.sectionCopy}><Text style={styles.sectionTitle}>{title}</Text><Text numberOfLines={1} style={styles.summary}>{summary}</Text></View>
-        {open ? <ChevronUp color={colours.muted} size={18}/> : <ChevronDown color={colours.muted} size={18}/>}
+        <AccordionArrow open={open}><ChevronDown color={colours.muted} size={18}/></AccordionArrow>
       </Pressable>
-      {open ? <View style={list ? styles.listContent : styles.chips}>{children}</View> : null}
-    </View>
+      {open ? <AccordionBody><View style={list ? styles.listContent : styles.chips}>{children}</View></AccordionBody> : null}
+    </AccordionMotion>
   );
 }
 
@@ -70,13 +72,13 @@ export function FilterSheet({
   return (
     <StagedModal accessibilityLabel={areasOnly ? "Choose areas" : cuisinesOnly ? "Choose cuisines" : "Filters"} visible={visible} onRequestClose={onClose}>
       <View style={[styles.overlay, { paddingTop: 16 + insets.top }]}>
-      <View accessibilityViewIsModal style={styles.modal}>
+      <SwipeSheet visible={visible} onClose={onClose} style={styles.modal} header={
         <View style={styles.head}>
           <Text accessibilityRole="header" style={styles.title}>{areasOnly ? "Choose areas" : cuisinesOnly ? "Choose cuisines" : "Filters"}</Text>
           <Pressable accessibilityLabel={areasOnly ? "Close areas" : cuisinesOnly ? "Close cuisines" : "Close filters"} accessibilityRole="button" style={styles.close} onPress={onClose}>
             <X color={colours.ink} size={24} />
           </Pressable>
-        </View>
+        </View>}>
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.content, { paddingBottom: 48 + insets.bottom }]}>
           {nearby && !areasOnly && !cuisinesOnly ? <Section title="Distance" summary={filters.maxDistanceKm === 'other' ? 'Beyond 50 km' : `Within ${filters.maxDistanceKm ?? 25} km`} list defaultOpen><DistanceSlider value={typeof filters.maxDistanceKm==='number'?filters.maxDistanceKm:25} onCommit={maxDistanceKm=>onChange({...filters,maxDistanceKm})}/><Chip label="Other" selected={filters.maxDistanceKm==='other'} onPress={()=>onChange({...filters,maxDistanceKm:filters.maxDistanceKm==='other'?25:'other'})}/></Section> : null}
           {!areasOnly && !cuisinesOnly && places.length ? <Section title="Place type" summary={filters.placeTypes?.length ? labels(filters.placeTypes.map(id=>options.types.find(type=>type.id===id)?.label??id)) : "All types"} list>
@@ -129,7 +131,7 @@ export function FilterSheet({
           <ActionButton label={areasOnly ? "Clear areas" : cuisinesOnly ? "Clear cuisines" : "Clear filters"} tone="light" onPress={() => onChange(areasOnly ? { ...filters, areas: [] } : cuisinesOnly ? { ...filters, cuisines: [] } : { ...defaultFilters, query: filters.query, ...(nearby ? {maxDistanceKm:25}: {}) })} />
           <ActionButton label="Show results" tone="green" onPress={onClose} />
         </View>
-      </View>
+      </SwipeSheet>
       </View>
     </StagedModal>
   );

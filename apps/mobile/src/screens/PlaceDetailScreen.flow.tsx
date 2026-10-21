@@ -33,6 +33,7 @@ vi.mock("../components/Ui", async () => {
 vi.mock("react-native", async () => {
   const { createElement } = await import("react");
   return {
+    AccessibilityInfo: { addEventListener: () => ({ remove() {} }) },
     View: ({ children, accessibilityLabel }: any) => createElement("div", { "aria-label": accessibilityLabel }, children),
     Text: ({ children, accessibilityRole }: any) => createElement("div", { role: accessibilityRole === "alert" ? "alert" : undefined }, children),
     Pressable: ({ children, onPress, accessibilityLabel, accessibilityRole, ...props }: any) => createElement("button", { onClick: onPress, "aria-label": accessibilityLabel, role: accessibilityRole === "link" ? "link" : undefined, "aria-pressed": props["aria-pressed"] }, children),
@@ -63,7 +64,7 @@ describe("place dashboard journey", () => {
     const reportedAt = new Date(Date.now() - 5 * 60_000).toISOString();
     const expiresAt = new Date(Date.now() + 60 * 60_000).toISOString();
     const claim = (type: ConfirmationType, value: string): TrustClaim => ({ state: "community_indication", value, reportedAt, expiresAt, rule: "community", evidence: [{ id: type, actorId: "tester", type, value, source: "community", reportedAt, expiresAt }] });
-    mocks.places[0].currentStatus = { ...mocks.places[0].currentStatus, trust: { version: 1, claims: { open_status: claim("open_status", "open"), kitchen_status: claim("kitchen_status", "yes"), card_machine: claim("card_machine", "yes") } } };
+    mocks.places[0].currentStatus = { ...mocks.places[0].currentStatus, trust: { version: 1, claims: { open_status: claim("open_status", "open"), kitchen_status: claim("kitchen_status", "yes"), card_machine: claim("card_machine", "yes"), walk_ins: claim("walk_ins", "yes"), backup_power: claim("backup_power", "normal"), busy_level: claim("busy_level", "normal") } } };
     await act(async () => { render(<PlaceDetailScreen/>); });
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: "View recent reports" })); });
     const sheet = within(screen.getByRole("dialog", { name: "Status & checks" }));
@@ -74,6 +75,11 @@ describe("place dashboard journey", () => {
     fireEvent.click(sheet.getByRole("button", { name: "Additional info" }));
     expect(sheet.getByLabelText("Kitchen: Serving")).toBeTruthy();
     expect(sheet.getByLabelText("Card machine: Working")).toBeTruthy();
+    expect(sheet.getByLabelText("Walk-ins: Yes")).toBeTruthy();
+    expect(sheet.getByLabelText("Power: Working")).toBeTruthy();
+    expect(sheet.queryByRole("button", { name: /report details/ })).toBeNull();
+    expect(sheet.queryByText(/^1 report$/)).toBeNull();
+    expect(sheet.queryByText(/Last confirmed|Expires at|At the venue/)).toBeNull();
     expect(sheet.queryByText("Bar")).toBeNull();
   });
   it("does not show kitchen status for a non-food place", () => {
@@ -217,20 +223,19 @@ describe("place dashboard journey", () => {
     fireEvent.click(screen.getByRole("button", { name: "View place information" }));
     expect(screen.getByText("Description not available yet.")).toBeTruthy();
   });
-  it("keeps report evidence behind a control and excludes expired evidence", () => {
+  it("shows opening status and age without report-detail rows", () => {
     const reportedAt = new Date(Date.now() - 5 * 60_000).toISOString();
     const expiresAt = new Date(Date.now() + 60 * 60_000).toISOString();
     const evidence = { id: "check-1", actorId: "tester", type: "open_status" as const, value: "open", source: "community" as const, reportedAt, expiresAt, checkedBy: "in_person" as const };
     mocks.places[0].currentStatus = { ...mocks.places[0].currentStatus, trust: { version: 1, claims: { open_status: { state: "community_indication", value: "open", reportedAt, expiresAt, rule: "community", evidence: [evidence] } } } };
-    const view = render(<PlaceDetailScreen/>);
+    render(<PlaceDetailScreen/>);
     fireEvent.click(screen.getByRole("button", { name: "View recent reports" }));
     const sheet = within(screen.getByRole("dialog", { name: "Status & checks" }));
     expect(sheet.queryByText(/Expires at/)).toBeNull();
-    fireEvent.click(sheet.getByRole("button", { name: "Open report details" }));
-    expect(sheet.getByText(/At the venue/)).toBeTruthy();
-    expect(sheet.getAllByText(/Expires at/)).toHaveLength(1);
-    mocks.places[0].currentStatus.trust!.claims.open_status!.evidence[0].expiresAt = new Date(Date.now() - 60_000).toISOString();
-    view.rerender(<PlaceDetailScreen/>);
+    expect(sheet.getByText("Open")).toBeTruthy();
+    expect(sheet.getByText("00:05 ago")).toBeTruthy();
+    expect(sheet.queryByText(/^1 report$/)).toBeNull();
+    expect(sheet.queryByText(/Last confirmed|At the venue/)).toBeNull();
     expect(sheet.queryByRole("button", { name: "Open report details" })).toBeNull();
   });
   it("offers directions when contact details are missing", () => {

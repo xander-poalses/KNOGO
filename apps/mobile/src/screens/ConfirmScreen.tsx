@@ -1,5 +1,5 @@
 import type { ConfirmationAnswer, ConfirmationType, ReportOutcome, ReportSource } from "@knogo/core";
-import { isFoodCategory, reportValidationError } from "@knogo/core";
+import { getApplicableReportAnswers, isFoodCategory, reportValidationError } from "@knogo/core";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Check, ChevronRight } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
@@ -15,6 +15,8 @@ import { mobileStorage } from "../storage";
 import { FeedbackToast } from "../components/FeedbackToast";
 import { ReportAssessmentReceipt } from "../components/ReportAssessmentReceipt";
 import { ReportReviewGate } from "../components/ReportReviewGate";
+import Animated from "react-native-reanimated";
+import { ReceiptMotion, StateMotion, useMotionPreference } from "../components/Motion";
 
 type CheckStep = {
   type: ConfirmationType;
@@ -48,6 +50,7 @@ function VenueReportForm() {
   const supportsKitchen = !place || isFoodCategory(place.category);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState(-1);
+  const reducedMotion = useMotionPreference();
   const [answers, setAnswers] = useState<ConfirmationAnswer[]>([]);
   const [reportSource, setReportSource] = useState<ReportSource | null>(null);
   const [sourceUrl, setSourceUrl] = useState("");
@@ -64,7 +67,7 @@ function VenueReportForm() {
       if (!active || done || draftEdited.current || !draft || draft.placeId !== placeId) return;
       const age = Date.now() - Date.parse(draft.createdAt);
       if (!Number.isFinite(age) || age < 0 || age >= 4 * 60 * 60 * 1000) return;
-      setAnswers(draft.answers.filter(answer => supportsKitchen || answer.type !== "kitchen_status")); setReportSource(draft.reportSource); setSourceUrl(draft.sourceUrl ?? "");
+      setAnswers(getApplicableReportAnswers(draft.answers, draft.reportSource).filter(answer => supportsKitchen || answer.type !== "kitchen_status")); setReportSource(draft.reportSource); setSourceUrl(draft.sourceUrl ?? "");
       setStep(6);
     }).catch(() => undefined);
     return () => { active = false; };
@@ -122,19 +125,21 @@ function VenueReportForm() {
         ? "The checks include opposing reports. KNOGO keeps both sources visible rather than choosing a side."
         : "Other checks may be needed before the status changes.";
     const resultSource = reportSource ?? callbackSource;
-    return <Page contentContainerStyle={styles.centerPage}><BackButton label="Back to place" iconOnly /><View style={styles.done}><Check color={colours.primary} size={46} /><Text style={styles.title}>{title}</Text><Text style={styles.helper}>{message}</Text>{resultSource ? <Text style={styles.unverified}>Checked by {resultSource === "in_person" ? "a person at the venue" : resultSource === "phone" ? "phone" : "an online source"}.</Text> : null}{hasSupabaseConfig && session && reportId ? <ReportAssessmentReceipt key={`${session.userId}:${reportId}`} reportId={reportId} onReviewed={() => { void refreshPlace(place.id).catch(() => undefined); }} /> : null}<ActionButton label="Back to place" tone="green" onPress={() => router.replace({ pathname: "/restaurants/[placeId]", params: { placeId: place.id } })} /></View></Page>;
+    return <Page contentContainerStyle={styles.centerPage}><BackButton label="Back to place" iconOnly /><View style={styles.done}><ReceiptMotion><Check color={colours.primary} size={46} /></ReceiptMotion><Text style={styles.title}>{title}</Text><Text style={styles.helper}>{message}</Text>{resultSource ? <Text style={styles.unverified}>Checked by {resultSource === "in_person" ? "a person at the venue" : resultSource === "phone" ? "phone" : "an online source"}.</Text> : null}{hasSupabaseConfig && session && reportId ? <ReportAssessmentReceipt key={`${session.userId}:${reportId}`} reportId={reportId} onReviewed={() => { void refreshPlace(place.id).catch(() => undefined); }} /> : null}<ActionButton label="Back to place" tone="green" onPress={() => router.replace({ pathname: "/restaurants/[placeId]", params: { placeId: place.id } })} /></View></Page>;
   }
 
   const current = steps[step];
   const choose = (value: string) => {
     draftEdited.current = true;
-    setAnswers((currentAnswers) => [...currentAnswers.filter((answer) => answer.type !== current.type), { type: current.type, value }]);
+    setAnswers((currentAnswers) => getApplicableReportAnswers([...currentAnswers.filter((answer) => answer.type !== current.type), { type: current.type, value }], reportSource));
+    if (current.type === "open_status" && value === "closed") setShowOptional(false);
   };
   const requiredComplete = answers.length > 0;
   const optionalAnswered = current && answers.some((answer) => answer.type === current.type);
-  const total = (showOptional ? 8 : 5) - (supportsKitchen ? 0 : 1);
+  const openingOnly = reportSource !== "in_person" || answers.some(answer => answer.type === "open_status" && answer.value === "closed");
+  const total = openingOnly ? 3 : (showOptional ? 8 : 5) - (supportsKitchen ? 0 : 1);
   const progressStep = step === 6 ? total : step + 2 - (!supportsKitchen && step > 1 ? 1 : 0);
-  const nextStep = step === 2 || step === 5 ? 6 : step === 0 && !supportsKitchen ? 2 : step + 1;
+  const nextStep = openingOnly || step === 2 || step === 5 ? 6 : step === 0 && !supportsKitchen ? 2 : step + 1;
   const sourceReady = reportSource !== null && (reportSource !== "online" || /^https?:\/\/[^\s/]+\.[^\s/]+/i.test(sourceUrl.trim()));
 
   const survey = (
@@ -142,13 +147,14 @@ function VenueReportForm() {
       <View style={styles.survey}>
         <View style={styles.surveyHeading}><BackButton label="Back to place" iconOnly/><Text style={styles.kicker}>{place.name}</Text></View>
         <View accessibilityRole="progressbar" accessibilityLabel="Report progress" aria-valuemin={1} aria-valuemax={total} aria-valuenow={progressStep} aria-valuetext={`Step ${progressStep} of ${total}`} style={styles.progressTrack}>
-          <View style={[styles.progressFill, { width: `${progressStep / total * 100}%` }]} />
+          <Animated.View style={[styles.progressFill, { width: `${progressStep / total * 100}%`, transitionProperty: "width", transitionDuration: reducedMotion ? 0 : 180 }]} />
         </View>
         <Text accessibilityLiveRegion="polite" style={styles.helper}>Step {progressStep} of {total}</Text>
+        <StateMotion value={step} step style={{ gap: space.sm }}>
         {step === -1 ? <>
         <Text accessibilityRole="header" style={styles.questionTitle}>How did you check?</Text>
         <Text style={styles.helper}>Share what you checked; skip the rest.</Text>
-        <View accessibilityRole="radiogroup" accessibilityLabel="Check method" style={styles.sourceOptions}>{([['in_person', 'At the venue'], ['phone', 'By phone'], ['online', 'Online']] as Array<[ReportSource, string]>).map(([value, label]) => <Chip key={value} role="radio" label={label} selected={reportSource === value} disabled={busy} onPress={() => { draftEdited.current = true; setReportSource(value); setError(null); }} />)}</View>
+        <View accessibilityRole="radiogroup" accessibilityLabel="Check method" style={styles.sourceOptions}>{([['in_person', 'At the venue'], ['phone', 'By phone'], ['online', 'Online']] as Array<[ReportSource, string]>).map(([value, label]) => <Chip key={value} role="radio" label={label} selected={reportSource === value} disabled={busy} onPress={() => { draftEdited.current = true; setReportSource(value); setAnswers(current => getApplicableReportAnswers(current, value)); if (value !== "in_person") setShowOptional(false); setError(null); }} />)}</View>
         {reportSource === "online" ? <TextInput accessibilityLabel="Source website address" editable={!busy} style={styles.input} value={sourceUrl} onChangeText={(value) => { draftEdited.current = true; setSourceUrl(value); setError(null); }} placeholder="https://source-page.example" placeholderTextColor={colours.muted} autoCapitalize="none" autoCorrect={false} keyboardType="url" /> : null}
         <ActionButton label="Continue" tone="green" disabled={busy || !sourceReady} onPress={() => setStep(0)} />
         </> : step === 6 ? <>
@@ -160,7 +166,7 @@ function VenueReportForm() {
             return <Pressable key={answer.type} accessibilityRole="button" accessibilityLabel={`Edit ${question?.question}`} onPress={() => setStep(steps.findIndex(item => item.type === answer.type))} style={styles.reviewRow}><View style={{ flex: 1 }}><Text style={styles.helper}>{question?.question}</Text><Text style={styles.optionText}>{question?.options.find(option => option.value === answer.value)?.label}</Text></View><ChevronRight color={colours.muted} size={18}/></Pressable>;
           })}
           <ActionButton label={busy ? "Submitting..." : "Submit check"} tone="green" loading={busy} disabled={!requiredComplete || !sourceReady} onPress={() => void submit()}/>
-          {!showOptional ? <ActionButton label="Add more checks" tone="light" onPress={() => { setShowOptional(true); setStep(3); }}/>:null}
+          {!openingOnly && !showOptional ? <ActionButton label="Add more checks" tone="light" onPress={() => { setShowOptional(true); setStep(3); }}/>:null}
         </> : <>
         <Text accessibilityRole="header" style={styles.questionTitle}>{current.question}</Text>
         <View accessibilityRole="radiogroup" accessibilityLabel={current.question} style={styles.options}>
@@ -171,11 +177,12 @@ function VenueReportForm() {
         </View>
         <View style={styles.questionNavigation}>
           <View style={styles.navigationButton}><ActionButton label="Back" tone="light" disabled={busy} onPress={() => setStep(step === 2 && !supportsKitchen ? 0 : step - 1)}/></View>
-          <View style={styles.navigationButton}><ActionButton label={step === 2 || step === 5 ? "Review check" : "Continue"} tone="green" disabled={busy || !optionalAnswered} onPress={() => setStep(nextStep)} /></View>
+          <View style={styles.navigationButton}><ActionButton label={nextStep === 6 ? "Review check" : "Continue"} tone="green" disabled={busy || !optionalAnswered} onPress={() => setStep(nextStep)} /></View>
         </View>
         <ActionButton label="Did not check" tone="light" disabled={busy} onPress={() => { draftEdited.current = true; setAnswers(value => value.filter(answer => answer.type !== current.type)); setStep(nextStep); }} />
-        {requiredComplete && step !== 2 && step !== 5 ? <ActionButton label="Review report" tone="light" disabled={busy} onPress={() => setStep(6)} /> : null}
+        {requiredComplete && nextStep !== 6 ? <ActionButton label="Review report" tone="light" disabled={busy} onPress={() => setStep(6)} /> : null}
         </>}
+        </StateMotion>
         <FeedbackToast message={error} onDismiss={() => setError(null)}/>
       </View>
     </Page>
@@ -191,7 +198,7 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   navigationButton: { flex: 1, minWidth: 0 },
   surveyPage: { justifyContent: "flex-start", paddingTop: space.xs, paddingBottom: space.sm },
   progressTrack: { height: 6, borderRadius: radii.round, overflow: "hidden", backgroundColor: colours.controlStrong },
-  progressFill: { height: "100%", borderRadius: radii.round, backgroundColor: colours.primary },
+  progressFill: { position: "absolute", left: 0, top: 0, height: "100%", borderRadius: radii.round, backgroundColor: colours.primary },
   radioRing: { width: 20, height: 20, borderRadius: radii.round, borderWidth: 1, borderColor: colours.controlBorder },
   reviewRow: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: space.sm, paddingVertical: space.xs, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: colours.border },
   flex: { flex: 1, backgroundColor: colours.background }, centerPage: { justifyContent: "flex-start" },

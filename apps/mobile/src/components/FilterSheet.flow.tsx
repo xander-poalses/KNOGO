@@ -7,7 +7,7 @@ import { FilterSheet } from "./FilterSheet";
 vi.mock("react-native", async () => {
   const { createElement } = await import("react");
   const box = ({ children }: any) => createElement("div", null, children);
-  return { View: box, Text: box, ScrollView: box, StyleSheet: { create: (styles: unknown) => styles, hairlineWidth: 1 } };
+  return { View: box, Text: box, ScrollView: box, useWindowDimensions: () => ({ height: 800, width: 400 }), AccessibilityInfo: { addEventListener: () => ({ remove() {} }) }, StyleSheet: { create: (styles: unknown) => styles, hairlineWidth: 1 } };
 });
 vi.mock("react-native-safe-area-context", () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0 }) }));
 vi.mock("lucide-react-native", () => ({ ChevronDown: () => null, ChevronUp: () => null, X: () => null }));

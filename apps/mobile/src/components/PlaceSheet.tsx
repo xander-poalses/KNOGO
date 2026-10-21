@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { StagedModal } from "./StagedModal";
+import { SwipeSheet } from "./SwipeSheet";
 import { PanelBottomClose } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { HapticPressable } from "./HapticPressable";
@@ -14,12 +15,12 @@ export function PlaceSheet({ visible, title, onClose, children }: { visible: boo
   return <StagedModal accessibilityLabel={title} visible={visible} statusBarTranslucent onRequestClose={onClose}>
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.overlay}>
       <HapticPressable accessible={false} focusable={false} onPress={onClose} style={StyleSheet.absoluteFill}/>
-      <View accessibilityViewIsModal style={[styles.sheet, { maxHeight: height - insets.top - space.lg }]}>
+      <SwipeSheet visible={visible} onClose={onClose} style={[styles.sheet, { maxHeight: height - insets.top - space.lg }]} header={
         <View style={styles.heading}><Text accessibilityRole="header" style={styles.title}>{title}</Text>
           <HapticPressable accessibilityRole="button" accessibilityLabel={`Close ${title.toLowerCase()}`} onPress={onClose} style={styles.close}><PanelBottomClose color={colours.text} size={34} strokeWidth={1.7}/></HapticPressable>
-        </View>
+        </View>}>
         <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator contentContainerStyle={[styles.content, { paddingBottom: space.lg + insets.bottom }]}>{children}</ScrollView>
-      </View>
+      </SwipeSheet>
     </KeyboardAvoidingView>
   </StagedModal>;
 }

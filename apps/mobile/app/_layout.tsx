@@ -11,6 +11,7 @@ import {
 } from "@expo-google-fonts/dm-sans";
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BrandHeader } from "../src/components/AppChrome";
 import { PlacesProvider } from "../src/state/PlacesContext";
 import { ThemeProvider, useTheme } from "../src/theme";
@@ -36,9 +37,9 @@ export default function RootLayout() {
   if (!fontsLoaded) return null;
 
   return (
-    <SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}><SafeAreaProvider>
       <ThemeProvider><FuelProvider><PlacesProvider><TelemetryGate><ThemedStack /></TelemetryGate></PlacesProvider></FuelProvider></ThemeProvider>
-    </SafeAreaProvider>
+    </SafeAreaProvider></GestureHandlerRootView>
   );
 }
 

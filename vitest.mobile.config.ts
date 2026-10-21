@@ -9,5 +9,5 @@ export default defineConfig({
     "react": resolve("apps/mobile/node_modules/react"),
     "react-dom": resolve("apps/mobile/node_modules/react-dom")
   } },
-  test: { environment: "jsdom", globals: true, include: ["apps/mobile/src/**/*.flow.tsx"] }
+  test: { environment: "jsdom", globals: true, setupFiles: ["apps/mobile/src/motionTestSetup.tsx"], include: ["apps/mobile/src/**/*.flow.tsx"] }
 });

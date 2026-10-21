@@ -7,6 +7,7 @@ vi.mock("../theme", () => ({ useTheme: () => ({ colours: { overlayStrong: "#0008
 vi.mock("react-native", async () => {
   const { createElement, useLayoutEffect } = await import("react");
   return {
+    View: ({ children }: any) => createElement("div", null, children),
     Modal: ({ visible, onShow, onRequestClose, children, animationType }: any) => {
       useLayoutEffect(() => { if (mocks.autoShow && visible) onShow({}); }, [visible]);
       return visible ? createElement("section", { role: "dialog", "data-animation": animationType }, createElement("button", { onClick: onShow }, "Show"), createElement("button", { onClick: onRequestClose }, "Back"), children) : null;

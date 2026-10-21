@@ -1,11 +1,23 @@
 import { describe, expect, it } from "vitest";
-import { reportValidationError, type ConfirmationAnswer } from "@knogo/core";
+import { getApplicableReportAnswers, reportValidationError, type ConfirmationAnswer } from "@knogo/core";
 
 const answers: ConfirmationAnswer[] = [
   { type: "open_status", value: "open" },
   { type: "kitchen_status", value: "yes" },
   { type: "busy_level", value: "quiet" }
 ];
+
+describe("survey answer scope", () => {
+  it.each(["phone", "online"] as const)("keeps only opening observations for %s", source => {
+    expect(getApplicableReportAnswers(answers, source)).toEqual([answers[0]]);
+    expect(answers).toHaveLength(3);
+    expect(getApplicableReportAnswers(answers.slice(1), source)).toEqual([]);
+  });
+  it("keeps venue observations unless the venue is reported closed", () => {
+    expect(getApplicableReportAnswers(answers, "in_person")).toEqual(answers);
+    expect(getApplicableReportAnswers([{ type: "open_status", value: "closed" }, ...answers.slice(1)], "in_person")).toEqual([{ type: "open_status", value: "closed" }]);
+  });
+});
 
 describe("report submit validation", () => {
   it("rejects duplicate observations and invalid values", () => {

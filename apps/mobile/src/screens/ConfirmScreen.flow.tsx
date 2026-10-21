@@ -25,12 +25,12 @@ vi.mock("../components/Ui", async () => {
 });
 vi.mock("../components/HapticPressable", async () => {
   const { createElement } = await import("react");
-  return { HapticPressable: ({ children, onPress, disabled, accessibilityRole, "aria-checked": checked }: any) => createElement("button", { onClick: onPress, disabled, role: accessibilityRole, "aria-checked": checked }, children) };
+  return { HapticPressable: ({ children, onPress, disabled, accessibilityRole, accessibilityLabel, "aria-checked": checked }: any) => createElement("button", { onClick: onPress, disabled, role: accessibilityRole, "aria-label": accessibilityLabel, "aria-checked": checked }, children) };
 });
 vi.mock("react-native", async () => {
   const { createElement } = await import("react");
   const box = ({ children, accessibilityRole }: any) => createElement("div", { role: accessibilityRole }, children);
-  return { View: box, Text: box, StyleSheet: { create: (value: unknown) => value }, TextInput: ({ accessibilityLabel, value, onChangeText }: any) => createElement("input", { "aria-label": accessibilityLabel, value, onChange: (e: any) => onChangeText(e.target.value) }) };
+  return { View: box, Text: box, AccessibilityInfo: { addEventListener: () => ({ remove() {} }) }, StyleSheet: { create: (value: unknown) => value }, TextInput: ({ accessibilityLabel, value, onChangeText }: any) => createElement("input", { "aria-label": accessibilityLabel, value, onChange: (e: any) => onChangeText(e.target.value) }) };
 });
 beforeEach(() => {
   vi.clearAllMocks(); mocks.places = [mockPlaces[0]]; mocks.placeId = mockPlaces[0].id;
@@ -42,7 +42,7 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 function draft(createdAt = new Date().toISOString()) {
-  return { placeId: mocks.placeId, createdAt, reportSource: "phone", answers: [{ type: "open_status", value: "open" }, { type: "kitchen_status", value: "yes" }, { type: "busy_level", value: "quiet" }] };
+  return { placeId: mocks.placeId, createdAt, reportSource: "in_person", answers: [{ type: "open_status", value: "open" }, { type: "kitchen_status", value: "yes" }, { type: "busy_level", value: "quiet" }] };
 }
 function next() { fireEvent.click(screen.getByRole("button", { name: "Continue" })); }
 function answer(label: string) { fireEvent.click(screen.getByRole("radio", { name: label })); next(); }
@@ -115,6 +115,69 @@ describe("report assessment polling", () => {
 });
 
 describe("report account hand-off", () => {
+  it.each(["By phone", "Online", "At the venue"])("ends a closure check from %s at review", async method => {
+    render(<ConfirmScreen/>); await act(async () => {});
+    fireEvent.click(screen.getByRole("button", { name: method }));
+    if (method === "Online") fireEvent.change(screen.getByLabelText("Source website address"), { target: { value: "https://example.com/hours" } });
+    next();
+    fireEvent.click(screen.getByRole("radio", { name: "No, closed" }));
+    fireEvent.click(screen.getByRole("button", { name: "Review check" }));
+    expect(screen.getByText("Review your check")).toBeTruthy();
+    expect(screen.getByText("Step 3 of 3")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Add more checks" })).toBeNull();
+    expect(screen.queryByText("Is the kitchen serving?")).toBeNull();
+    expect(mocks.submit).not.toHaveBeenCalled();
+  });
+  it.each(["By phone", "Online"])("asks only opening status for %s", async method => {
+    render(<ConfirmScreen/>); await act(async () => {});
+    fireEvent.click(screen.getByRole("button", { name: method }));
+    if (method === "Online") fireEvent.change(screen.getByLabelText("Source website address"), { target: { value: "https://example.com/hours" } });
+    next();
+    fireEvent.click(screen.getByRole("radio", { name: "Yes, open" }));
+    fireEvent.click(screen.getByRole("button", { name: "Review check" }));
+    expect(screen.getByText("Review your check")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Add more checks" })).toBeNull();
+    mocks.submit.mockResolvedValue({ reportId: "report-1", outcome: "pending" });
+    fireEvent.click(screen.getByRole("button", { name: "Submit check" }));
+    await screen.findByText("Report received.");
+    expect(mocks.submit).toHaveBeenCalledWith(mocks.placeId, [{ type: "open_status", value: "open" }], method === "Online" ? "online" : "phone", method === "Online" ? "https://example.com/hours" : "");
+  });
+  it("removes venue details when switching a draft to phone", async () => {
+    mocks.read.mockResolvedValue({ ...draft(), reportSource: "in_person" });
+    render(<ConfirmScreen/>);
+    await screen.findByText("Review your check");
+    fireEvent.click(screen.getByRole("button", { name: "Edit check method" }));
+    fireEvent.click(screen.getByRole("button", { name: "By phone" })); next();
+    fireEvent.click(screen.getByRole("button", { name: "Review check" }));
+    expect(screen.queryByText("quiet")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Edit Is the kitchen serving?" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Add more checks" })).toBeNull();
+  });
+  it("removes venue details when changing an opening answer to closed", async () => {
+    mocks.read.mockResolvedValue({ ...draft(), reportSource: "in_person" });
+    render(<ConfirmScreen/>);
+    await screen.findByText("Review your check");
+    fireEvent.click(screen.getByRole("button", { name: "Edit Is the place open?" }));
+    fireEvent.click(screen.getByRole("radio", { name: "No, closed" }));
+    fireEvent.click(screen.getByRole("button", { name: "Review check" }));
+    expect(screen.queryByText("quiet")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Add more checks" })).toBeNull();
+    mocks.submit.mockResolvedValue({ reportId: "report-1", outcome: "pending" });
+    fireEvent.click(screen.getByRole("button", { name: "Submit check" }));
+    await screen.findByText("Report received.");
+    expect(mocks.submit).toHaveBeenCalledWith(mocks.placeId, [{ type: "open_status", value: "closed" }], "in_person", "");
+  });
+  it("removes follow-up answers from a restored phone draft", async () => {
+    mocks.read.mockResolvedValue({ ...draft(), reportSource: "phone" });
+    render(<ConfirmScreen/>);
+    await screen.findByText("Review your check");
+    expect(screen.queryByText("quiet")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Add more checks" })).toBeNull();
+    mocks.submit.mockResolvedValue({ reportId: "report-1", outcome: "pending" });
+    fireEvent.click(screen.getByRole("button", { name: "Submit check" }));
+    await screen.findByText("Report received.");
+    expect(mocks.write).toHaveBeenCalledWith(expect.objectContaining({ answers: [{ type: "open_status", value: "open" }], reportSource: "phone" }));
+  });
   it("asks guests to sign in in a popup before showing any questions", async () => {
     mocks.session = null;
     const view = render(<ConfirmScreen/>);
@@ -232,7 +295,7 @@ describe("report account hand-off", () => {
     render(<ConfirmScreen/>); await act(async () => {});
     fireEvent.click(screen.getByRole("button", { name: "By phone" })); next();
     fireEvent.click(screen.getByRole("radio", { name: "No, closed" }));
-    fireEvent.click(screen.getByRole("button", { name: "Review report" }));
+    fireEvent.click(screen.getByRole("button", { name: "Review check" }));
     mocks.submit.mockResolvedValue({ reportId: "report-1", outcome: "pending" });
     fireEvent.click(screen.getByRole("button", { name: "Submit check" }));
     await screen.findByText("Report received.");
@@ -243,7 +306,7 @@ describe("report account hand-off", () => {
     render(<ConfirmScreen/>); await act(async () => {});
     expect((screen.getByRole("button", { name: "Continue" }) as HTMLButtonElement).disabled).toBe(true);
     expect(screen.queryByText("Is the place open?")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "By phone" })); next();
+    fireEvent.click(screen.getByRole("button", { name: "At the venue" })); next();
     fireEvent.click(screen.getByRole("radio", { name: "Yes, open" }));
     expect(screen.getByText("Is the place open?")).toBeTruthy();
     expect(screen.queryByText("Is the kitchen serving?")).toBeNull();
@@ -265,7 +328,7 @@ describe("report account hand-off", () => {
     expect(screen.queryByText("Are walk-ins welcome?")).toBeNull();
     expect(mocks.submit).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Submit check" }));
-    await waitFor(() => expect(mocks.submit).toHaveBeenCalledWith(mocks.placeId, draft().answers, "phone", ""));
+    await waitFor(() => expect(mocks.submit).toHaveBeenCalledWith(mocks.placeId, draft().answers, "in_person", ""));
     expect(mocks.write).toHaveBeenCalledWith(expect.objectContaining({ answers: draft().answers }));
     expect(mocks.submit).toHaveBeenCalledOnce();
   });
@@ -273,7 +336,7 @@ describe("report account hand-off", () => {
     mocks.read.mockRejectedValueOnce(new Error("Storage unavailable"));
     render(<ConfirmScreen/>);
     await act(async () => {});
-    fireEvent.click(screen.getByRole("button", { name: "By phone" })); next();
+    fireEvent.click(screen.getByRole("button", { name: "At the venue" })); next();
     answer("Yes, open");
     expect(screen.getByText("Is the kitchen serving?")).toBeTruthy();
     expect(mocks.submit).not.toHaveBeenCalled();
@@ -282,7 +345,8 @@ describe("report account hand-off", () => {
     mocks.places = [mockPlaces[0], mockPlaces[1]];
     const view = render(<ConfirmScreen/>);
     fireEvent.click(screen.getByRole("button", { name: "By phone" }));
-    next(); answer("Yes, open");
+    next(); fireEvent.click(screen.getByRole("radio", { name: "Yes, open" }));
+    fireEvent.click(screen.getByRole("button", { name: "Review check" }));
     mocks.placeId = mockPlaces[1].id;
     view.rerender(<ConfirmScreen/>);
     await act(async () => {});
@@ -312,7 +376,7 @@ describe("report account hand-off", () => {
   it("restores answers for review without submitting them", async () => {
     mocks.read.mockResolvedValue(draft()); render(<ConfirmScreen/>);
     await screen.findByRole("button", { name: "Submit check" });
-    expect(screen.getByText("By phone")).toBeTruthy();
+    expect(screen.getByText("At the venue")).toBeTruthy();
     expect(screen.getByText("quiet")).toBeTruthy();
     expect(mocks.submit).not.toHaveBeenCalled();
   });
@@ -321,11 +385,12 @@ describe("report account hand-off", () => {
     mocks.read.mockReturnValue(new Promise(resolve => { finish = resolve; }));
     render(<ConfirmScreen/>);
     fireEvent.click(screen.getByRole("button", { name: "At the venue" }));
-    next(); answer("No, closed");
+    next(); fireEvent.click(screen.getByRole("radio", { name: "No, closed" }));
+    fireEvent.click(screen.getByRole("button", { name: "Review check" }));
     await act(async () => { finish(draft()); });
-    expect(screen.getByText("Is the kitchen serving?")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Back" }));
-    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    expect(screen.getByText("Review your check")).toBeTruthy();
+    expect(screen.getByText("No, closed")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Edit check method" }));
     expect(screen.getByRole("button", { name: "At the venue" }).getAttribute("aria-pressed")).toBe("true");
     expect(screen.queryByRole("button", { name: "Sign in to submit" })).toBeNull();
   });
