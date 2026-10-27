@@ -2,7 +2,8 @@
 import { ChevronRight, FileText, Fuel, LogOut, MessageSquare, Moon, Palette, ShieldCheck, Sun } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useRef, useState, type ReactNode } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Linking, StyleSheet, Text, View } from "react-native";
+import { Instagram } from "lucide-react-native";
 import { HapticPressable as Pressable } from "../components/HapticPressable";
 import { ActionButton, Page } from "../components/Ui";
 import { AccountForm } from "../components/AccountForm";
@@ -66,6 +67,10 @@ export function SettingsScreen() {
         <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/support", params: { reason: "account-deletion" } })} style={styles.linkRow}><ShieldCheck color={colours.text} size={18}/><Text style={styles.linkText}>Request account deletion</Text><ChevronRight color={colours.muted} size={18}/></Pressable>
       </View>
       {testerFeedbackEnabled ? <PlaceSheet title="Tester feedback" visible={feedbackOpen} onClose={() => setFeedbackOpen(false)}>{feedbackOpen ? <TesterFeedbackForm onSent={() => { setFeedbackOpen(false); setFeedbackSent(true); }}/> : null}</PlaceSheet> : null}
+      <View style={styles.section}>
+        <Text accessibilityRole="header" style={styles.sectionTitle}>About KNOGO</Text>
+        <Pressable accessibilityRole="link" accessibilityLabel="Outside Voice Software on Instagram" onPress={() => void Linking.openURL("https://www.instagram.com/outsidevoice.software/").catch(() => setAccountError("Could not open Instagram. Visit instagram.com/outsidevoice.software."))} style={styles.linkRow}><Instagram color={colours.primary} size={20}/><View style={styles.profileCopy}><Text style={styles.linkText}>Outside Voice Software</Text><Text style={styles.help}>Follow us on Instagram</Text></View><ChevronRight color={colours.muted} size={18}/></Pressable>
+      </View>
       <FeedbackToast message={feedbackSent ? "Thanks. Your feedback has been sent." : null} onDismiss={() => setFeedbackSent(false)}/>
       <PlaceSheet title="Your account" visible={accountOpen} onClose={() => setAccountOpen(false)}><AccountForm onAuthenticated={() => setAccountOpen(false)}/></PlaceSheet>
       <PlaceSheet title={preferencesSheet === "fuel" ? "Fuel and trip estimates" : "Appearance"} visible={preferencesSheet !== null} onClose={() => setPreferencesSheet(null)}>

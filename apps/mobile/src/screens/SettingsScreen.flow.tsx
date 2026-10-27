@@ -2,6 +2,7 @@ import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { render } from "../testRender";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SettingsScreen } from "./SettingsScreen";
+import { Linking } from "react-native";
 
 const mocks = vi.hoisted(() => ({ signOut: vi.fn(), testerFeedbackEnabled: false, session: { email: "tester@example.com" } as { email: string } | null }));
 vi.mock("../testing", () => ({ get testerFeedbackEnabled() { return mocks.testerFeedbackEnabled; } }));
@@ -21,16 +22,27 @@ vi.mock("../components/HapticPressable", async () => {
   const { createElement } = await import("react");
   return { HapticPressable: ({ children, onPress }: any) => createElement("button", { onClick: onPress }, children) };
 });
-vi.mock("lucide-react-native", () => ({ ChevronRight: () => null, FileText: () => null, Fuel: () => null, LogOut: () => null, MessageSquare: () => null, Moon: () => null, Palette: () => null, ShieldCheck: () => null, Sun: () => null, X: () => null }));
+vi.mock("lucide-react-native", () => ({ Instagram: () => null, ChevronRight: () => null, FileText: () => null, Fuel: () => null, LogOut: () => null, MessageSquare: () => null, Moon: () => null, Palette: () => null, ShieldCheck: () => null, Sun: () => null, X: () => null }));
 vi.mock("react-native", async () => {
   const { createElement } = await import("react");
   const box = ({ children, accessibilityRole }: any) => createElement("div", { role: accessibilityRole }, children);
-  return { View: box, Text: box, StyleSheet: { create: (value: unknown) => value } };
+  return { Linking: { openURL: vi.fn().mockResolvedValue(undefined) }, View: box, Text: box, StyleSheet: { create: (value: unknown) => value } };
 });
 beforeEach(() => { vi.clearAllMocks(); mocks.testerFeedbackEnabled = false; mocks.session = { email: "tester@example.com" }; mocks.signOut.mockResolvedValue(undefined); });
 afterEach(cleanup);
 
 describe("settings sign-out", () => {
+  it("opens the company Instagram profile without tracking parameters", async () => {
+    render(<SettingsScreen/>);
+    fireEvent.click(screen.getByText("Follow us on Instagram"));
+    expect(Linking.openURL).toHaveBeenCalledWith("https://www.instagram.com/outsidevoice.software/");
+  });
+  it("handles Instagram link failures", async () => {
+    vi.mocked(Linking.openURL).mockRejectedValueOnce(new Error("unavailable"));
+    render(<SettingsScreen/>);
+    fireEvent.click(screen.getByText("Follow us on Instagram"));
+    expect((await screen.findByRole("alert")).textContent).toContain("Could not open Instagram");
+  });
   it("hides tester feedback outside the Android tester build", () => {
     render(<SettingsScreen/>);
     expect(screen.queryByText("Suggest an improvement")).toBeNull();
