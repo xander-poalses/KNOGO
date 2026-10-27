@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fonts, radii, shadows, sizes, space, useTheme, useThemeStyles, type ThemeColours } from "../theme";
 import { ActionButton, Chip, SearchField } from "./Ui";
 import { DistanceSlider } from "./DistanceSlider";
+import { captureEvent } from "../telemetry";
 const labels=(values:string[])=>values.map(value=>value===otherFilterValue?'Other':value).join(', ');
 
 function Section({ title, summary, children, list = false, defaultOpen = false }: { title: string; summary: string; children: ReactNode; list?: boolean; defaultOpen?: boolean }) {
@@ -33,7 +34,7 @@ export function FilterSheet({
   filters,
   areas,
   cuisines,
-  onChange,
+  onChange: onFiltersChange,
   onClose,
   areasOnly = false,
   cuisinesOnly = false,
@@ -57,6 +58,16 @@ export function FilterSheet({
   const [typeQuery, setTypeQuery] = useState("");
   const [cuisineQuery, setCuisineQuery] = useState("");
   const [tagQuery, setTagQuery] = useState("");
+  useEffect(() => { if (visible) captureEvent("filters_opened", { mode: areasOnly ? "areas" : cuisinesOnly ? "cuisines" : "all", nearby }); }, [visible, areasOnly, cuisinesOnly, nearby]);
+  const onChange = (next: PlaceFilters) => {
+    for (const field of ["areas", "cuisines", "placeTypes", "tags", "openAfter", "busyLevel", "maxDistanceKm"] as const) {
+      if (next[field] !== filters[field]) {
+        const value = next[field];
+        captureEvent("filter_changed", { field, selected_count: Array.isArray(value) ? value.length : Number(value !== undefined && value !== defaultFilters[field]) });
+      }
+    }
+    onFiltersChange(next);
+  };
   useEffect(() => { if (visible) { setAreaQuery(""); setTypeQuery(""); setCuisineQuery(""); setTagQuery(""); } }, [visible]);
   const insets = useSafeAreaInsets();
   const { colours } = useTheme();
@@ -128,8 +139,8 @@ export function FilterSheet({
           </Section> : null}
         </ScrollView>
         <View style={[styles.footer, { paddingBottom: space.md + insets.bottom }]}>
-          <ActionButton label={areasOnly ? "Clear areas" : cuisinesOnly ? "Clear cuisines" : "Clear filters"} tone="light" onPress={() => onChange(areasOnly ? { ...filters, areas: [] } : cuisinesOnly ? { ...filters, cuisines: [] } : { ...defaultFilters, query: filters.query, ...(nearby ? {maxDistanceKm:25}: {}) })} />
-          <ActionButton label="Show results" tone="green" onPress={onClose} />
+          <ActionButton label={areasOnly ? "Clear areas" : cuisinesOnly ? "Clear cuisines" : "Clear filters"} tone="light" onPress={() => { captureEvent("filters_cleared"); onChange(areasOnly ? { ...filters, areas: [] } : cuisinesOnly ? { ...filters, cuisines: [] } : { ...defaultFilters, query: filters.query, ...(nearby ? {maxDistanceKm:25}: {}) }); }} />
+          <ActionButton label="Show results" tone="green" onPress={() => { captureEvent("filters_applied", { selected_count: (filters.areas.length + filters.cuisines.length + (filters.placeTypes?.length ?? 0) + (filters.tags?.length ?? 0)) + Number(filters.openAfter !== "none") + Number(filters.busyLevel !== "any") + Number(filters.maxDistanceKm !== undefined) }); onClose(); }} />
         </View>
       </SwipeSheet>
       </View>

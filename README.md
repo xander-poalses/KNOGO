@@ -369,6 +369,34 @@ the claimant. `EXPO_PUBLIC_VENUE_CLAIM_API_URL` is the endpoint URL, not a secre
 Provider approval is required before enabling a chargeable channel. Venue
 access proves access to that phone at verification time, not legal ownership.
 
+### Tester analytics
+
+The Expo app sends events to PostHog only after diagnostics consent. Configure
+`EXPO_PUBLIC_POSTHOG_API_KEY` and `EXPO_PUBLIC_POSTHOG_HOST` in the environment
+used to build the tester release. Sentry uses `EXPO_PUBLIC_SENTRY_DSN`.
+Configuration changes need a new build or a compatible published update.
+
+| Events | What they measure |
+| --- | --- |
+| `report_started`, `report_step_viewed`, `report_completed`, `report_abandoned` | Reporting progress, last step on exit and elapsed time |
+| `trip_opened`, `trip_abandoned` | Planner use and exit before an estimate succeeds |
+| `trip_estimate_started`, `trip_estimate_completed`, `trip_estimate_failed` | Estimate attempts, outcomes, duration, origin mode and failure stage |
+| `trip_directions_opened` | A request to open the navigation app succeeded |
+| `filters_opened`, `filter_changed`, `filters_applied`, `filters_cleared` | Filter use, control names and selection counts, not selected values |
+
+Events include `app_version`, `build_number`, `platform` and `environment`.
+Existing app-open, Home-search, place-open/save and report-result events remain.
+No search text, addresses, coordinates, place names, report answers or account
+emails are added to event properties. Session replay remains disabled.
+
+Use a PostHog funnel from `report_started` through `report_step_viewed` to
+`report_completed` to find drop-off. Split results by build and environment to
+compare releases. The dashboard must be configured in PostHog; it is not an
+in-app screen. Confirm delivery from an installed tester build before relying
+on counts. A force-close or crash can prevent exit events from being sent, so
+use incomplete funnels as well as `report_abandoned`. Timings are elapsed
+wall-clock time, not a measure of attention or foreground activity.
+
 ### Vite testing interface
 
 A React/Vite web version of KNOGO was used for testing. Its code remains in `src`

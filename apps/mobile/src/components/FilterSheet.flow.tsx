@@ -3,6 +3,8 @@ import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { defaultFilters, mockPlaces, type PlaceCategory } from "@knogo/core";
 import { FilterSheet } from "./FilterSheet";
+import { captureEvent } from "../telemetry";
+vi.mock("../telemetry", () => ({ captureEvent: vi.fn() }));
 
 vi.mock("react-native", async () => {
   const { createElement } = await import("react");
@@ -39,6 +41,17 @@ function Harness({ category = "shops" }: { category?: PlaceCategory }) {
 }
 
 describe("directory filter sheet", () => {
+  it("records filter controls without sending selections or search text", () => {
+    vi.mocked(captureEvent).mockClear();
+    render(<Harness/>);
+    expect(captureEvent).toHaveBeenCalledWith("filters_opened", { mode: "all", nearby: false });
+    fireEvent.click(screen.getByRole("button", { name: "Place type: All types" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Bookshop" }));
+    expect(captureEvent).toHaveBeenCalledWith("filter_changed", { field: "placeTypes", selected_count: 1 });
+    fireEvent.click(screen.getByRole("button", { name: "Show results" }));
+    expect(captureEvent).toHaveBeenCalledWith("filters_applied", expect.objectContaining({ selected_count: 1 }));
+    expect(JSON.stringify(vi.mocked(captureEvent).mock.calls)).not.toMatch(/bookshop|tools|Menlyn/);
+  });
   it("searches types, selects one and clears it without clearing the place query", () => {
     render(<Harness/>);
     fireEvent.click(screen.getByRole("button", { name: "Place type: All types" }));

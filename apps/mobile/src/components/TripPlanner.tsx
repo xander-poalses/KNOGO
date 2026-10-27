@@ -15,6 +15,7 @@ import { describeArrivalHours } from "../arrivalPresentation";
 import { getTripPosition } from "../tripLocation";
 import { BranchMap } from "./BranchMap";
 import { usePlaces } from "../state/PlacesContext";
+import { captureEvent } from "../telemetry";
 
 // State and Helpers
 const api = createTripApi({ url: process.env.EXPO_PUBLIC_TRIP_API_URL, publishableKey: process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY });
@@ -54,6 +55,12 @@ export function TripPlanner({ place, onEstimateChange }: { place: Place; onEstim
   const addressInput = useRef<TextInput>(null);
   const restoreFocus = useRef<() => void>(() => undefined);
   const fuelVisited = useRef(false);
+  const estimateCompleted = useRef(false);
+  useEffect(() => {
+    const started = Date.now();
+    captureEvent("trip_opened");
+    return () => { if (!estimateCompleted.current) captureEvent("trip_abandoned", { duration_seconds: (Date.now() - started) / 1000 }); };
+  }, []);
   const busy = phase !== "idle";
   useEffect(() => () => { controller.current?.abort(); controller.current = null; searchController.current?.abort(); searchController.current = null; }, []);
 
@@ -78,6 +85,9 @@ export function TripPlanner({ place, onEstimateChange }: { place: Place; onEstim
   };
   const estimate = async () => {
     if (controller.current) return;
+    const started = Date.now();
+    let stage = originMode === "device" ? "permission" : "route";
+    captureEvent("trip_estimate_started", { origin_mode: originMode });
     const request = new AbortController(); controller.current = request;
     setError(null); setResult(null); setDeparture(null);
     try {
@@ -87,19 +97,26 @@ export function TripPlanner({ place, onEstimateChange }: { place: Place; onEstim
         const permission = await Location.requestForegroundPermissionsAsync();
         if (request.signal.aborted) return;
         if (permission.status !== "granted") throw new Error("Choose a starting place to estimate your trip.");
+        stage = "location";
         const location = await getTripPosition(request.signal);
         if (request.signal.aborted) return;
         start = { latitude: location.coords.latitude, longitude: location.coords.longitude };
       }
       if (!validTripPoint(start)) throw new Error("Choose another starting place.");
       setOrigin(start); setPhase("routing");
+      stage = "route";
       void refreshPrices().catch(() => undefined);
       const route = await api.route(start, { latitude: place.latitude, longitude: place.longitude }, false, request.signal);
       if (!request.signal.aborted) {
+        estimateCompleted.current = true;
+        captureEvent("trip_estimate_completed", { origin_mode: originMode, duration_seconds: (Date.now() - started) / 1000, has_fuel_cost: Boolean(preferences.consumptionLPer100Km && price) });
         setResult(route); setDeparture(new Date());
       }
     } catch (cause) {
-      if (!request.signal.aborted) setError(cause instanceof Error ? cause.message : "Could not estimate this trip. Try again.");
+      if (!request.signal.aborted) {
+        captureEvent("trip_estimate_failed", { origin_mode: originMode, stage, duration_seconds: (Date.now() - started) / 1000 });
+        setError(cause instanceof Error ? cause.message : "Could not estimate this trip. Try again.");
+      }
     } finally {
       if (controller.current === request) { controller.current = null; setPhase("idle"); }
     }
@@ -141,7 +158,7 @@ export function TripPlanner({ place, onEstimateChange }: { place: Place; onEstim
     catch { setFuelError("Could not save your fuel details. Try again."); }
     finally { setSaving(false); }
   };
-  const directions = () => void Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}${originMode === "address" && origin ? `&origin=${origin.latitude},${origin.longitude}` : ""}&travelmode=driving`).catch(() => setError("Could not open directions."));
+  const directions = () => void Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}${originMode === "address" && origin ? `&origin=${origin.latitude},${origin.longitude}` : ""}&travelmode=driving`).then(() => captureEvent("trip_directions_opened", { origin_mode: originMode })).catch(() => setError("Could not open directions."));
 
   return <View style={styles.section}>
     {!sheetVisible ? <>

@@ -5,6 +5,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mockPlaces, emptyFuelPreferences, type FuelPreferences } from "@knogo/core";
 import { TripPlanner } from "./TripPlanner";
 import { fuelFeed } from "../fuelFeed";
+import { captureEvent } from "../telemetry";
+vi.mock("../telemetry", () => ({ captureEvent: vi.fn() }));
 vi.mock('expo-constants',()=>({default:{expoConfig:{extra:{}}}}));
 vi.mock('../state/PlacesContext',()=>({usePlaces:()=>({coordinates:null})}));
 
@@ -66,6 +68,22 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 // Tests
 describe("trip planner flow", () => {
+  it("records permission failure without forwarding the error message", async () => {
+    mocks.permission.mockResolvedValue({ status: "denied" });
+    const view = render(<TripPlanner place={mockPlaces[0]} />);
+    fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
+    await waitFor(() => expect(captureEvent).toHaveBeenCalledWith("trip_estimate_failed", expect.objectContaining({ stage: "permission", origin_mode: "device" })));
+    view.unmount();
+    expect(captureEvent).toHaveBeenCalledWith("trip_abandoned", expect.anything());
+    expect(JSON.stringify(vi.mocked(captureEvent).mock.calls)).not.toMatch(/latitude|longitude|Choose a starting/);
+  });
+  it("records estimate success without route data", async () => {
+    const view = render(<TripPlanner place={mockPlaces[0]} />);
+    fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
+    await waitFor(() => expect(captureEvent).toHaveBeenCalledWith("trip_estimate_completed", expect.objectContaining({ origin_mode: "device", has_fuel_cost: false })));
+    view.unmount();
+    expect(captureEvent).not.toHaveBeenCalledWith("trip_abandoned", expect.anything());
+  });
   it.each([
     ["petrol_93", "Petrol 93"], ["petrol_95", "Petrol 95"],
     ["diesel_50ppm", "Diesel 50 ppm"], ["diesel_500ppm", "Diesel 500 ppm"], [null, "Fuel"]

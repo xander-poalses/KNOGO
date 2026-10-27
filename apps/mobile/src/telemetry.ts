@@ -2,9 +2,15 @@
 import * as Sentry from "@sentry/react-native";
 import { PostHog } from "posthog-react-native";
 import { placeCategoryIds } from "@knogo/core";
+import * as Application from "expo-application";
+import Constants from "expo-constants";
+import { Platform } from "react-native";
 
 // Types
-type EventName = "app_opened" | "search_completed" | "place_opened" | "place_saved" | "report_submitted" | "report_failed";
+type EventName = "app_opened" | "search_completed" | "place_opened" | "place_saved" | "report_submitted" | "report_failed"
+  | "report_started" | "report_step_viewed" | "report_abandoned" | "report_completed"
+  | "trip_opened" | "trip_abandoned" | "trip_estimate_started" | "trip_estimate_completed" | "trip_estimate_failed" | "trip_directions_opened"
+  | "filters_opened" | "filter_changed" | "filters_applied" | "filters_cleared";
 type EventProperties = Record<string, string | number | boolean | null>;
 
 // State and Helpers
@@ -64,6 +70,8 @@ export function captureEvent(name: EventName, properties: EventProperties = {}) 
     search_completed: ["has_query", "suggestion"],
     place_opened: ["grouped"],
     place_saved: ["saved"],
+    trip_estimate_completed: ["has_fuel_cost"],
+    filters_opened: ["nearby"],
   };
   for (const key of booleanKeys[name] ?? []) {
     if (typeof properties[key] === "boolean") safe[key] = properties[key];
@@ -74,9 +82,19 @@ export function captureEvent(name: EventName, properties: EventProperties = {}) 
   if (name === "report_failed" && ["auth", "report"].includes(String(properties.stage))) safe.stage = properties.stage;
   if (name === "report_submitted") {
     if (["in_person", "phone", "online"].includes(String(properties.source))) safe.source = properties.source;
-    if (Number.isInteger(properties.answer_count) && Number(properties.answer_count) >= 1 && Number(properties.answer_count) <= 5) safe.answer_count = properties.answer_count;
+    if (Number.isInteger(properties.answer_count) && Number(properties.answer_count) >= 1 && Number(properties.answer_count) <= 6) safe.answer_count = properties.answer_count;
   }
-  posthog?.capture(name, safe);
+  if (["report_step_viewed", "report_abandoned"].includes(name) && ["method", "open_status", "kitchen_status", "busy_level", "walk_ins", "card_machine", "backup_power", "review"].includes(String(properties.step))) safe.step = properties.step;
+  if (name.startsWith("trip_") && ["device", "address"].includes(String(properties.origin_mode))) safe.origin_mode = properties.origin_mode;
+  if (name === "trip_estimate_failed" && ["permission", "location", "route"].includes(String(properties.stage))) safe.stage = properties.stage;
+  if (name === "filters_opened" && ["all", "areas", "cuisines"].includes(String(properties.mode))) safe.mode = properties.mode;
+  if (name === "filter_changed" && ["areas", "cuisines", "placeTypes", "tags", "openAfter", "busyLevel", "maxDistanceKm"].includes(String(properties.field))) safe.field = properties.field;
+  if (["filter_changed", "filters_applied"].includes(name) && Number.isInteger(properties.selected_count) && Number(properties.selected_count) >= 0 && Number(properties.selected_count) <= 1000) safe.selected_count = properties.selected_count;
+  if (["report_abandoned", "report_completed", "trip_abandoned", "trip_estimate_completed", "trip_estimate_failed"].includes(name) && typeof properties.duration_seconds === "number" && Number.isFinite(properties.duration_seconds) && properties.duration_seconds >= 0) safe.duration_seconds = Math.min(86400, Math.round(properties.duration_seconds));
+  const environment = process.env.EXPO_PUBLIC_APP_ENV;
+  try {
+    posthog?.capture(name, { ...safe, app_version: Application.nativeApplicationVersion ?? Constants.expoConfig?.version ?? "unknown", build_number: Application.nativeBuildVersion ?? "web", platform: Platform.OS, environment: environment === "testing" || environment === "production" ? environment : "development" });
+  } catch { /* Analytics must not interrupt a check or trip. */ }
 }
 
 export function captureError(_error: unknown, context: "auth" | "data" | "report" | "navigation") {

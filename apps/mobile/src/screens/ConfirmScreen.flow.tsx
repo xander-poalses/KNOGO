@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mockPlaces } from "@knogo/core";
 import { ConfirmScreen } from "./ConfirmScreen";
 import { ReportAssessmentReceipt } from "../components/ReportAssessmentReceipt";
+import { captureEvent } from "../telemetry";
 
 const mocks = vi.hoisted(() => ({ testerBuild: false, guest: vi.fn(), session: null as object | null, replace: vi.fn(), refreshPlace: vi.fn(async()=>{}), authLoading: false, configured: true, read: vi.fn(), write: vi.fn(), clear: vi.fn(), submit: vi.fn(), assessment: vi.fn(), places: [] as any[], placeId: "", loading: false }));
 vi.mock("../testing", () => ({ get testerBuild() { return mocks.testerBuild; } }));
@@ -52,6 +53,29 @@ function next() { fireEvent.click(screen.getByRole("button", { name: "Continue" 
 function answer(label: string) { fireEvent.click(screen.getByRole("radio", { name: label })); next(); }
 
 describe("tester sign-in skip", () => {
+  it("does not count a submitted report as abandoned", async () => {
+    const view = render(<ConfirmScreen/>);
+    await act(async () => {});
+    fireEvent.click(screen.getByRole("button", { name: "By phone" })); next();
+    fireEvent.click(screen.getByRole("radio", { name: "Yes, open" }));
+    fireEvent.click(screen.getByRole("button", { name: "Review check" }));
+    mocks.submit.mockResolvedValue({ reportId: "report-1", outcome: "pending" });
+    fireEvent.click(screen.getByRole("button", { name: "Submit check" }));
+    await screen.findByText("Report submitted");
+    view.unmount();
+    expect(captureEvent).toHaveBeenCalledWith("report_completed", expect.objectContaining({ duration_seconds: expect.any(Number) }));
+    expect(captureEvent).not.toHaveBeenCalledWith("report_abandoned", expect.anything());
+  });
+  it("records the last survey step on exit, but not its answer", async () => {
+    const view = render(<ConfirmScreen/>);
+    await act(async () => {});
+    expect(captureEvent).toHaveBeenCalledWith("report_step_viewed", { step: "method" });
+    expect(vi.mocked(captureEvent).mock.calls.slice(0, 2).map(call => call[0])).toEqual(["report_started", "report_step_viewed"]);
+    fireEvent.click(screen.getByRole("button", { name: "By phone" })); next();
+    expect(captureEvent).toHaveBeenCalledWith("report_step_viewed", { step: "open_status" });
+    view.unmount();
+    expect(captureEvent).toHaveBeenCalledWith("report_abandoned", expect.objectContaining({ step: "open_status" }));
+  });
   it("keeps sign-in and offers Skip only for the tester build", async () => {
     mocks.session = null;
     const view = render(<ConfirmScreen/>);

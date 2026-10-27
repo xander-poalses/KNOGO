@@ -2,7 +2,7 @@ import type { ConfirmationAnswer, ConfirmationType, ReportOutcome, ReportSource 
 import { getApplicableReportAnswers, isFoodCategory, reportValidationError } from "@knogo/core";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Check, ChevronRight } from "lucide-react-native";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { AccountForm } from "../components/AccountForm";
 import { PlaceSheet } from "../components/PlaceSheet";
@@ -63,6 +63,7 @@ function VenueReportForm() {
   const [done, setDone] = useState(Boolean(callbackOutcome));
   const [outcome, setOutcome] = useState<ReportOutcome>(callbackOutcome ?? "pending");
   const [reportId, setReportId] = useState<string | null>(null);
+  const completed = useRef(Boolean(callbackOutcome));
   useEffect(() => {
     let active = true;
     void mobileStorage.readPendingReport().then(draft => {
@@ -118,6 +119,7 @@ function VenueReportForm() {
     await mobileStorage.clearPendingReport().catch(() => undefined);
     setOutcome(result.outcome);
     setReportId(result.reportId);
+    completed.current = true;
     setDone(true);
   }, "Could not save this check.");
 
@@ -141,6 +143,7 @@ function VenueReportForm() {
 
   const survey = (
     <Page contentContainerStyle={styles.surveyPage}>
+      <ReportJourney step={step === -1 ? "method" : step === 6 ? "review" : steps[step].type} completed={completed}/>
       <View style={styles.survey}>
         <View style={styles.surveyHeading}><BackButton label="Back to place" iconOnly/><Text style={styles.kicker}>{place.name}</Text></View>
         <View accessibilityRole="progressbar" accessibilityLabel="Report progress" aria-valuemin={1} aria-valuemax={total} aria-valuenow={progressStep} aria-valuetext={`Step ${progressStep} of ${total}`} style={styles.progressTrack}>
@@ -185,6 +188,18 @@ function VenueReportForm() {
     </Page>
   );
   return hasSupabaseConfig && session ? <ReportReviewGate accountId={session.userId}>{survey}</ReportReviewGate> : survey;
+}
+
+function ReportJourney({ step, completed }: { step: string; completed: RefObject<boolean> }) {
+  const lastStep = useRef(step);
+  useEffect(() => {
+    const started = Date.now();
+    captureEvent("report_started");
+    // Force-closing the app can skip cleanup; use the step funnel for those exits.
+    return () => captureEvent(completed.current ? "report_completed" : "report_abandoned", { step: lastStep.current, duration_seconds: (Date.now() - started) / 1000 });
+  }, [completed]);
+  useEffect(() => { lastStep.current = step; captureEvent("report_step_viewed", { step }); }, [step]);
+  return null;
 }
 
 const createStyles = (colours: ThemeColours) => StyleSheet.create({

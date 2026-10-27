@@ -28,7 +28,7 @@ export function TelemetryGate({ children }: { children: ReactNode }) {
     finally { saving.current = false; setBusy(false); }
   };
   return <>{children}<PlaceSheet title="Help improve KNOGO?" visible={settingsLoaded && settings.telemetryConsent === "unset"} onClose={() => void choose("denied")}>
-    <Text style={styles.body}>KNOGO can send crash details and anonymous action counts. We do not send your email, searches, location, report answers or source links.</Text>
+    <Text style={styles.body}>KNOGO can send crash details, feature-use events, step timings and app/build versions. Screen recording stays off. We do not send your email, searches, location, report answers or source links.</Text>
     <ActionButton label="Allow diagnostics" tone="green" disabled={busy} onPress={() => void choose("granted")}/>
     <ActionButton label="Not now" tone="light" disabled={busy} onPress={() => void choose("denied")}/>
     <FeedbackToast message={error} onDismiss={() => setError("")}/>
