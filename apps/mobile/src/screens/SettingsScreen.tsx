@@ -3,7 +3,8 @@ import { ChevronRight, FileText, Fuel, LogOut, MessageSquare, Moon, Palette, Shi
 import { useRouter } from "expo-router";
 import { useRef, useState, type ReactNode } from "react";
 import { Linking, StyleSheet, Text, View } from "react-native";
-import { Camera as Instagram } from "lucide-react-native";
+import { Image } from "expo-image";
+import instagramGlyph from "../../assets/instagram-glyph-white.svg";
 import { HapticPressable as Pressable } from "../components/HapticPressable";
 import { ActionButton, Page } from "../components/Ui";
 import { AccountForm } from "../components/AccountForm";
@@ -69,7 +70,7 @@ export function SettingsScreen() {
       {testerFeedbackEnabled ? <PlaceSheet title="Tester feedback" visible={feedbackOpen} onClose={() => setFeedbackOpen(false)}>{feedbackOpen ? <TesterFeedbackForm onSent={() => { setFeedbackOpen(false); setFeedbackSent(true); }}/> : null}</PlaceSheet> : null}
       <View style={styles.section}>
         <Text accessibilityRole="header" style={styles.sectionTitle}>About KNOGO</Text>
-        <Pressable accessibilityRole="link" accessibilityLabel="Outside Voice Software on Instagram" onPress={() => void Linking.openURL("https://www.instagram.com/outsidevoice.software/").catch(() => setAccountError("Could not open Instagram. Visit instagram.com/outsidevoice.software."))} style={styles.linkRow}><Instagram color={colours.primary} size={20}/><View style={styles.profileCopy}><Text style={styles.linkText}>Outside Voice Software</Text><Text style={styles.help}>Follow us on Instagram</Text></View><ChevronRight color={colours.muted} size={18}/></Pressable>
+        <Pressable accessibilityRole="link" accessibilityLabel="Outside Voice Software on Instagram" onPress={() => void Linking.openURL("https://www.instagram.com/outsidevoice.software/").catch(() => setAccountError("Could not open Instagram. Visit instagram.com/outsidevoice.software."))} style={styles.linkRow}><View style={styles.rowIcon}><Image source={instagramGlyph} contentFit="contain" tintColor={colours.text} accessible={false} style={{ width: 20, height: 20 }}/></View><View style={styles.profileCopy}><Text style={[styles.linkText, { flex: 0 }]}>Outside Voice Software</Text><Text style={styles.help}>Follow us on Instagram</Text></View><ChevronRight color={colours.muted} size={18}/></Pressable>
       </View>
       <FeedbackToast message={feedbackSent ? "Thanks. Your feedback has been sent." : null} onDismiss={() => setFeedbackSent(false)}/>
       <PlaceSheet title="Your account" visible={accountOpen} onClose={() => setAccountOpen(false)}><AccountForm onAuthenticated={() => setAccountOpen(false)}/></PlaceSheet>

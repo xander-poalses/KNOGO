@@ -4,7 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SettingsScreen } from "./SettingsScreen";
 import { Linking } from "react-native";
 
-const mocks = vi.hoisted(() => ({ signOut: vi.fn(), testerFeedbackEnabled: false, session: { email: "tester@example.com" } as { email: string } | null }));
+const mocks = vi.hoisted(() => ({ image: vi.fn(), signOut: vi.fn(), testerFeedbackEnabled: false, session: { email: "tester@example.com" } as { email: string } | null }));
+vi.mock("expo-image", () => ({ Image: (props: any) => { mocks.image(props); return <img alt="" src={props.source}/>; } }));
 vi.mock("../testing", () => ({ get testerFeedbackEnabled() { return mocks.testerFeedbackEnabled; } }));
 vi.mock("../components/TesterFeedbackForm", () => ({ TesterFeedbackForm: () => null }));
 vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ session: mocks.session, signOut: mocks.signOut }) }));
@@ -32,6 +33,10 @@ beforeEach(() => { vi.clearAllMocks(); mocks.testerFeedbackEnabled = false; mock
 afterEach(cleanup);
 
 describe("settings sign-out", () => {
+  it("uses the supplied Instagram glyph without changing its aspect ratio", () => {
+    render(<SettingsScreen/>);
+    expect(mocks.image).toHaveBeenCalledWith(expect.objectContaining({ source: expect.stringContaining("instagram-glyph-white.svg"), contentFit: "contain", style: { width: 20, height: 20 } }));
+  });
   it("opens the company Instagram profile without tracking parameters", async () => {
     render(<SettingsScreen/>);
     fireEvent.click(screen.getByText("Follow us on Instagram"));

@@ -16,7 +16,7 @@
     "icon": "./assets/icon.png",
     "android": {
       "package": "za.co.knogo.app",
-      "versionCode": 8,
+      "versionCode": 9,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#f3f3e8"
