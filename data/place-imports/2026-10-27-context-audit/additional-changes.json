@@ -1,0 +1,473 @@
+{
+  "checked_at": "2026-10-27",
+  "groups": [
+    {
+      "id": "absolute-pets",
+      "description": "Pet food, treats, toys and accessories for dogs, cats and small pets.",
+      "source": "https://www.absolutepets.com/pet-stores"
+    },
+    {
+      "id": "aroma-coffee",
+      "description": "Coffee, meals and gelato from a Pretoria coffee roastery and cafe.",
+      "source": "https://aromacoffee.co.za/contact/"
+    },
+    {
+      "id": "baby-city",
+      "description": "Baby care essentials, nursery equipment, car seats and toys.",
+      "source": "https://www.babycity.co.za/"
+    },
+    {
+      "id": "destinations-by-frasers",
+      "description": "Luggage, bags and accessories for travel.",
+      "source": "https://www.waterfront.co.za/stores/frasers/"
+    },
+    {
+      "id": "ogalito",
+      "description": "Portuguese dishes, peri-peri chicken and seafood.",
+      "source": "https://woodlandsboulevard.co.za/blog/foodie-fridays-at-woodlands-a-culinary-adventure"
+    },
+    {
+      "id": "the-daily-coffee-cafe",
+      "description": "Coffee and cafe meals for a break, a catch-up or a bite to eat.",
+      "source": "https://woodlandsboulevard.co.za/blog/foodie-fridays-at-woodlands-a-culinary-adventure"
+    },
+    {
+      "id": "fireroom",
+      "description": "Sushi and grill dishes with table-side flame cooking.",
+      "source": "https://fireroom.co.za/about/"
+    },
+    {
+      "id": "king-pie",
+      "description": "Pies, sausage rolls and takeaway meals.",
+      "source": "https://kingpie.co.za/menu/"
+    },
+    {
+      "id": "kfc",
+      "description": "A takeaway restaurant serving chicken burgers and meals.",
+      "source": "https://order.kfc.co.za/menu/burgers"
+    },
+    {
+      "id": "krispy-kreme",
+      "description": "Doughnuts, coffee and drinks to enjoy in store or on the go.",
+      "source": "https://krispykremesa.com/"
+    },
+    {
+      "id": "kung-fu-kitchen",
+      "description": "Chinese dishes and Japanese sushi for sit-down meals or takeaway.",
+      "source": "https://kungfukitchen.co.za/"
+    },
+    {
+      "id": "lupa-osteria",
+      "description": "Italian dining with pizza, pasta, seafood and wine.",
+      "source": "https://www.lupa.co.za/"
+    },
+    {
+      "id": "milky-lane",
+      "description": "Ice cream, waffles, milkshakes and desserts.",
+      "source": "https://milkylane.co.za/main-menu/"
+    },
+    {
+      "id": "mochachos",
+      "description": "Chicken meals and Mexican-inspired dishes, including nachos and quesadillas.",
+      "source": "https://www.mochachos.com/"
+    },
+    {
+      "id": "panarottis",
+      "description": "Pizza and pasta for meals with family and friends.",
+      "source": "https://www.panarottis.com/za/company"
+    },
+    {
+      "id": "pep-home",
+      "description": "Homeware, bedding, kitchen goods, storage and furniture.",
+      "source": "https://www.pepstores.com/pages/home"
+    },
+    {
+      "id": "planet-fitness",
+      "description": "A gym for strength training, cardio and exercise classes.",
+      "source": "https://www.planetfitness.co.za/gyms/waterkloof-ridge/"
+    },
+    {
+      "id": "pna",
+      "description": "Stationery, office supplies, art and craft materials, books and learning products.",
+      "source": "https://www.pna.co.za/about-us/"
+    },
+    {
+      "id": "seattle-coffee",
+      "description": "Coffee made from beans sourced, roasted and brewed by Seattle Coffee Company.",
+      "source": "https://www.seattlecoffeecompany.co.za/"
+    },
+    {
+      "id": "starbucks",
+      "description": "Coffee, drinks, pastries and cafe snacks.",
+      "source": "https://www.starbucks.co.za/"
+    },
+    {
+      "id": "ster-kinekor",
+      "description": "A cinema showing films at scheduled screening times.",
+      "source": "https://www.sterkinekor.com/faq"
+    },
+    {
+      "id": "vida-e-caffe",
+      "description": "Coffee, drinks, breakfast, lunch and snacks inspired by Portuguese cafe culture.",
+      "source": "https://vidaecaffe.com/"
+    },
+    {
+      "id": "toys-r-us",
+      "description": "Toys, games, dolls, building sets and play equipment.",
+      "source": "https://www.toysrus.co.za/"
+    },
+    {
+      "id": "wok-n-roll",
+      "description": "Thai, Japanese and Chinese dishes in an Asian-fusion restaurant.",
+      "source": "https://www.woknroll.co.za/"
+    },
+    {
+      "id": "uniq",
+      "description": "Clothing and wardrobe basics from Checkers' clothing brand.",
+      "source": "https://www.uniqclothing.co.za/content/dam/uniqclothing/men.pdf"
+    },
+    {
+      "id": "wordsworth-books",
+      "description": "Books and gifts, with help choosing a read.",
+      "source": "https://www.wordsworth.co.za/pages/careers-at-wordsworth-books"
+    },
+    {
+      "id": "lucky-bread",
+      "description": "A bakery and coffee roastery serving bread, pastries and cafe meals.",
+      "source": "https://luckybread.co.za/"
+    },
+    {
+      "id": "kauai",
+      "description": "Smoothies, wraps, salads and meals for breakfast or lunch.",
+      "source": "https://kauai.co.za/menu-group/superfood-smoothies/"
+    },
+    {
+      "id": "mambos",
+      "description": "Storage products, homeware, outdoor furniture and catering supplies.",
+      "source": "https://mambos.store/"
+    },
+    {
+      "id": "moo-moos",
+      "description": "A wine bar and grill serving steaks, burgers and ribs.",
+      "source": "https://www.moo-moo.co.za/"
+    },
+    {
+      "id": "oasis-water",
+      "description": "Drinking water sold in bottles and through container refills.",
+      "source": "https://www.oasiswater.co.za/"
+    },
+    {
+      "id": "tashas",
+      "description": "Cafe dining with breakfast, meals, coffee and drinks.",
+      "source": "https://www.tashascafe.com/locations/pretoria/lynnwood/"
+    },
+    {
+      "id": "wellness-warehouse",
+      "description": "Supplements, food, beauty and household products for health and wellbeing.",
+      "source": "https://wellnesswarehouse.com/"
+    },
+    {
+      "id": "burger-king",
+      "description": "Burgers, chicken, fries and takeaway meals.",
+      "source": "https://www.burgerking.co.za/"
+    },
+    {
+      "id": "pizza-hut",
+      "description": "Pizza and sides for takeaway or delivery.",
+      "source": "https://www.youtube.com/channel/UCWvzJ3CnkDukCcEfg4rfnyg"
+    },
+    {
+      "id": "parrots",
+      "description": "A sit-down restaurant at Menlyn Park for meals with family and friends.",
+      "source": "https://www.menlynpark.co.za/stores/page/14/"
+    }
+  ],
+  "places": [
+    {
+      "id": "baobab-menlyn",
+      "description": "A cafe and grill at Menlyn Park, with terrace dining and space for celebrations.",
+      "source": "https://baobabcafe.co.za/",
+      "details": {
+        "shop": "UF53-56",
+        "entrance": "6",
+        "parking": "Red Parking",
+        "branch_email": "menlyn@baobabcafe.co.za",
+        "booking_phone": "0699527558",
+        "description": "A cafe and grill at Menlyn Park, with terrace dining and space for celebrations.",
+        "description_source": "https://baobabcafe.co.za/",
+        "description_checked_at": "2026-10-27",
+        "description_method": "editorial_from_published_context"
+      }
+    },
+    {
+      "id": "food-and-chain-menlyn",
+      "description": "A sit-down restaurant at Menlyn Park Shopping Centre.",
+      "source": "https://www.menlynpark.co.za/stores/food-chain/",
+      "phone": "0123681148",
+      "details": {
+        "shop": "LF134",
+        "entrance": "7",
+        "parking": "Green Parking",
+        "hours_review_note": "Stored schedule has no tenant source. Tenant directory confirms location but not hours; confirm with branch.",
+        "description": "A sit-down restaurant at Menlyn Park Shopping Centre.",
+        "description_source": "https://www.menlynpark.co.za/stores/food-chain/",
+        "description_checked_at": "2026-10-27",
+        "description_method": "editorial_from_published_context"
+      }
+    },
+    {
+      "id": "peaches-hazelwood",
+      "description": "A restaurant and cocktail venue in Hazelwood for meals and gatherings.",
+      "source": "https://www.quicket.co.za/organisers/42963-peaches",
+      "phone": "0634738431",
+      "address": "15 16th Street, Hazelwood, Pretoria, 0081",
+      "details": {
+        "description": "A restaurant and cocktail venue in Hazelwood for meals and gatherings.",
+        "description_source": "https://www.quicket.co.za/organisers/42963-peaches",
+        "description_checked_at": "2026-10-27",
+        "description_method": "editorial_from_published_context"
+      }
+    },
+    {
+      "id": "the-goat-hazelwood",
+      "description": "A Hazelwood pub for sport, music and cocktails, with food from BAH next door.",
+      "source": "https://thegoatbar.co.za/",
+      "phone": "0673702718",
+      "address": "14 Firwood Avenue, Hazelwood, Pretoria, 0081",
+      "details": {
+        "branch_email": "lekker@thegoatbar.co.za",
+        "published_hours_text": "Tuesday-Sunday 10:00 till late. Monday closed except private functions.",
+        "hours_conflict_note": "Existing fixed 08:00-21:00 schedule contradicts operator publication. Exact closing time is unpublished; do not treat the stored closing time as verified.",
+        "description": "A Hazelwood pub for sport, music and cocktails, with food from BAH next door.",
+        "description_source": "https://thegoatbar.co.za/",
+        "description_checked_at": "2026-10-27",
+        "description_method": "editorial_from_published_context"
+      }
+    },
+    {
+      "id": "hot-spot-cycles",
+      "description": "A bicycle shop in Faerie Glen for cycles, equipment and accessories.",
+      "source": "https://hotspotcycles.co.za/pages/contact",
+      "phone": "0129935231",
+      "details": {
+        "description": "A bicycle shop in Faerie Glen for cycles, equipment and accessories.",
+        "description_source": "https://hotspotcycles.co.za/pages/contact",
+        "description_checked_at": "2026-10-27",
+        "description_method": "editorial_from_published_context"
+      }
+    },
+    {
+      "id": "lynnwood-cyclery",
+      "description": "A bicycle shop and service centre with bike fitting at Willow Way Centre.",
+      "source": "https://www.lynnwoodcyclery.co.za/",
+      "phone": "0123483132",
+      "details": {
+        "description": "A bicycle shop and service centre with bike fitting at Willow Way Centre.",
+        "description_source": "https://www.lynnwoodcyclery.co.za/",
+        "description_checked_at": "2026-10-27",
+        "description_method": "editorial_from_published_context"
+      }
+    },
+    {
+      "id": "thrashers-garsfontein",
+      "description": "A skate park and padel venue in Pretoria.",
+      "source": "https://thrashers.co.za/",
+      "details": {
+        "description": "A skate park and padel venue in Pretoria.",
+        "description_source": "https://thrashers.co.za/",
+        "description_checked_at": "2026-10-27",
+        "description_method": "editorial_from_published_context"
+      }
+    },
+    {
+      "id": "wolwespruit-mtb-trail-park",
+      "description": "A park in Erasmuskloof for mountain biking, trail running and hiking.",
+      "source": "https://wolwespruit.co.za/",
+      "details": {
+        "description": "A park in Erasmuskloof for mountain biking, trail running and hiking.",
+        "description_source": "https://wolwespruit.co.za/",
+        "description_checked_at": "2026-10-27",
+        "description_method": "editorial_from_published_context"
+      }
+    },
+    {
+      "id": "ice-rink-the-grove",
+      "description": "An ice-skating venue at The Grove Mall, with tickets and skate hire.",
+      "source": "https://theicerink.co.za/grove/",
+      "details": {
+        "booking_url": "https://theicerink.co.za/grove/",
+        "hours_note": "Skating is booked by session. Check the booking calendar; do not use mall opening hours as skating times.",
+        "description": "An ice-skating venue at The Grove Mall, with tickets and skate hire.",
+        "description_source": "https://theicerink.co.za/grove/",
+        "description_checked_at": "2026-10-27",
+        "description_method": "editorial_from_published_context"
+      }
+    },
+    {
+      "id": "parkview-shopping-centre",
+      "description": "A shopping centre in Pretoria East with shops, restaurants and services.",
+      "source": "https://parkviewshopping.co.za/",
+      "details": {
+        "description": "A shopping centre in Pretoria East with shops, restaurants and services.",
+        "description_source": "https://parkviewshopping.co.za/",
+        "description_checked_at": "2026-10-27",
+        "description_method": "editorial_from_published_context"
+      }
+    }
+  ],
+  "hours": [
+    {
+      "id": "baobab-menlyn",
+      "source": "https://baobabcafe.co.za/",
+      "hours": [
+        "11:30-21:30",
+        "11:30-21:30",
+        "11:30-21:30",
+        "11:30-21:30",
+        "11:00-22:00",
+        "11:00-22:00",
+        "11:00-21:30"
+      ],
+      "phone": "0123681003"
+    },
+    {
+      "id": "lupa-osteria-lynnwood-bridge",
+      "source": "https://www.lupa.co.za/hours-locations/",
+      "hours": [
+        "11:30-22:00",
+        "11:30-22:00",
+        "11:30-22:00",
+        "11:30-22:00",
+        "11:30-22:00",
+        "11:30-22:00",
+        "11:30-21:00"
+      ],
+      "phone": "0871882487"
+    },
+    {
+      "id": "lucky-bread-hazelwood",
+      "source": "https://luckybread.co.za/hazelwood/",
+      "hours": [
+        "06:00-18:00",
+        "06:00-18:00",
+        "06:00-18:00",
+        "06:00-18:00",
+        "06:00-21:00",
+        "06:00-21:00",
+        "06:00-17:00"
+      ],
+      "phone": "0125345209"
+    },
+    {
+      "id": "moo-moos-menlyn",
+      "source": "https://www.moo-moo.co.za/moo-moo-menlyn",
+      "hours": [
+        "11:00-21:00",
+        "11:00-21:00",
+        "11:00-21:00",
+        "11:00-21:00",
+        "11:00-22:00",
+        "11:00-22:00",
+        "11:00-20:00"
+      ]
+    },
+    {
+      "id": "planet-fitness-castle-gate",
+      "source": "https://www.planetfitness.co.za/gyms/waterkloof-ridge/",
+      "hours": [
+        "05:00-21:00",
+        "05:00-21:00",
+        "05:00-21:00",
+        "05:00-21:00",
+        "05:00-20:00",
+        "07:00-18:00",
+        "07:00-16:00"
+      ],
+      "phone": "0120300009"
+    },
+    {
+      "id": "tashas-lynnwood-bridge",
+      "source": "https://www.tashascafe.com/locations/pretoria/lynnwood/",
+      "hours": [
+        "07:30-18:00",
+        "07:30-18:00",
+        "07:30-18:00",
+        "07:30-21:00",
+        "07:30-21:00",
+        "07:30-21:00",
+        "07:30-16:00"
+      ],
+      "phone": "0127860981"
+    },
+    {
+      "id": "hot-spot-cycles",
+      "source": "https://hotspotcycles.co.za/pages/contact",
+      "hours": [
+        "09:00-18:00",
+        "09:00-18:00",
+        "09:00-18:00",
+        "09:00-18:00",
+        "09:00-18:00",
+        "09:00-14:00",
+        "closed"
+      ]
+    },
+    {
+      "id": "wolwespruit-mtb-trail-park",
+      "source": "https://wolwespruit.co.za/",
+      "hours": [
+        "05:30-18:30",
+        "05:30-21:00",
+        "05:30-18:30",
+        "05:30-18:30",
+        "05:30-18:30",
+        "06:00-18:00",
+        "06:00-18:00"
+      ]
+    },
+    {
+      "id": "aroma-hazelwood",
+      "source": "https://aromacoffee.co.za/contact/",
+      "phone": "0120301340",
+      "hours": [
+        "07:00-18:00",
+        "07:00-18:00",
+        "07:00-18:00",
+        "07:00-18:00",
+        "07:00-18:00",
+        "08:00-18:00",
+        "08:00-18:00"
+      ],
+      "details": {
+        "hours_scope": "food_and_coffee",
+        "gelato_and_coffee_hours": {
+          "weekdays": "06:00-22:00",
+          "weekends": "13:00-22:00"
+        },
+        "public_holiday_hours": "If open, from 08:00; confirm before travelling.",
+        "branch_email": "avron@aromacoffee.co.za"
+      }
+    },
+    {
+      "id": "parkview-shopping-centre",
+      "source": "https://parkviewshopping.co.za/",
+      "hours": [
+        "09:00-18:00",
+        "09:00-18:00",
+        "09:00-18:00",
+        "09:00-18:00",
+        "09:00-18:00",
+        "09:00-17:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "hours_scope": "shopping_centre"
+      }
+    }
+  ],
+  "removed_hours": {
+    "place_id": "the-goat-hazelwood",
+    "reason": "Operator lists Tuesday-Sunday 10:00 till late and Monday closed, contradicting the unsourced fixed schedule.",
+    "source": "https://thegoatbar.co.za/"
+  }
+}

@@ -1,0 +1,584 @@
+[
+  {
+    "id": "absolute-pets",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "ackermans",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "aroma-coffee",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "baby-city",
+    "description": null,
+    "source_url": "https://woodlandsboulevard.co.za/shops",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "bargain-books",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "builders-warehouse",
+    "description": "Building materials and home improvement stores.",
+    "source_url": "https://woodlandsboulevard.co.za/shop/builders-warehouse",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "burger-king",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "cape-union-mart",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "cappuccinos",
+    "description": "Cafe, pizza and comfort-food chain with a Woodlands branch.",
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "casa-bella",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "checkers",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "clicks",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "computer-mania",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "cowfish",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "crawdaddys",
+    "description": "Seafood, grill and Creole-style restaurant chain with Pretoria East branches.",
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "create-ceramics",
+    "description": "Ceramic painting venues.",
+    "source_url": "https://www.createwolwespruit.co.za/",
+    "source_checked_at": "2026-10-17"
+  },
+  {
+    "id": "destinations-by-frasers",
+    "description": null,
+    "source_url": "https://castlegate.co.za/castle-gate---stores---castle-gate-lifestyle",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "dis-chem",
+    "description": null,
+    "source_url": "https://castlegate.co.za/castle-gate---stores---castle-gate",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "doppio-zero",
+    "description": "Italian, bakery and cafe-style dining with Pretoria East branches.",
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "edgars",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "eskort",
+    "description": null,
+    "source_url": "https://castlegate.co.za/castle-gate---stores---castle-gate-lifestyle",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "exclusive-books",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "fireroom",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "fleisherei",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "food-lovers-market",
+    "description": null,
+    "source_url": "https://castlegate.co.za/castle-gate---stores---castle-gate-lifestyle",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "forti",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "freedom-of-movement",
+    "description": null,
+    "source_url": "https://castlegate.co.za/castle-gate---stores---castle-gate",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "home-affairs",
+    "description": "Home Affairs offices and service counters.",
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "incredible-connection",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "istore",
+    "description": null,
+    "source_url": "https://woodlandsboulevard.co.za/shops",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "kauai",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "kfc",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "king-pie",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "kloppers",
+    "description": null,
+    "source_url": "https://castlegate.co.za/castle-gate---stores---castle-gate-lifestyle",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "kream",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "krispy-kreme",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "kung-fu-kitchen",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "le-creuset",
+    "description": null,
+    "source_url": "https://woodlandsboulevard.co.za/shops",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "lucky-bread",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "lupa-osteria",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "mambos",
+    "description": null,
+    "source_url": "https://castlegate.co.za/castle-gate---stores---castle-gate-lifestyle",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "milky-lane",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "mochachos",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "moloko",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "moo-moos",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "mr-price",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "mr-price-home",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "mr-price-sport",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "mtn",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "mugg-and-bean",
+    "description": "Coffee, breakfast and comfort food chain in Pretoria East malls.",
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "nandos",
+    "description": "Afro-Portuguese chicken chain useful for quick sit-down and takeaway checks.",
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "oasis-water",
+    "description": null,
+    "source_url": "https://castlegate.co.za/castle-gate---stores---castle-gate",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "ocean-basket",
+    "description": "Seafood and sushi chain with mall-based Pretoria East branches.",
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "ogalito",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "outdoor-warehouse",
+    "description": null,
+    "source_url": "https://woodlandsboulevard.co.za/shops",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "padstal",
+    "description": "Pub and restaurant group with live music, sport and events.",
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "panarottis",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "papachinos",
+    "description": "Family restaurant with kids play areas and Italian-leaning menus.",
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "parrots",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "pep",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "pep-home",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "pick-n-pay",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "pick-n-pay-clothing",
+    "description": null,
+    "source_url": "https://castlegate.co.za/castle-gate---stores---castle-gate",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "pizza-hut",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "planet-fitness",
+    "description": null,
+    "source_url": "https://www.planetfitness.co.za/gyms/waterkloof-ridge/",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "plush-carwash",
+    "description": null,
+    "source_url": "https://woodlandsboulevard.co.za/shop/plush-carwash",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "pna",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "postnet",
+    "description": "Courier and printing service network.",
+    "source_url": "https://www.postnet.co.za/stores/woodhill/5c69211b55c8c661d10beaaa",
+    "source_checked_at": "2026-10-17"
+  },
+  {
+    "id": "rockets",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "rocomamas",
+    "description": "Burger, ribs and wings chain with strong Pretoria East coverage.",
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "seattle-coffee",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "shell",
+    "description": "Shell-branded fuel stations. Operators may differ by branch.",
+    "source_url": "https://find.shell.com/za/fuel/10042610-lynnwood-motors/en_US",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "spur",
+    "description": "Family steak ranches with several Pretoria East branches.",
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "starbucks",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "ster-kinekor",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "stoetbul",
+    "description": "South African bar, music venue and BraaiBar group.",
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "supa-quick",
+    "description": "Tyre and fitment centres.",
+    "source_url": "https://www.supaquick.com/tyre-fitment-centres/gauteng/menlyn",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "tashas",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "telkom",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "the-crazy-store",
+    "description": null,
+    "source_url": "https://castlegate.co.za/castle-gate---stores---castle-gate",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "the-daily-coffee-cafe",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "the-fun-company",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores?b3ceaf86_page=2",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "the-rock",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "tiger-wheel-tyre",
+    "description": null,
+    "source_url": "https://woodlandsboulevard.co.za/shop/tiger-wheel-tyre",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "toys-r-us",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores?b3ceaf86_page=2",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "tranna",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "tribeca",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "uniq",
+    "description": null,
+    "source_url": "https://castlegate.co.za/castle-gate---stores---castle-gate-lifestyle",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "vida-e-caffe",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "vodacom",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores?b3ceaf86_page=2",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "vovo-telo",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "wellness-warehouse",
+    "description": null,
+    "source_url": "https://castlegate.co.za/castle-gate---stores---castle-gate",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "weylandts",
+    "description": null,
+    "source_url": "https://castlegate.co.za/castle-gate---stores---castle-gate-lifestyle",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "wok-n-roll",
+    "description": null,
+    "source_url": null,
+    "source_checked_at": null
+  },
+  {
+    "id": "woolworths",
+    "description": null,
+    "source_url": "https://www.thegrovemall.co.za/the-grove-mall---stores?b3ceaf86_page=2",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "wordsworth-books",
+    "description": null,
+    "source_url": "https://castlegate.co.za/castle-gate---stores---castle-gate",
+    "source_checked_at": "2026-10-16"
+  },
+  {
+    "id": "yuppiechef",
+    "description": null,
+    "source_url": "https://castlegate.co.za/castle-gate---stores---castle-gate-lifestyle",
+    "source_checked_at": "2026-10-16"
+  }
+]

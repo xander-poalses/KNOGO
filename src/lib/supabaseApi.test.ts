@@ -5,14 +5,14 @@ function response(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", ...(Array.isArray(body) ? { "Content-Range": `*/${body.length}` } : {}) } });
 }
 
-function createHarness(initialSession: SupabaseSession | null = null, venueClaimUrl?: string, allowGuestReporting = false) {
+function createHarness(initialSession: SupabaseSession | null = null, venueClaimUrl?: string, allowGuestReporting = false, allowTesterFeedback = false) {
   let session = initialSession;
   const storage = {
     read: vi.fn(async () => session),
     write: vi.fn(async (next: SupabaseSession) => { session = next; }),
     clear: vi.fn(async () => { session = null; })
   };
-  return { api: createSupabaseApi({ url: "https://test.supabase.co", publishableKey: "publishable", sessionStorage: storage, venueClaimUrl, allowGuestReporting }), storage };
+  return { api: createSupabaseApi({ url: "https://test.supabase.co", publishableKey: "publishable", sessionStorage: storage, venueClaimUrl, allowGuestReporting, allowTesterFeedback }), storage };
 }
 
 const authResponse = {
@@ -23,6 +23,33 @@ const authResponse = {
 };
 
 afterEach(() => { vi.restoreAllMocks(); vi.useRealTimers(); });
+
+describe("tester feedback", () => {
+  const session: SupabaseSession = { accessToken: "access", refreshToken: "refresh", userId: "tester", email: "", expiresAt: 9999999999, isAnonymous: true };
+  const input = { kind: "suggestion" as const, message: "  Please add a suggestion box.  ", appVersion: "1.0.0 (12)" };
+  it("does not submit from a web or production client", async () => {
+    const fetcher = vi.spyOn(globalThis, "fetch");
+    await expect(createHarness(session).api.submitTesterFeedback(input)).rejects.toThrow("tester build");
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it("sends trimmed feedback with the current session", async () => {
+    const fetcher = vi.spyOn(globalThis, "fetch").mockResolvedValue(response("550e8400-e29b-41d4-a716-446655440000"));
+    await createHarness(session, undefined, true, true).api.submitTesterFeedback(input);
+    expect(fetcher.mock.calls[0][0]).toContain("rpc/submit_tester_feedback");
+    expect(fetcher.mock.calls[0][1]?.headers).toMatchObject({ Authorization: "Bearer access" });
+    expect(JSON.parse(fetcher.mock.calls[0][1]!.body as string)).toEqual({ p_kind: "suggestion", p_message: "Please add a suggestion box.", p_app_version: "1.0.0 (12)" });
+  });
+  it("rejects missing sessions and invalid messages before a request", async () => {
+    const fetcher = vi.spyOn(globalThis, "fetch");
+    await expect(createHarness(null, undefined, true, true).api.submitTesterFeedback(input)).rejects.toThrow("guest session");
+    await expect(createHarness(session, undefined, true, true).api.submitTesterFeedback({ ...input, message: "   " })).rejects.toThrow("10 to 2000");
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it("does not expose server details on failure", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(response({ message: "database access_token=secret" }, 500));
+    await expect(createHarness(session, undefined, true, true).api.submitTesterFeedback(input)).rejects.toThrow("Could not send");
+  });
+});
 
 describe("tester guest sessions", () => {
   it("does not create guests in production", async () => {

@@ -6,6 +6,15 @@ The tester build offers Skip sign-in. This creates a guest account ID and sessio
 
 On 23 October 2026, Gemini processing was paused while the Google billing tier is unverified. Reports can still be stored; automated assessments remain queued. The database caps remain in place. Re-enable processing only after checking the project's Free tier status in Google AI Studio.
 
+## Tester Feedback
+
+The Android tester build can send suggestions and bug reports. KNOGO stores the
+message, feedback type, account or guest ID, app version and submission time in
+Supabase. Access requires tester approval. App users cannot read submissions.
+Feedback text is not sent to Gemini, Sentry or PostHog. Contact support to request
+deletion; deleting the account also deletes its feedback. Do not include
+passwords or contact details in a message.
+
 ## Report Review And Retention
 
 The reporting release is for testers aged 18 or over. Before reporting, each account must acknowledge notice version `2026-10-19`. KNOGO stores its version and acceptance time, not a date of birth. This is an acknowledgement, not age verification.

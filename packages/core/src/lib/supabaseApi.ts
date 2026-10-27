@@ -58,6 +58,7 @@ export function createSupabaseApi(config: {
   publishableKey?: string;
   venueClaimUrl?: string;
   allowGuestReporting?: boolean;
+  allowTesterFeedback?: boolean;
   sessionStorage: SessionStorage;
 }) {
   const { url, publishableKey, sessionStorage } = config;
@@ -372,6 +373,24 @@ export function createSupabaseApi(config: {
   const readReportReviewNotice = () => reportReviewNotice();
   const acceptReportReviewNotice = (input: { version: string; adultConfirmed: boolean }) => reportReviewNotice(input);
 
+  async function submitTesterFeedback(input: { kind: "suggestion" | "bug"; message: string; appVersion: string }) {
+    if (!config.allowTesterFeedback) throw new Error("Feedback is only available in the Android tester build.");
+    const message = input.message.trim();
+    if (!["suggestion", "bug"].includes(input.kind) || message.length < 10 || message.length > 2000) throw new Error("Write 10 to 2000 characters.");
+    if (!input.appVersion.trim() || input.appVersion.length > 64) throw new Error("Could not read the app version.");
+    const session = await getValidSession();
+    if (!session) throw new Error("Start a guest session or sign in before sending feedback.");
+    try {
+      const id = await request<unknown>("rpc/submit_tester_feedback", { method: "POST", body: JSON.stringify({ p_kind: input.kind, p_message: message, p_app_version: input.appVersion.trim() }) }, session.accessToken);
+      if (typeof id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) throw new Error("Invalid feedback receipt");
+      return id;
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : "";
+      if (["This account is not approved for tester feedback.", "You have sent five messages this hour. Try again later."].includes(message)) throw new Error(message);
+      throw new Error("Could not send your feedback. It may have reached KNOGO; wait before trying again.");
+    }
+  }
+
   async function readReportAssessment(reportId: string): Promise<ReportAssessment> {
     const session = await getValidSession();
     if (!session) throw new Error("Sign in to view your report assessment.");
@@ -516,6 +535,7 @@ export function createSupabaseApi(config: {
     submitConfirmations,
     readReportReviewNotice,
     acceptReportReviewNotice,
+    submitTesterFeedback,
     readReportAssessment,
     readVenueAccess,
     startVenueClaim,

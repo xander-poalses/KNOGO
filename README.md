@@ -468,6 +468,30 @@ Gemini processing is paused until the Google project's Free tier is verified.
 Rate limits alone cannot guarantee zero charges. See the release checklist
 for the account, policy, signing and device checks still needed before upload.
 
+## Tester feedback
+
+Android builds with `EXPO_PUBLIC_APP_ENV=testing` show **Suggest an improvement**
+in Settings. Production builds and the hosted demo do not show it. Feedback
+includes the message, type, account or guest ID, app version and time. It is not
+sent to Gemini or analytics. Each approved account can send five messages per hour.
+
+Approve a tester through Supabase Auth **App Metadata** by setting
+`tester_feedback` to the boolean `true`. Do not put it in User Metadata, which
+users can edit. Guests need their Guest ID from Settings approved in the same
+way. Approval is checked against the account on each submission, so removing
+the flag blocks further submissions without waiting for token refresh.
+
+Read submissions through the Supabase SQL editor:
+
+```sql
+select created_at, user_id, kind, message, app_version
+from knogo_private.tester_feedback
+order by created_at desc;
+```
+
+App users cannot read this table. Approval controls account access, not device
+attestation: an approved account could call the endpoint outside the app.
+
 ## Project structure
 
 | Folder | Purpose |

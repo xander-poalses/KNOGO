@@ -1,0 +1,804 @@
+{
+  "checked_at": "2026-10-27",
+  "places": [
+    {
+      "id": "checkers-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/checkers",
+      "hours": [
+        "08:00-20:00",
+        "08:00-20:00",
+        "08:00-20:00",
+        "08:00-20:00",
+        "08:00-20:00",
+        "08:00-20:00",
+        "08:00-20:00"
+      ],
+      "description": "A supermarket for groceries, produce and household shopping, with a deli, cheese counter and an in-store Kauai.",
+      "details": {
+        "shop": "233",
+        "entrance": "3"
+      },
+      "notes": "Trading hours verified on the centre's tenant page. Service counter hours are not separately published. Coordinates mark the shopping centre, not the shop entrance.",
+      "phone": "0129979540"
+    },
+    {
+      "id": "pick-n-pay-clothing-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/pick-n-pay-clothing",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "description": "Clothing and wardrobe essentials for adults and children at Woodlands Boulevard.",
+      "details": {
+        "shop": "60",
+        "entrance": "1"
+      },
+      "phone": "0129970072"
+    },
+    {
+      "id": "food-lovers-market-castle-gate",
+      "source": "https://foodloversmarket.co.za/stores/gauteng/food-lovers-market-castle-gate/",
+      "hours": [
+        "08:00-19:00",
+        "08:00-19:00",
+        "08:00-19:00",
+        "08:00-19:00",
+        "08:00-19:00",
+        "08:00-18:00",
+        "08:00-17:00"
+      ],
+      "description": "A food market with produce, bakery, butchery, fish, sushi and coffee at Castle Gate Lifestyle.",
+      "details": {
+        "shop": "7",
+        "departments": [
+          "Bakery",
+          "Butchery",
+          "Fishmonger",
+          "Seattle Coffee",
+          "Sushi",
+          "Wine"
+        ]
+      }
+    },
+    {
+      "id": "weylandts-castle-gate",
+      "source": "https://www.weylandts.co.za/store/castle-gate",
+      "hours": [
+        "09:00-17:00",
+        "09:00-17:00",
+        "09:00-17:00",
+        "09:00-17:00",
+        "09:00-17:00",
+        "09:00-16:00",
+        "09:00-14:00"
+      ],
+      "details": {
+        "public_holiday_hours": "09:00-14:00"
+      }
+    },
+    {
+      "id": "eskort-castle-gate",
+      "source": "https://eskort.com/eskort-stores/castle-gate/",
+      "hours": [
+        "08:00-18:00",
+        "08:00-18:00",
+        "08:00-18:00",
+        "08:00-18:00",
+        "08:00-18:00",
+        "09:00-17:00",
+        "09:00-15:00"
+      ]
+    },
+    {
+      "id": "kloppers-castle-gate",
+      "source": "https://kloppers.co.za/store-finder/",
+      "hours": [
+        "09:00-18:00",
+        "09:00-18:00",
+        "09:00-18:00",
+        "09:00-18:00",
+        "09:00-18:00",
+        "09:00-17:00",
+        "09:00-15:00"
+      ],
+      "details": {
+        "public_holiday_hours": "09:00-14:00",
+        "hours_conflict_note": "Expert dealer page lists public holidays to 15:00; operator page lists 14:00. Confirm holiday hours."
+      }
+    },
+    {
+      "id": "bargain-books-the-grove",
+      "source": "https://bargainbooks.co.za/stores/the-grove",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-18:00",
+        "09:00-16:00"
+      ],
+      "details": {
+        "shop": "L81"
+      },
+      "phone": "0128073248"
+    },
+    {
+      "id": "ackermans-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/ackermans",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-18:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "256 & 257",
+        "entrance": "3"
+      },
+      "phone": "0129971184"
+    },
+    {
+      "id": "bargain-books-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/bargain-books",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "entrance": "1",
+        "refurbishment_notice": "Centre lists closed for refurbishment; operator directory lists shop 312 instead of centre shop 75B. Confirm before travelling."
+      },
+      "phone": "0129975148"
+    },
+    {
+      "id": "cape-union-mart-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/cape-union-mart",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "57",
+        "entrance": "4"
+      },
+      "phone": "0129976960"
+    },
+    {
+      "id": "computer-mania-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/computer-mania",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "271",
+        "entrance": "2"
+      },
+      "phone": "0129971740"
+    },
+    {
+      "id": "dis-chem-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/dis-chem",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "267",
+        "entrance": "2"
+      },
+      "phone": "0129949292"
+    },
+    {
+      "id": "edgars-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/edgars",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "9",
+        "entrance": "4"
+      },
+      "phone": "0105938385"
+    },
+    {
+      "id": "exclusive-books-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/exclusive-books",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "25A",
+        "entrance": "4"
+      },
+      "phone": "0129973323"
+    },
+    {
+      "id": "freedom-of-movement-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/freedom-of-movement",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "38",
+        "entrance": "4"
+      },
+      "phone": "0100853595"
+    },
+    {
+      "id": "incredible-connection-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/incredible-connection",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "264",
+        "entrance": "3"
+      },
+      "phone": "0129949000"
+    },
+    {
+      "id": "istore-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/istore",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "35",
+        "entrance": "4"
+      },
+      "phone": "0870575500"
+    },
+    {
+      "id": "le-creuset-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/le-creuset",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "275 & 276",
+        "entrance": "2"
+      },
+      "phone": "0129973777"
+    },
+    {
+      "id": "mr-price-home-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/mr-price-home",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "241A",
+        "entrance": "3"
+      },
+      "phone": "0129971075"
+    },
+    {
+      "id": "mr-price-sport-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/mr-price-sport",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "70C",
+        "entrance": "1"
+      },
+      "phone": "0877541866"
+    },
+    {
+      "id": "builders-warehouse-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/builders-warehouse",
+      "hours": [
+        "07:00-18:00",
+        "07:00-18:00",
+        "07:00-18:00",
+        "07:00-18:00",
+        "07:00-18:00",
+        "07:00-17:00",
+        "08:00-16:00"
+      ],
+      "details": {
+        "shop": "313",
+        "entrance": "3"
+      },
+      "phone": "0100034800"
+    },
+    {
+      "id": "clicks-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/clicks-pharmacy",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "1C",
+        "entrance": "1"
+      },
+      "phone": "0129977345"
+    },
+    {
+      "id": "mr-price-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/mr-price-weekend",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "63",
+        "entrance": "1"
+      },
+      "phone": "0723919120"
+    },
+    {
+      "id": "mtn-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/mtn",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "2",
+        "entrance": "Pick 'n Pay Entrance"
+      },
+      "phone": "0838698163"
+    },
+    {
+      "id": "outdoor-warehouse-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/outdoor-warehouse",
+      "hours": [
+        "09:00-18:00",
+        "09:00-18:00",
+        "09:00-18:00",
+        "09:00-18:00",
+        "09:00-18:00",
+        "09:00-17:00",
+        "09:00-15:00"
+      ],
+      "details": {
+        "shop": "310B",
+        "entrance": "3"
+      },
+      "phone": "0129972370"
+    },
+    {
+      "id": "pep-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/pep",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "263B",
+        "entrance": "3"
+      },
+      "phone": "0128039424"
+    },
+    {
+      "id": "pick-n-pay-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/pick-n-pay",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "1",
+        "entrance": "1"
+      },
+      "phone": "0129977042"
+    },
+    {
+      "id": "plush-carwash-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/plush-carwash",
+      "hours": [
+        "09:00-17:00",
+        "09:00-17:00",
+        "09:00-17:00",
+        "09:00-17:00",
+        "09:00-17:00",
+        "09:00-17:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "Phase 2 Basement Parking",
+        "entrance": "3"
+      },
+      "phone": "0785115323"
+    },
+    {
+      "id": "telkom-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/telkom",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "71B",
+        "entrance": "1",
+        "contact_note": "Walk-in only; tenant page says telephone queries are not handled."
+      },
+      "phone": "0129973605"
+    },
+    {
+      "id": "the-crazy-store-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/the-crazy-store",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "75A",
+        "entrance": "1"
+      },
+      "phone": "0871358974"
+    },
+    {
+      "id": "the-fun-company-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/the-fun-company",
+      "hours": [
+        "10:00-23:00",
+        "10:00-23:00",
+        "10:00-23:00",
+        "10:00-23:00",
+        "10:00-23:00",
+        "10:00-23:00",
+        "10:00-22:00"
+      ],
+      "details": {
+        "shop": "26",
+        "entrance": "4"
+      },
+      "phone": "0871649459"
+    },
+    {
+      "id": "tiger-wheel-tyre-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/tiger-wheel-tyre",
+      "hours": [
+        "08:00-17:00",
+        "08:00-17:00",
+        "08:00-17:00",
+        "08:00-17:00",
+        "08:00-17:00",
+        "08:00-13:00",
+        "closed"
+      ],
+      "details": {
+        "shop": "315",
+        "entrance": "Value Centre, near Builders"
+      },
+      "phone": "0120007603"
+    },
+    {
+      "id": "vodacom-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/vodacom-shop",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "66A & 67",
+        "entrance": "1"
+      },
+      "phone": "0129975281"
+    },
+    {
+      "id": "woolworths-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/woolworths",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "46",
+        "entrance": "2 & 4"
+      },
+      "phone": "0129979100"
+    },
+    {
+      "id": "yuppiechef-woodlands",
+      "source": "https://woodlandsboulevard.co.za/shop/yuppiechef",
+      "hours": [
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-19:00",
+        "09:00-17:00"
+      ],
+      "details": {
+        "shop": "281",
+        "entrance": "3",
+        "contact_conflict_note": "Centre lists 0124140204; operator directory lists 0121410204. Confirm branch number."
+      }
+    }
+  ],
+  "groups": [
+    {
+      "id": "ackermans",
+      "description": "Clothing, footwear and accessories for adults and children.",
+      "source": "https://woodlandsboulevard.co.za/shop/ackermans"
+    },
+    {
+      "id": "bargain-books",
+      "description": "Books for reading, learning and gifting, including fiction and children's titles.",
+      "source": "https://bargainbooks.co.za/stores/the-grove"
+    },
+    {
+      "id": "cape-union-mart",
+      "description": "Clothing and equipment for hiking, camping, travel and outdoor pursuits.",
+      "source": "https://woodlandsboulevard.co.za/shop/cape-union-mart"
+    },
+    {
+      "id": "computer-mania",
+      "description": "Computers, software and accessories, with repairs, upgrades and custom builds.",
+      "source": "https://woodlandsboulevard.co.za/shop/computer-mania"
+    },
+    {
+      "id": "dis-chem",
+      "description": "A pharmacy and health retailer selling medicines, toiletries, beauty products and supplements.",
+      "source": "https://woodlandsboulevard.co.za/shop/dis-chem"
+    },
+    {
+      "id": "edgars",
+      "description": "Clothing, footwear, beauty products and homeware.",
+      "source": "https://woodlandsboulevard.co.za/shop/edgars"
+    },
+    {
+      "id": "exclusive-books",
+      "description": "Fiction, non-fiction, gifts and books for children.",
+      "source": "https://woodlandsboulevard.co.za/shop/exclusive-books"
+    },
+    {
+      "id": "freedom-of-movement",
+      "description": "Footwear, bags and accessories from a South African design brand.",
+      "source": "https://woodlandsboulevard.co.za/shop/freedom-of-movement"
+    },
+    {
+      "id": "incredible-connection",
+      "description": "Computers, electronics and technology accessories for home and work.",
+      "source": "https://woodlandsboulevard.co.za/shop/incredible-connection"
+    },
+    {
+      "id": "istore",
+      "description": "Apple products and accessories, with technical support and repair services.",
+      "source": "https://woodlandsboulevard.co.za/shop/istore"
+    },
+    {
+      "id": "le-creuset",
+      "description": "Cookware, kitchen utensils and dining accessories.",
+      "source": "https://woodlandsboulevard.co.za/shop/le-creuset"
+    },
+    {
+      "id": "mr-price-home",
+      "description": "Furniture, homeware and decor for the home.",
+      "source": "https://woodlandsboulevard.co.za/shop/mr-price-home"
+    },
+    {
+      "id": "mr-price-sport",
+      "description": "Sportswear, activewear, exercise equipment and accessories.",
+      "source": "https://woodlandsboulevard.co.za/shop/mr-price-sport"
+    },
+    {
+      "id": "mr-price",
+      "description": "Clothing and accessories for adults and children.",
+      "source": "https://woodlandsboulevard.co.za/shop/mr-price-weekend"
+    },
+    {
+      "id": "mtn",
+      "description": "Mobile phones, data, voice and connectivity services.",
+      "source": "https://woodlandsboulevard.co.za/shop/mtn"
+    },
+    {
+      "id": "outdoor-warehouse",
+      "description": "Equipment and clothing for camping, hiking and outdoor recreation.",
+      "source": "https://woodlandsboulevard.co.za/shop/outdoor-warehouse"
+    },
+    {
+      "id": "pep",
+      "description": "Clothing, homeware, mobile phones and parcel services.",
+      "source": "https://woodlandsboulevard.co.za/shop/pep"
+    },
+    {
+      "id": "pick-n-pay",
+      "description": "A supermarket for groceries and household shopping.",
+      "source": "https://woodlandsboulevard.co.za/shop/pick-n-pay"
+    },
+    {
+      "id": "pick-n-pay-clothing",
+      "description": "Clothing and wardrobe essentials for adults and children.",
+      "source": "https://woodlandsboulevard.co.za/shop/pick-n-pay-clothing"
+    },
+    {
+      "id": "plush-carwash",
+      "description": "Car washing and vehicle cleaning services.",
+      "source": "https://woodlandsboulevard.co.za/shop/plush-carwash"
+    },
+    {
+      "id": "telkom",
+      "description": "Mobile and broadband products, account support and connectivity services.",
+      "source": "https://woodlandsboulevard.co.za/shop/telkom"
+    },
+    {
+      "id": "the-crazy-store",
+      "description": "Toys, stationery, kitchenware, homeware and gifts.",
+      "source": "https://woodlandsboulevard.co.za/shop/the-crazy-store"
+    },
+    {
+      "id": "the-fun-company",
+      "description": "A venue for games and entertainment with friends and family.",
+      "source": "https://woodlandsboulevard.co.za/shop/the-fun-company"
+    },
+    {
+      "id": "tiger-wheel-tyre",
+      "description": "Tyres, wheels, batteries and vehicle fitment services.",
+      "source": "https://woodlandsboulevard.co.za/shop/tiger-wheel-tyre"
+    },
+    {
+      "id": "vodacom",
+      "description": "Mobile phones, voice, data and connectivity services.",
+      "source": "https://woodlandsboulevard.co.za/shop/vodacom-shop"
+    },
+    {
+      "id": "woolworths",
+      "description": "Food, fashion, beauty products and homeware.",
+      "source": "https://woodlandsboulevard.co.za/shop/woolworths"
+    },
+    {
+      "id": "yuppiechef",
+      "description": "Kitchenware and homeware for cooking, dining and sharing food.",
+      "source": "https://woodlandsboulevard.co.za/shop/yuppiechef"
+    },
+    {
+      "id": "checkers",
+      "description": "A supermarket for groceries, produce and household shopping.",
+      "source": "https://woodlandsboulevard.co.za/shop/checkers"
+    },
+    {
+      "id": "food-lovers-market",
+      "description": "Produce, groceries and food departments for household shopping.",
+      "source": "https://foodloversmarket.co.za/stores/gauteng/food-lovers-market-castle-gate/"
+    },
+    {
+      "id": "eskort",
+      "description": "Meat, pork products and food for cooking at home.",
+      "source": "https://eskort.com/eskort-stores/castle-gate/"
+    },
+    {
+      "id": "weylandts",
+      "description": "Furniture, homeware and decor for living spaces.",
+      "source": "https://www.weylandts.co.za/store/castle-gate"
+    },
+    {
+      "id": "kloppers",
+      "description": "Electronics, appliances, homeware, stationery and sporting equipment.",
+      "source": "https://kloppers.co.za/store-finder/"
+    },
+    {
+      "id": "clicks",
+      "description": "A pharmacy and health retailer offering medicines, toiletries and beauty products.",
+      "source": "https://woodlandsboulevard.co.za/shop/clicks-pharmacy"
+    }
+  ]
+}

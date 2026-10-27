@@ -1,7 +1,7 @@
 import Constants from "expo-constants";
 import { createSupabaseApi } from "@knogo/core";
 import { mobileStorage } from "./storage";
-import { testerBuild } from "./testing";
+import { testerBuild, testerFeedbackEnabled } from "./testing";
 
 const extra = Constants.expoConfig?.extra as
   | { supabaseUrl?: string; supabasePublishableKey?: string }
@@ -14,6 +14,7 @@ export const supabaseApi = createSupabaseApi({
   publishableKey: process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY || extra?.supabasePublishableKey,
   venueClaimUrl: process.env.EXPO_PUBLIC_VENUE_CLAIM_API_URL,
   allowGuestReporting: testerBuild,
+  allowTesterFeedback: testerFeedbackEnabled,
   sessionStorage: {
     read: mobileStorage.readSession,
     write: mobileStorage.writeSession,

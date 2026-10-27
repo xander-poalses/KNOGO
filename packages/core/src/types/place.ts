@@ -48,6 +48,7 @@ export type LiveStatus = {
 export type Place = {
   id: string;
   name: string;
+  description?: string;
   slug: string;
   groupId?: string;
   groupSlug?: string;

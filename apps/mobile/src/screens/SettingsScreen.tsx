@@ -1,5 +1,5 @@
 // Imports
-import { ChevronRight, FileText, Fuel, LogOut, Moon, Palette, ShieldCheck, Sun } from "lucide-react-native";
+import { ChevronRight, FileText, Fuel, LogOut, MessageSquare, Moon, Palette, ShieldCheck, Sun } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useRef, useState, type ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -13,6 +13,8 @@ import { usePlaces } from "../state/PlacesContext";
 import { useFuel } from "../state/FuelContext";
 import { FuelPreferencesForm } from "../components/FuelPreferencesForm";
 import { fuelRegionForLocation } from "@knogo/core";
+import { testerFeedbackEnabled } from "../testing";
+import { TesterFeedbackForm } from "../components/TesterFeedbackForm";
 
 // Components
 export function SettingsScreen() {
@@ -25,6 +27,8 @@ export function SettingsScreen() {
   const [preferencesSheet, setPreferencesSheet] = useState<"appearance" | "fuel" | null>(null);
   const [signingOut, setSigningOut] = useState(false);
   const [accountError, setAccountError] = useState("");
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackSent, setFeedbackSent] = useState(false);
   const signOutRunning = useRef(false);
   const leaveAccount = async () => {
     if (signOutRunning.current) return;
@@ -56,10 +60,13 @@ export function SettingsScreen() {
       </View>
       <View style={styles.section}>
         <Text accessibilityRole="header" style={styles.sectionTitle}>Help and policies</Text>
+        {testerFeedbackEnabled ? row("Suggest an improvement", "Tester feedback", <MessageSquare color={colours.primary} size={20}/>, () => setFeedbackOpen(true)) : null}
         <Pressable accessibilityRole="link" onPress={() => router.push("/support")} style={styles.linkRow}><ShieldCheck color={colours.text} size={18} /><Text style={styles.linkText}>Support and data corrections</Text><ChevronRight color={colours.muted} size={18} /></Pressable>
         <Pressable accessibilityRole="link" onPress={() => router.push("/legal/privacy")} style={styles.linkRow}><FileText color={colours.text} size={18} /><Text style={styles.linkText}>Privacy and community rules</Text><ChevronRight color={colours.muted} size={18} /></Pressable>
         <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/support", params: { reason: "account-deletion" } })} style={styles.linkRow}><ShieldCheck color={colours.text} size={18}/><Text style={styles.linkText}>Request account deletion</Text><ChevronRight color={colours.muted} size={18}/></Pressable>
       </View>
+      {testerFeedbackEnabled ? <PlaceSheet title="Tester feedback" visible={feedbackOpen} onClose={() => setFeedbackOpen(false)}>{feedbackOpen ? <TesterFeedbackForm onSent={() => { setFeedbackOpen(false); setFeedbackSent(true); }}/> : null}</PlaceSheet> : null}
+      <FeedbackToast message={feedbackSent ? "Thanks. Your feedback has been sent." : null} onDismiss={() => setFeedbackSent(false)}/>
       <PlaceSheet title="Your account" visible={accountOpen} onClose={() => setAccountOpen(false)}><AccountForm onAuthenticated={() => setAccountOpen(false)}/></PlaceSheet>
       <PlaceSheet title={preferencesSheet === "fuel" ? "Fuel and trip estimates" : "Appearance"} visible={preferencesSheet !== null} onClose={() => setPreferencesSheet(null)}>
         {preferencesSheet === "fuel" ? <FuelPreferencesForm preferences={preferences} onSave={save} automaticRegion={fuelRegionForLocation(coordinates)} allowClear/> : <View style={styles.appearance}>

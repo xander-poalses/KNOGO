@@ -27,7 +27,8 @@ describe("Supabase mappers", () => {
         menu_url: null,
         features: ["card_payments", "walk_ins"],
         tags: ["Mediterranean"],
-        is_active: true
+        is_active: true,
+        service_details: { description: "  A cafe serving coffee and meals.  " }
       },
       region: {
         id: "hazelwood",
@@ -63,6 +64,7 @@ describe("Supabase mappers", () => {
     });
 
     expect(place.area).toBe("Hazelwood");
+    expect(place.description).toBe("A cafe serving coffee and meals.");
     expect(place.currentStatus.busyLevel).toBe("unknown");
     expect(place.currentStatus.isKitchenServing).toBeNull();
     expect(place.openingHours[0].openTime).toBe("11:00");

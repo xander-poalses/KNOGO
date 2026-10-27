@@ -1,0 +1,28 @@
+{
+  "checked_at": "2026-10-27",
+  "records": 166,
+  "active_businesses": 160,
+  "active_with_description": 160,
+  "opening_hours_checked_today": 50,
+  "partial_schedule": [
+    "the-goat-hazelwood"
+  ],
+  "active_without_hours": 32,
+  "active_with_unsourced_hours": 51,
+  "inactive_records_not_enriched": [
+    "blos-cafe",
+    "hillside-tavern",
+    "summit-grill-menlyn",
+    "tasos-bar-grill-hazelwood",
+    "upper-east-side-hazelwood"
+  ],
+  "excluded_test_fixture": "knogo-gemini-test-venue",
+  "limitations": [
+    "Structural audit covers all 166 records; this is not a claim that every address or existing schedule was freshly verified.",
+    "Descriptions are editorial summaries based on published business context, not business-authored copy.",
+    "Only day rows with source_checked_at 2026-10-27 were rechecked for this batch.",
+    "Unknown hours were not replaced with mall hours.",
+    "Some stored schedules still have no source. These require a further research pass or branch contact.",
+    "Photographs, logos, report data and activation flags were not changed."
+  ]
+}

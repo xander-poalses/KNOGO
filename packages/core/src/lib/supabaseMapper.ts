@@ -22,6 +22,7 @@ export type SupabasePlaceRow = {
   source_url?: string | null;
   source_checked_at?: string | null;
   data_notes?: string | null;
+  service_details?: Record<string, unknown> | null;
   region_id: string;
   address: string;
   latitude: number;
@@ -193,6 +194,7 @@ export function mapSupabasePlace(input: {
     id: input.place.id,
     slug: input.place.slug,
     name: input.place.name,
+    description: typeof input.place.service_details?.description === "string" ? input.place.service_details.description.trim() || undefined : undefined,
     groupId: input.place.group_id ?? undefined,
     groupSlug: input.group?.slug,
     groupName: input.group?.name,

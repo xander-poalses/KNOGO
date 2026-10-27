@@ -1,0 +1,91 @@
+[
+  {
+    "id": "incredible-connection-the-grove",
+    "source": "https://www.incredible.co.za/storelocator/store/index/id/62",
+    "hours": [
+      "09:00-19:00",
+      "09:00-19:00",
+      "09:00-19:00",
+      "09:00-19:00",
+      "09:00-19:00",
+      "09:00-18:00",
+      "09:00-16:00"
+    ],
+    "phone": "0128169620",
+    "details": {
+      "shop": "L27",
+      "public_holiday_hours": "09:00-16:00"
+    }
+  },
+  {
+    "id": "toys-r-us-the-grove",
+    "source": "https://www.toysrus.co.za/the-grove-pretoria",
+    "hours": [
+      "09:00-19:00",
+      "09:00-19:00",
+      "09:00-19:00",
+      "09:00-19:00",
+      "09:00-19:00",
+      "09:00-18:00",
+      "09:00-16:00"
+    ],
+    "phone": "0872348508",
+    "details": {
+      "entrance": "3",
+      "public_holiday_hours": "09:00-14:00"
+    }
+  },
+  {
+    "id": "toys-r-us-woodlands",
+    "source": "https://www.toysrus.co.za/woodlands",
+    "hours": [
+      "09:00-19:00",
+      "09:00-19:00",
+      "09:00-19:00",
+      "09:00-19:00",
+      "09:00-19:00",
+      "08:30-19:00",
+      "09:00-17:00"
+    ],
+    "phone": "0129970091",
+    "details": {
+      "shop": "237"
+    }
+  },
+  {
+    "id": "the-fun-company-the-grove",
+    "source": "https://thefuncompany.co.za/portfolio_page/the-grove-pretoria/",
+    "hours": [
+      "11:00-22:00",
+      "11:00-22:00",
+      "11:00-22:00",
+      "11:00-22:00",
+      "10:00-23:00",
+      "10:00-23:00",
+      "10:00-22:00"
+    ],
+    "details": {
+      "shop": "92a",
+      "public_and_school_holiday_hours": "10:00-23:00",
+      "booking_email": "bookings@thefuncompany.co.za",
+      "contact_note": "Operator page lists central booking number 0871649459; centre lists branch 0615616871."
+    }
+  },
+  {
+    "id": "mtn-the-grove",
+    "source": "https://stores.mtn.co.za/mobilephonesanddata-pretoria-equestria",
+    "hours": [
+      "09:00-18:00",
+      "09:00-18:00",
+      "09:00-18:00",
+      "09:00-18:00",
+      "09:00-18:00",
+      "09:00-18:00",
+      "09:00-17:00"
+    ],
+    "phone": "0838698173",
+    "details": {
+      "shop": "19"
+    }
+  }
+]

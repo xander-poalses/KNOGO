@@ -327,7 +327,7 @@ export function PlaceDetailScreen() {
         title="Place information"
         onClose={() => setSheet(null)}
       >
-        <Text style={styles.address}>{placeGroups.find(group => group.id === place.groupId)?.description?.trim() || "Description not available yet."}</Text>
+        <Text style={styles.address}>{place.description?.trim() || placeGroups.find(group => group.id === place.groupId)?.description?.trim() || "Description not available yet."}</Text>
         <Pressable accessibilityRole="link" onPress={() => { setSheet(null); router.push({ pathname: "/support", params: { reason: "representation", placeId: place.id, placeName: getPlaceDisplayName(place.name) } }); }} style={styles.actionRow}><Text style={styles.actionText}>Represent this place</Text><ChevronRight color={colours.muted} size={17}/></Pressable>
       </PlaceSheet>
       <ActionSheet

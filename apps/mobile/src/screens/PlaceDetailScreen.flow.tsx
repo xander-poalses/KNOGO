@@ -224,6 +224,13 @@ describe("place dashboard journey", () => {
     fireEvent.click(screen.getByRole("button", { name: "View place information" }));
     expect(screen.getByText("Description not available yet.")).toBeTruthy();
   });
+  it("shows a place description without a brand group", () => {
+    mocks.places[0] = { ...mocks.places[0], groupId: undefined, description: "A park for cycling and trail running." };
+    render(<PlaceDetailScreen/>);
+    fireEvent.click(screen.getByRole("button", { name: "Contact and directions" }));
+    fireEvent.click(screen.getByRole("button", { name: "View place information" }));
+    expect(screen.getByText("A park for cycling and trail running.")).toBeTruthy();
+  });
   it("shows opening status and age without report-detail rows", () => {
     const reportedAt = new Date(Date.now() - 5 * 60_000).toISOString();
     const expiresAt = new Date(Date.now() + 60 * 60_000).toISOString();
