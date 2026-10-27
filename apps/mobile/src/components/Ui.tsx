@@ -107,8 +107,9 @@ export function Chip({ label, selected = false, onPress, disabled = false, role 
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
   const [focused, setFocused] = useState(false);
-  const keyboardProps = Platform.OS === "web" ? { onKeyDown: (event: { key: string; preventDefault: () => void }) => {
-    if (event.key === " " && !disabled) { event.preventDefault(); onPress(); }
+  const keyboardProps = Platform.OS === "web" ? { onKeyDown: (event: import("react-native").KeyDownEvent) => {
+    const key = "key" in event ? event.key : event.nativeEvent.key;
+    if (key === " " && !disabled) { event.preventDefault(); onPress(); }
   } } : {};
   return (
     <Pressable {...keyboardProps} accessibilityRole={role} accessibilityLabel={label} accessibilityState={{ checked: selected, disabled }} aria-checked={selected} aria-disabled={disabled} disabled={disabled} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} onPress={onPress} style={({ pressed }) => [styles.chip, disabled && styles.selectionDisabled, pressed && styles.pressed, Platform.OS === "web" && focused && styles.buttonFocus]}>

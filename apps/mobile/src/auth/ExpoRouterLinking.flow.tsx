@@ -5,77 +5,61 @@ import { createRequire } from "node:module";
 import { runInNewContext } from "node:vm";
 import { describe, expect, it, vi } from "vitest";
 
-// State and Helpers
-const requireMobile = createRequire(new URL("../../package.json", import.meta.url));
-const source = readFileSync(requireMobile.resolve("expo-router/build/react-navigation/native/useLinking.native.js"), "utf8");
-
-// Functions
+// Helpers
+const requireMobile = createRequire(import.meta.url);
+const source = readFileSync(requireMobile.resolve("expo-router/build/fork/useLinking.native.js"), "utf8");
 function linkingHook(getInitialURL: () => string | Promise<string>) {
   const effects: (() => void | (() => void))[] = [];
   const cleanups: (() => void)[] = [];
-  const onUnhandledLinking = vi.fn();
+  const enqueue = vi.fn();
+  const unsubscribe = vi.fn();
+  let listener: (url: string) => void = () => {};
   const exports: { useLinking?: Function } = {};
   const modules: Record<string, unknown> = {
-    react: {
-      useRef: (current: unknown) => ({ current }),
-      useCallback: (callback: Function) => callback,
-      useEffect: (effect: () => void | (() => void)) => effects.push(effect)
-    },
-    "react-native": { Platform: { OS: "android" } },
-    "../core": { useNavigationIndependentTree: () => false },
-    "./extractPathFromURL": { extractPathFromURL: (_prefixes: string[], url: string) => url.replace("knogo://", "/") }
+    react: { use: () => null, useCallback: (fn: Function) => fn, useEffectEvent: (fn: Function) => fn, useEffect: (fn: () => void) => effects.push(fn) },
+    "react-native": {},
+    "../global-state/createSeededNavigationState": { completeParsedState: (state: unknown) => state },
+    "../global-state/getRouteInfoFromState": { getRouteSegmentsFromState: () => [] },
+    "../global-state/routerConfigContext": {},
+    "../global-state/routingQueueContext": { useEnqueueRoutingIntent: () => enqueue },
+    "../layoutAnchor": {}, "../react-navigation/native": {}, "../react-navigation/routers/stateKeys": {},
+    "./extractPathFromURL": { extractExpoPathFromURL: (_prefixes: string[], url: string) => url.replace("knogo://", "/") },
+    "./getInitialURLWithTimeout": {}
   };
   runInNewContext(source, { exports, require: (name: string) => {
     if (!(name in modules)) throw new Error(`Unexpected router import: ${name}`);
     return modules[name];
   }, process: { env: { NODE_ENV: "test" } } });
-  const hook = exports.useLinking!({ current: null }, {
+  const hook = exports.useLinking!({ current: { getRootState: () => ({ routeNames: ["auth"] }) } }, {
     prefixes: ["knogo://"], getInitialURL,
-    getStateFromPath: (path: string) => ({ path }),
-    subscribe: () => () => {}
-  }, onUnhandledLinking);
+    getStateFromPath: (path: string) => ({ path, routes: [{ name: "auth" }] }),
+    subscribe: (fn: (url: string) => void) => { listener = fn; return unsubscribe; }
+  });
   return {
-    initialState: () => hook.getInitialState(), onUnhandledLinking,
+    initialState: () => hook.getInitialState(), enqueue, unsubscribe, link: (url: string) => listener(url),
     mount: () => effects.forEach(effect => { const cleanup = effect(); if (cleanup) cleanups.push(cleanup); }),
     unmount: () => cleanups.forEach(cleanup => cleanup())
   };
 }
 
 // Tests
-describe("Expo Router initial native links", () => {
-  it("waits for mount when the initial URL resolves first", async () => {
+describe("Expo Router native links", () => {
+  it("parses a link before mount without dispatching navigation", async () => {
     const router = linkingHook(() => Promise.resolve("knogo://auth/callback?code=test"));
-    expect(await router.initialState()).toEqual({ path: "/auth/callback?code=test" });
-    expect(router.onUnhandledLinking).not.toHaveBeenCalled();
-    router.mount();
-    expect(router.onUnhandledLinking).toHaveBeenCalledTimes(1);
-    expect(router.onUnhandledLinking).toHaveBeenCalledWith("/auth/callback?code=test");
+    expect((await router.initialState()).path).toBe("/auth/callback?code=test");
+    expect(router.enqueue).not.toHaveBeenCalled();
   });
-
-  it("handles a URL that resolves after mount", async () => {
-    const router = linkingHook(() => Promise.resolve("knogo://restaurants"));
-    const state = router.initialState();
-    router.mount();
-    await state;
-    expect(router.onUnhandledLinking).toHaveBeenCalledTimes(1);
-    expect(router.onUnhandledLinking).toHaveBeenCalledWith("/restaurants");
+  it("parses synchronous links without dispatching navigation", () => {
+    const router = linkingHook(() => "knogo://auth/callback");
+    expect(router.initialState().path).toBe("/auth/callback");
+    expect(router.enqueue).not.toHaveBeenCalled();
   });
-
-  it("does not update linking state after unmount", async () => {
-    const router = linkingHook(() => Promise.resolve("knogo://auth/callback"));
-    const state = router.initialState();
+  it("queues links received after mount and unsubscribes on close", () => {
+    const router = linkingHook(() => "knogo://auth/callback");
     router.mount();
+    router.link("knogo://auth/callback?code=test");
+    expect(router.enqueue).toHaveBeenCalledWith(expect.objectContaining({ type: "NAVIGATE_TO_HREF", payload: expect.objectContaining({ href: "/auth/callback?code=test" }) }));
     router.unmount();
-    await state;
-    expect(router.onUnhandledLinking).not.toHaveBeenCalled();
-  });
-
-  it("defers a synchronous URL until mount too", async () => {
-    const router = linkingHook(() => "knogo://restaurants");
-    expect(await router.initialState()).toEqual({ path: "/restaurants" });
-    expect(router.onUnhandledLinking).not.toHaveBeenCalled();
-    router.mount();
-    expect(router.onUnhandledLinking).toHaveBeenCalledTimes(1);
-    expect(router.onUnhandledLinking).toHaveBeenCalledWith("/restaurants");
+    expect(router.unsubscribe).toHaveBeenCalledOnce();
   });
 });

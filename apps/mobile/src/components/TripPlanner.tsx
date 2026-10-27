@@ -52,7 +52,7 @@ export function TripPlanner({ place, onEstimateChange }: { place: Place; onEstim
   const [saving, setSaving] = useState(false);
   const controller = useRef<AbortController | null>(null);
   const searchController = useRef<AbortController | null>(null);
-  const addressInput = useRef<TextInput>(null);
+  const addressInput = useRef<import("react-native").TextInputInstance>(null);
   const restoreFocus = useRef<() => void>(() => undefined);
   const fuelVisited = useRef(false);
   const estimateCompleted = useRef(false);

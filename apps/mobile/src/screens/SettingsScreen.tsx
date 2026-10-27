@@ -3,7 +3,7 @@ import { ChevronRight, FileText, Fuel, LogOut, MessageSquare, Moon, Palette, Shi
 import { useRouter } from "expo-router";
 import { useRef, useState, type ReactNode } from "react";
 import { Linking, StyleSheet, Text, View } from "react-native";
-import { Instagram } from "lucide-react-native";
+import { Camera as Instagram } from "lucide-react-native";
 import { HapticPressable as Pressable } from "../components/HapticPressable";
 import { ActionButton, Page } from "../components/Ui";
 import { AccountForm } from "../components/AccountForm";

@@ -1,5 +1,19 @@
 // Android Build Configuration
 allprojects { project ->
+    project.plugins.withId('com.facebook.react') {
+        project.afterEvaluate {
+            if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+                def react = project.extensions.getByName('react')
+                def compiler = react.hermesCommand.get()
+                if (compiler && new File(compiler).isAbsolute()) {
+                    // cmd truncates the absolute Hermes path at spaces in the workspace name.
+                    def relative = react.root.get().asFile.toPath().relativize(new File(compiler).toPath()).toString()
+                    assert !relative.contains(' ') : 'Hermes command must not contain spaces on Windows'
+                    react.hermesCommand.set(relative)
+                }
+            }
+        }
+    }
     ['com.android.application', 'com.android.library'].each { plugin ->
         project.plugins.withId(plugin) {
             project.extensions.getByName('androidComponents').finalizeDsl { android ->

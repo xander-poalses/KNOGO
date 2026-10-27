@@ -16,7 +16,7 @@ export function HomeScreen() {
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
   const insets = useSafeAreaInsets();
-  const searchInputRef = useRef<TextInput>(null);
+  const searchInputRef = useRef<import("react-native").TextInputInstance>(null);
   const { places, recentSearches, addRecentSearch, clearRecentSearches } = usePlaces();
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);

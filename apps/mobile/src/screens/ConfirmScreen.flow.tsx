@@ -86,6 +86,7 @@ describe("tester sign-in skip", () => {
     mocks.guest.mockImplementation(async () => { mocks.session = { userId: "guest", isAnonymous: true }; });
     fireEvent.click(screen.getByRole("button", { name: "Skip sign-in" }));
     await waitFor(() => expect(screen.getByText("How did you check?")).toBeTruthy());
+    await waitFor(() => expect((screen.getByRole("button", { name: "By phone" }) as HTMLButtonElement).disabled).toBe(false));
     expect(mocks.guest).toHaveBeenCalledOnce();
     fireEvent.click(screen.getByRole("button", { name: "By phone" })); next();
     fireEvent.click(screen.getByRole("radio", { name: "Yes, open" }));

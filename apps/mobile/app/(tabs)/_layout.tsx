@@ -16,7 +16,7 @@ export default function TabsLayout() {
 
   return (
     <Tabs
-      tabBar={({ state, descriptors, navigation }) => (
+      tabBar={({ state, descriptors, emitter, navigateToTab }) => (
         <View style={[styles.tabDock, { paddingBottom: 12 + insets.bottom }]}>
           <View style={[styles.tabBar, { width: tabWidth }]}>
             {state.routes.map((route, index) => {
@@ -36,9 +36,9 @@ export default function TabsLayout() {
                   accessibilityRole="button"
                   accessibilityState={focused ? { selected: true } : {}}
                   key={route.key}
-                  onLongPress={() => navigation.emit({ type: "tabLongPress", target: route.key })}
+                  onLongPress={() => emitter.emit({ type: "tabLongPress", target: route.key })}
                   onPress={() => {
-                    const event = navigation.emit({
+                    const event = emitter.emit({
                       type: "tabPress",
                       target: route.key,
                       canPreventDefault: true
@@ -47,7 +47,7 @@ export default function TabsLayout() {
                     if (!event.defaultPrevented && route.name === "restaurants") {
                       router.replace("/restaurants");
                     } else if (!focused && !event.defaultPrevented) {
-                      navigation.navigate(route.name, route.params);
+                      navigateToTab(route.key);
                     }
                   }}
                   style={[styles.tabItem, focused && styles.tabItemActive]}

@@ -1,5 +1,9 @@
 # KNOGO
 
+Run `pnpm test:jest` for 20 checks covering test-environment notice placement, report-answer filtering and swipe dismissal boundaries. These run alongside the existing Vitest suites.
+
+The mobile app uses Expo SDK 58 and React Native 0.88. Gesture Handler is pinned to 3.4 because its maintainer lists 0.88 support there; Expo's SDK 58 list still recommends 3.3. The package is excluded from Expo's version alignment for that reason. The existing gesture builder API remains supported but deprecated. Recheck this exception when Expo updates its version list. SDK upgrades require a new app build; version 0.2.0 separates this runtime from the SDK 57 version 0.1.0.
+
 Know before you go.
 
 <img src="docs/media/KnogoMockup1.png" alt="KNOGO mockup showing the home screen and a place's opening status on two phones" width="100%">
@@ -425,15 +429,15 @@ provider access and backend integration require their own checks.
 Use local fixtures for report tests. Check account return, saved drafts,
 submission retries, expiry, sheets, hardware Back, TalkBack, text scaling,
 permissions and offline recovery on Android. Never use a public venue for
-invented observations. The retained Expo Router patch covers initial-link
-timing; review it when upgrading the router.
+invented observations. The Expo Router initial-link checks cover startup and
+account-return handling after the SDK 58 upgrade.
 
 ## Google Play testing
 
 The `testing` EAS profile creates a standalone Android App Bundle for Play
 internal and closed testing. It uses the preview EAS environment and the same
 Supabase project as production. `EXPO_PUBLIC_APP_ENV=testing` adds Skip sign-in
-to reporting and identifies the environment in the header. Production sets
+to reporting and identifies the environment in Settings under Privacy and community rules. Production sets
 `EXPO_PUBLIC_APP_ENV=production` and does not offer Skip.
 
 Enable anonymous sign-ins in Supabase Auth, then enable the server switch:

@@ -2,17 +2,21 @@
   "expo": {
     "name": "KNOGO",
     "slug": "knogo",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "orientation": "portrait",
     "scheme": "knogo",
     "userInterfaceStyle": "automatic",
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
     "icon": "./assets/icon.png",
     "android": {
       "package": "za.co.knogo.app",
-      "versionCode": 2,
+      "versionCode": 8,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#f3f3e8"

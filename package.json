@@ -15,6 +15,7 @@
     "preview": "vite preview --host 127.0.0.1",
     "test": "vitest run",
     "test:mobile-flow": "vitest run --config vitest.mobile.config.ts",
+    "test:jest": "jest --config jest.config.cjs --runInBand",
     "places:validate": "node scripts/place-importer.mjs validate",
     "places:generate": "node scripts/place-importer.mjs generate",
     "places:activate": "node scripts/place-importer.mjs activate",
@@ -36,6 +37,7 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "csv-parse": "6.1.0",
+    "jest": "30.5.2",
     "jsdom": "^25.0.1",
     "vitest": "^2.1.4"
   }

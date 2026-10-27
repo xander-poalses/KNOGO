@@ -22,7 +22,7 @@ vi.mock("../components/HapticPressable", async () => {
   const { createElement } = await import("react");
   return { HapticPressable: ({ children, onPress }: any) => createElement("button", { onClick: onPress }, children) };
 });
-vi.mock("lucide-react-native", () => ({ Instagram: () => null, ChevronRight: () => null, FileText: () => null, Fuel: () => null, LogOut: () => null, MessageSquare: () => null, Moon: () => null, Palette: () => null, ShieldCheck: () => null, Sun: () => null, X: () => null }));
+vi.mock("lucide-react-native", () => ({ Camera: () => null, ChevronRight: () => null, FileText: () => null, Fuel: () => null, LogOut: () => null, MessageSquare: () => null, Moon: () => null, Palette: () => null, ShieldCheck: () => null, Sun: () => null, X: () => null }));
 vi.mock("react-native", async () => {
   const { createElement } = await import("react");
   const box = ({ children, accessibilityRole }: any) => createElement("div", { role: accessibilityRole }, children);

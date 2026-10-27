@@ -1,8 +1,7 @@
 import { Info } from "lucide-react-native";
 import { Image } from "expo-image";
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { testerBuild } from "../testing";
+import { StyleSheet, View } from "react-native";
 import { HapticPressable as Pressable } from "./HapticPressable";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme, useThemeStyles, type ThemeColours } from "../theme";
@@ -24,7 +23,6 @@ export function BrandHeader() {
         <Image source={require("../../assets/knogo-logo.png")} contentFit="contain" tintColor={colours.text} style={styles.logo} />
       </View>
       <View style={styles.headerActions}>
-        {testerBuild ? <Text style={{ color: colours.muted, fontSize: 12 }}>Test environment</Text> : null}
         <Pressable accessibilityLabel="About KNOGO beta" accessibilityRole="button" accessibilityState={{ expanded: betaOpen }} onPress={() => setBetaOpen((current) => !current)} style={({ pressed }) => [styles.headerInfo, pressed && styles.pressed]}>
           <Info color={colours.primary} size={18} />
         </Pressable>

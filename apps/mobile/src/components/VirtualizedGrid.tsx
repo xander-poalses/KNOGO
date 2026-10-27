@@ -31,8 +31,8 @@ export function VirtualizedGrid<T>({ data, columns, keyExtractor, renderTile, he
       numColumns={columns}
       renderItem={({ item, index }) => <View style={{ width: tileWidth, marginBottom: gap, ...(roundedList && columns === 1 ? { overflow: "hidden" as const, borderTopLeftRadius: index === 0 ? radii.surface : 0, borderTopRightRadius: index === 0 ? radii.surface : 0, borderBottomLeftRadius: index === data.length - 1 ? radii.surface : 0, borderBottomRightRadius: index === data.length - 1 ? radii.surface : 0 } : {}) }}>{renderTile(item, tileWidth)}</View>}
       columnWrapperStyle={columns > 1 ? styles.row : undefined}
-      ListHeaderComponent={header ? <View style={styles.header}>{header}</View> : null}
-      ListEmptyComponent={empty ? <View style={styles.empty}>{empty}</View> : null}
+      ListHeaderComponent={header ? <View style={styles.header}>{header}</View> : undefined}
+      ListEmptyComponent={empty ? <View style={styles.empty}>{empty}</View> : undefined}
       contentContainerStyle={[styles.content, { paddingBottom: 112 + insets.bottom }]}
       initialNumToRender={columns * 4}
       maxToRenderPerBatch={columns * 3}

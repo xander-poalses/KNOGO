@@ -2,10 +2,12 @@ import { BackButton, Page } from "../components/Ui";
 import { StyleSheet, Text, View } from "react-native";
 import { fonts, useThemeStyles, type ThemeColours } from "../theme";
 import { OutsideVoiceLogo } from "../components/OutsideVoiceLogo";
+import { testerBuild } from "../testing";
 
 export function LegalScreen() {
   const styles = useThemeStyles(createStyles);
   return <Page><BackButton /><Text style={styles.title}>Privacy and community rules</Text>
+    {testerBuild ? <Policy title="Test environment" body="You are using the KNOGO test environment. Reports submitted here are for testing and share KNOGO's place data. Features may change while testing." /> : null}
     <Policy title="What KNOGO stores" body="KNOGO stores your email account, saved places and reports you submit. In testing, Skip sign-in creates a guest ID without an email or password. Test reports share the same data as other reports. Your guest session stays on this device until you sign out or clear app data. Search text, phone location and device coordinates are not sent to analytics." />
     <Policy title="Community reports" body="Say how you checked and share only what you observed. Reports stop counting as live evidence after four hours. Hourly cleanup removes detail older than 24 hours; outages can delay cleanup. Account contribution counts remain. Reports of a problem need checks across accounts, methods and time. An account does not prove a report is true." />
     <Policy title="Checks and listed hours" body="Reports describe a check, not a guarantee. Listed schedules do not confirm that a place is working now, and reports do not predict conditions when you arrive." />
