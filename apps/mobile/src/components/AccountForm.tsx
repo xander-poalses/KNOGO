@@ -93,7 +93,7 @@ export function AccountForm({ onAuthenticated, reportPlaceId, venuePlaceId, star
 
   if (recovering) return <View style={styles.form}>
     <Text accessibilityRole="header" style={styles.title}>{recoverySent ? "Check your inbox" : "Reset your password"}</Text>
-    {recoverySent ? <Text accessibilityLiveRegion="polite" style={styles.body}>If an account can receive a recovery email, a link is on its way. Check your inbox and spam folder.</Text> : <>
+    {recoverySent ? <FeedbackToast message="If an account can receive a recovery email, a link is on its way. Check your inbox and spam folder."/> : <>
       <Text style={styles.body}>We will send a link to change your password.</Text>
       <TextInput accessibilityLabel="Recovery email address" value={email} onChangeText={setEmail} autoCapitalize="none" autoCorrect={false} autoComplete="email" keyboardType="email-address" editable={!busy} style={styles.input}/>
       <FeedbackToast message={error} onDismiss={() => setError(null)}/>
@@ -106,7 +106,7 @@ export function AccountForm({ onAuthenticated, reportPlaceId, venuePlaceId, star
     <Mail color={colours.primary} size={28}/>
     <Text accessibilityRole="header" style={styles.title}>Check your email</Text>
     <Text style={styles.emailValue}>{email.trim()}</Text>
-    <Text accessibilityRole="alert" style={styles.body}>If confirmation is needed, check your inbox and spam. Already registered? Use your password; it has not changed.</Text>
+    <FeedbackToast message="If confirmation is needed, check your inbox and spam. Already registered? Use your password; it has not changed."/>
     {reportPlaceId ? <Text style={styles.body}>Sign in to continue your report.</Text> : null}
     <ActionButton label="Sign in" tone="green" onPress={() => { setSent(false); setMode("signin"); }}/>
     <Pressable accessibilityRole="button" style={styles.modeLink} onPress={() => { setSent(false); setMode("signup"); setSignupStep(1); setEmail(""); setError(null); }}><Text style={styles.linkText}>Use another email</Text></Pressable>
@@ -122,7 +122,7 @@ export function AccountForm({ onAuthenticated, reportPlaceId, venuePlaceId, star
         <Text style={styles.stepLabel}>{signupStep} of 2</Text>
       </View> : null}
     </View>
-    {!hasSupabaseConfig ? <Text accessibilityRole="alert" style={styles.error}>Account access needs a connection to Supabase.</Text> : null}
+    <FeedbackToast message={!hasSupabaseConfig ? "Account access needs a connection to Supabase." : null}/>
     {googleSignInEnabled && (mode === "signin" || signupStep === 1) ? <>
       <ActionButton label="Continue with Google" tone="light" loading={googleBusy} disabled={busy || (googleSignInSupported && !googleRequest)} onPress={() => void google()}/>
       <View style={styles.divider}><View style={styles.dividerLine}/><Text style={styles.stepLabel}>or use email</Text><View style={styles.dividerLine}/></View>

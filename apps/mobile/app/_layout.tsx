@@ -9,7 +9,8 @@ import {
   DMSans_800ExtraBold,
   useFonts
 } from "@expo-google-fonts/dm-sans";
-import { useEffect } from "react";
+import { useCallback, useState } from "react";
+import { View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BrandHeader } from "../src/components/AppChrome";
@@ -18,11 +19,16 @@ import { ThemeProvider, useTheme } from "../src/theme";
 import { TelemetryGate } from "../src/components/TelemetryGate";
 import { FuelProvider } from "../src/state/FuelContext";
 import { AccessibilityStyles } from "../src/components/AccessibilityStyles";
+import { ToastProvider } from "../src/components/ToastProvider";
+import { StartupSplash } from "../src/components/StartupSplash";
 
 void SplashScreen.preventAutoHideAsync();
+const hideNativeSplash = () => { void SplashScreen.hideAsync(); };
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
+  const [splashDone, setSplashDone] = useState(false);
+  const finishSplash = useCallback(() => setSplashDone(true), []);
+  const [fontsLoaded, fontError] = useFonts({
     DMSans_400Regular,
     DMSans_500Medium,
     DMSans_600SemiBold,
@@ -30,15 +36,16 @@ export default function RootLayout() {
     DMSans_800ExtraBold
   });
 
-  useEffect(() => {
-    if (fontsLoaded) void SplashScreen.hideAsync();
-  }, [fontsLoaded]);
-
-  if (!fontsLoaded) return null;
+  const fontsReady = fontsLoaded || Boolean(fontError);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}><SafeAreaProvider>
-      <ThemeProvider><FuelProvider><PlacesProvider><TelemetryGate><ThemedStack /></TelemetryGate></PlacesProvider></FuelProvider></ThemeProvider>
+      <ThemeProvider><ToastProvider><FuelProvider><PlacesProvider>
+        <View style={{ flex: 1 }} accessibilityElementsHidden={!splashDone} importantForAccessibility={splashDone ? "auto" : "no-hide-descendants"} pointerEvents={splashDone ? "auto" : "none"}>
+          {splashDone ? <TelemetryGate><ThemedStack /></TelemetryGate> : null}
+        </View>
+        {!splashDone ? <StartupSplash fontsReady={fontsReady} onFinish={finishSplash} onLayout={hideNativeSplash} /> : null}
+      </PlacesProvider></FuelProvider></ToastProvider></ThemeProvider>
     </SafeAreaProvider></GestureHandlerRootView>
   );
 }

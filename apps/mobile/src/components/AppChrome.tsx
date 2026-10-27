@@ -2,10 +2,12 @@ import { Info } from "lucide-react-native";
 import { Image } from "expo-image";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { testerBuild } from "../testing";
 import { HapticPressable as Pressable } from "./HapticPressable";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { radii, fonts, shadows, useTheme, useThemeStyles, type ThemeColours } from "../theme";
+import { useTheme, useThemeStyles, type ThemeColours } from "../theme";
 import { usePlaces } from "../state/PlacesContext";
+import { FeedbackToast } from "./FeedbackToast";
 
 export function BrandHeader() {
   const insets = useSafeAreaInsets();
@@ -22,10 +24,11 @@ export function BrandHeader() {
         <Image source={require("../../assets/knogo-logo.png")} contentFit="contain" tintColor={colours.text} style={styles.logo} />
       </View>
       <View style={styles.headerActions}>
+        {testerBuild ? <Text style={{ color: colours.muted, fontSize: 12 }}>Test environment</Text> : null}
         <Pressable accessibilityLabel="About KNOGO beta" accessibilityRole="button" accessibilityState={{ expanded: betaOpen }} onPress={() => setBetaOpen((current) => !current)} style={({ pressed }) => [styles.headerInfo, pressed && styles.pressed]}>
           <Info color={colours.primary} size={18} />
         </Pressable>
-        {betaOpen ? <View accessibilityRole="alert" style={styles.betaPopup}><Text style={styles.betaText}>{betaMessage}</Text></View> : null}
+        {betaOpen ? <FeedbackToast message={betaMessage} onDismiss={() => setBetaOpen(false)}/> : null}
       </View>
     </View>
   );
@@ -46,7 +49,5 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   logo: { width: 92, height: 35, marginLeft: 2 },
   headerActions: { flexDirection: "row", alignItems: "center", gap: 4 },
   headerInfo: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
-  betaPopup: { position: "absolute", top: 50, right: 0, zIndex: 100, width: 260, padding: 13, borderRadius: radii.control, backgroundColor: colours.surface, borderWidth: 1, borderColor: colours.border, ...shadows.floating },
-  betaText: { color: colours.text, fontFamily: fonts.medium, fontSize: 13, lineHeight: 18 },
   pressed: { opacity: 0.72 }
 });

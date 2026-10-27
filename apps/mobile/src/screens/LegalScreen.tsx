@@ -1,11 +1,12 @@
 import { BackButton, Page } from "../components/Ui";
 import { StyleSheet, Text, View } from "react-native";
 import { fonts, useThemeStyles, type ThemeColours } from "../theme";
+import { OutsideVoiceLogo } from "../components/OutsideVoiceLogo";
 
 export function LegalScreen() {
   const styles = useThemeStyles(createStyles);
   return <Page><BackButton /><Text style={styles.title}>Privacy and community rules</Text>
-    <Policy title="What KNOGO stores" body="KNOGO stores your email account, saved places and reports you submit. Search text, phone location and device coordinates are not sent to analytics." />
+    <Policy title="What KNOGO stores" body="KNOGO stores your email account, saved places and reports you submit. In testing, Skip sign-in creates a guest ID without an email or password. Test reports share the same data as other reports. Your guest session stays on this device until you sign out or clear app data. Search text, phone location and device coordinates are not sent to analytics." />
     <Policy title="Community reports" body="Say how you checked and share only what you observed. Reports stop counting as live evidence after four hours. Hourly cleanup removes detail older than 24 hours; outages can delay cleanup. Account contribution counts remain. Reports of a problem need checks across accounts, methods and time. An account does not prove a report is true." />
     <Policy title="Checks and listed hours" body="Reports describe a check, not a guarantee. Listed schedules do not confirm that a place is working now, and reports do not predict conditions when you arrive." />
     <Policy title="Place sources" body="Listed hours and place details come from published venue, shopping centre and government sources. Coordinates can point to a centre or venue map pin rather than its entrance. Confirm the entrance and hours with the place before travelling." />
@@ -14,7 +15,9 @@ export function LegalScreen() {
     <Policy title="Gemini review" body="Reporting is for testers aged 18 or over who accept the report notice. Gemini checks patterns, not truth. Google receives coded answers, check methods and timing patterns, not your email, GPS, names or source links. Its unpaid service may use this data to improve products, with human review. Google's retention is separate from KNOGO's cleanup." />
     <Policy title="Diagnostics" body="With consent, KNOGO sends fault details to Sentry and action counts to PostHog. Email addresses, searches, coordinates, report answers and source links are excluded." />
     <Policy title="Your choices" body="You may sign out at any time. Contact support to correct place data, request account deletion or ask about stored information." />
-    <Policy title="Terms" body="KNOGO helps people check a place before leaving. Status information can change, so contact the place when the result matters. Do not use KNOGO for emergencies." /></Page>;
+    <Policy title="Terms" body="KNOGO helps people check a place before leaving. Status information can change, so contact the place when the result matters. Do not use KNOGO for emergencies." />
+    <View style={styles.section}><Text style={styles.sectionTitle}>Outside Voice Software</Text><Text style={styles.body}>KNOGO is a product of Outside Voice Software.</Text><View style={{ alignSelf: "flex-start", padding: 12, backgroundColor: "#000000", marginTop: 8 }}><OutsideVoiceLogo /></View></View>
+    </Page>;
 }
 
 function Policy({ title, body }: { title: string; body: string }) { const styles = useThemeStyles(createStyles); return <View style={styles.section}><Text style={styles.sectionTitle}>{title}</Text><Text style={styles.body}>{body}</Text></View>; }

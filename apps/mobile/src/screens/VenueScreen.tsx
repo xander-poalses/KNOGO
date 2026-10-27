@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ActionButton, Chip, BackButton, Notice, Page } from "../components/Ui";
+import { FeedbackToast } from "../components/FeedbackToast";
 import { AccountForm } from "../components/AccountForm";
 import { usePlaces } from "../state/PlacesContext";
 import { supabaseApi } from "../supabase";
@@ -41,7 +42,7 @@ export function VenueScreen() {
   useEffect(() => {
     setAccess(null); setError(null); setMessage(null);
     setLoading(false);
-    if (!session || !place) return;
+    if (!session || session.isAnonymous || !place) return;
     let active = true;
     setLoading(true);
     void supabaseApi.readVenueAccess(place.id).then((result) => { if (active) setAccess(result); })
@@ -66,9 +67,9 @@ export function VenueScreen() {
     <Text accessibilityRole="header" style={styles.title}>Represent this venue</Text>
     <Text style={styles.name}>{place.name}</Text>
     <Text style={styles.body}>Representative access is granted by KNOGO after review.</Text>
-    {error ? <Text accessibilityRole="alert" accessibilityLiveRegion="assertive" style={styles.error}>{error}</Text> : null}
-    {message ? <Text accessibilityLiveRegion="polite" style={styles.message}>{message}</Text> : null}
-    {authLoading || loading ? <Notice title="Checking venue access" loading /> : !session ? <View style={styles.section}>
+    <FeedbackToast message={error} onDismiss={() => setError(null)}/>
+    <FeedbackToast message={message} onDismiss={() => setMessage(null)}/>
+    {authLoading || loading ? <Notice title="Checking venue access" loading /> : !session || session.isAnonymous ? <View style={styles.section}>
       <Text style={styles.body}>Sign in if you have representative access, or contact KNOGO to request it.</Text>
       <ActionButton label="Contact KNOGO" tone="light" onPress={contact}/>
       <AccountForm venuePlaceId={place.id} onAuthenticated={() => { setError(null); setMessage(null); }} />

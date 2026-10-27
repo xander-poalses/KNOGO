@@ -9,6 +9,7 @@ import { useFuel } from "../state/FuelContext";
 import { fuelFeed } from "../fuelFeed";
 import { fonts, radii, sizes, space, useTheme, useThemeStyles, type ThemeColours } from "../theme";
 import { ActionButton } from "./Ui";
+import { FeedbackToast } from "./FeedbackToast";
 import { rememberFocus } from "./AccessibilityStyles";
 import { describeArrivalHours } from "../arrivalPresentation";
 import { getTripPosition } from "../tripLocation";
@@ -21,6 +22,7 @@ const api = createTripApi({ url: process.env.EXPO_PUBLIC_TRIP_API_URL, publishab
 export type TripEstimateSummary = { costZar: number | null; litres: number | null; kilometres: number; arrival: string };
 type Sheet = "origin" | "fuel" | "arrival" | null;
 const clock = (date: Date) => date.toLocaleTimeString("en-ZA", { timeZone: "Africa/Johannesburg", hour: "2-digit", minute: "2-digit", hour12: false });
+const fuelLabels = { petrol_93: "Petrol 93", petrol_95: "Petrol 95", diesel_50ppm: "Diesel 50 ppm", diesel_500ppm: "Diesel 500 ppm" };
 
 // Components
 export function TripPlanner({ place, onEstimateChange }: { place: Place; onEstimateChange?: (summary: TripEstimateSummary | null) => void }) {
@@ -151,6 +153,7 @@ export function TripPlanner({ place, onEstimateChange }: { place: Place; onEstim
           <Text style={styles.bufferCaption}>{closingMinutes != null ? "Before listed closing" : "Check before leaving"}</Text>
         </Pressable>
       </View>
+      {price != null ? <Text style={styles.caption}>{`${preferences.grade ? fuelLabels[preferences.grade] : "Fuel"}: R${price.toFixed(2)}`}</Text> : null}
       {price == null && (pricesLoading || prices?.updateState === "failed") ? <Text style={styles.caption}>{pricesLoading ? "Getting prices" : "Price unavailable"}</Text> : null}
       {fuel?.costZar == null ? <Pressable accessibilityRole="button" onPress={() => openSheet("fuel")} style={styles.textCommand}><Fuel color={colours.primary} size={18} /><Text style={styles.link}>Add fuel details for a cost</Text></Pressable> : null}
     </View> : null}
@@ -159,7 +162,7 @@ export function TripPlanner({ place, onEstimateChange }: { place: Place; onEstim
       <View style={styles.field}><Text style={styles.caption}>To</Text><View accessible accessibilityLabel={`To: ${place.name}, ${place.area}`} style={styles.routeField}><Text style={styles.routeValue}>{place.name}</Text><Navigation size={24} color={colours.muted}/></View></View>
     </View>
     <BranchMap branches={mapBranches} route={mapRoute}/>
-    {error ? <View style={styles.errorRow}><Text accessibilityRole="alert" style={styles.warning}>{error}</Text><Pressable accessibilityRole="button" onPress={() => openSheet("origin")} style={styles.textCommand}><Text style={styles.link}>Change starting place</Text></Pressable></View> : null}
+    <FeedbackToast message={error} onDismiss={() => setError(null)} action={{ label: "Change starting place", onPress: () => openSheet("origin") }}/>
     {!api.configured ? <Text style={styles.note}>Trip estimates are not connected in this build.</Text> : null}
     <ActionButton label={phase === "locating" ? "Locating..." : phase === "routing" ? "Estimating..." : result ? "Open directions" : "Estimate my trip"} tone="green" size="large" loading={busy} disabled={!validTripPoint(place) || (!api.configured && !result)} onPress={() => result ? directions() : void estimate()} />
     {!result ? <Text style={styles.consent}>Uses your starting place for this estimate.</Text> : null}
@@ -168,14 +171,14 @@ export function TripPlanner({ place, onEstimateChange }: { place: Place; onEstim
       {sheet === "origin" ? <>
         <ActionButton label="Use my location" tone="light" icon={<Navigation color={colours.text} size={18}/>} onPress={() => { invalidate(); setOriginMode("device"); setOrigin(null); setOriginLabel("Your location"); closeSheet(); }} />
         <View style={styles.search}><Search size={20} color={colours.muted}/><TextInput ref={addressInput} autoFocus accessibilityLabel="Starting address" placeholder="Suburb, street or landmark" placeholderTextColor={colours.muted} value={query} onChangeText={value => { searchController.current?.abort(); setSearchBusy(false); setQuery(value); setAddresses([]); setSearchError(null); }} onSubmitEditing={() => void searchAddress()} returnKeyType="search" style={styles.searchInput} /><Pressable accessibilityRole="button" accessibilityLabel="Search starting places" disabled={searchBusy || query.trim().length < 3} onPress={() => void searchAddress()} style={styles.iconButton}>{searchBusy ? <ActivityIndicator color={colours.primary}/> : <ArrowUpRight size={20} color={colours.primary}/>}</Pressable></View>
-        {searchError ? <Text accessibilityRole="alert" style={styles.warning}>{searchError}</Text> : null}
+        <FeedbackToast message={searchError} onDismiss={() => setSearchError(null)}/>
         {addresses.map(item => <Pressable accessibilityRole="button" key={item.id} onPress={() => { invalidate(); setOriginMode("address"); setOrigin(item); setOriginLabel(item.label); closeSheet(); }} style={styles.address}><MapPin color={colours.muted} size={18}/><Text style={styles.controlValue}>{item.label}</Text></Pressable>)}
       </> : sheet === "fuel" ? <>
         <Text style={styles.note}>Saved on this device for your next trip.</Text>
         <Text style={styles.controlValue}>Car's fuel use ({useKmPerLitre ? "km/l" : "L/100 km"})</Text><TextInput accessibilityLabel={useKmPerLitre ? "Car fuel use in kilometres per litre" : "Car fuel use in litres per 100 kilometres"} value={consumption} onChangeText={setConsumption} keyboardType="decimal-pad" placeholder={useKmPerLitre ? "e.g. 12.5" : "e.g. 7.5"} placeholderTextColor={colours.muted} style={styles.input}/>
         <Text style={styles.controlValue}>Fuel price (R/litre)</Text><TextInput accessibilityLabel="Fuel price in rand per litre" value={pumpPrice} onChangeText={setPumpPrice} keyboardType="decimal-pad" placeholder={reference ? reference.zarPerLitre.toFixed(2) : "Price you pay at the pump"} placeholderTextColor={colours.muted} style={styles.input}/>
         {!pumpPrice.trim() ? <Text style={styles.caption}>{reference ? `Reference R ${reference.zarPerLitre.toFixed(2)}/litre` : pricesLoading ? "Getting prices" : "Price unavailable"}</Text> : null}
-        {fuelError ? <Text accessibilityRole="alert" style={styles.warning}>{fuelError}</Text> : null}
+        <FeedbackToast message={fuelError} onDismiss={() => setFuelError(null)}/>
         <ActionButton label={saving ? "Saving..." : "Save fuel details"} tone="green" loading={saving} onPress={() => void saveFuel()}/>
       </> : sheet === "arrival" && journey ? <>
         <Text style={styles.note}>Arrive {journey.arrival.toLocaleDateString("en-ZA", { weekday: "short", day: "numeric", month: "short", timeZone: "Africa/Johannesburg" })} at {clock(journey.arrival)} / South African time</Text>

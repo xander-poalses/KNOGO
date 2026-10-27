@@ -1,6 +1,15 @@
 import { vi } from "vitest";
+vi.mock("./components/Sonner", () => import("./components/Sonner.web"));
+if (typeof window !== "undefined") window.matchMedia ??= () => ({ matches: false, addEventListener() {}, removeEventListener() {} } as unknown as MediaQueryList);
 const motionTest = vi.hoisted(() => ({ reduced: false, gestures: [] as any[], timings: [] as any[], springs: [] as any[], preference: undefined as undefined | ((value: boolean) => void) }));
 export { motionTest };
+
+vi.mock("react-native-safe-area-context", () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }), SafeAreaProvider: ({ children }: any) => children }));
+
+vi.mock("expo-image", async () => {
+  const { createElement } = await import("react");
+  return { Image: ({ source, style }: any) => createElement("img", { src: source, alt: "", style }) };
+});
 
 vi.mock("react-native-reanimated", async () => {
   const React = await import("react");

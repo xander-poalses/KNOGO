@@ -1,4 +1,5 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { render } from "../testRender";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AccountForm } from "./AccountForm";
 const mocks = vi.hoisted(() => ({ recover: vi.fn(), signIn: vi.fn(), register: vi.fn(), adopt: vi.fn(), prepare: vi.fn(), open: vi.fn(), google: false, supported: true, configured: true }));
@@ -74,7 +75,7 @@ describe("account form", () => {
     fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
     expect((await screen.findByRole("alert")).textContent).toContain("Check your email and password");
     fireEvent.click(screen.getByRole("button", { name: "Dismiss notification" }));
-    expect(screen.queryByRole("alert")).toBeNull();
+    await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
     expect((screen.getByLabelText("Email address") as HTMLInputElement).value).toBe("person@example.com");
   });
   it("shows and hides a password, then masks it when changing modes", () => {
@@ -102,11 +103,11 @@ describe("account form", () => {
     expect(done).not.toHaveBeenCalled();
     expect(mocks.signIn).not.toHaveBeenCalled();
   });
-  it("keeps Google visible in Expo Go and explains the limitation on press", () => {
+  it("keeps Google visible in Expo Go and explains the limitation on press", async () => {
     mocks.google = true; mocks.supported = false;
     render(<AccountForm onAuthenticated={vi.fn()}/>);
     fireEvent.click(screen.getByRole("button", { name: "Continue with Google" }));
-    expect(screen.getByRole("alert").textContent).toContain("cannot run in Expo Go");
+    expect((await screen.findByRole("alert")).textContent).toContain("cannot run in Expo Go");
     expect(mocks.prepare).not.toHaveBeenCalled(); expect(mocks.open).not.toHaveBeenCalled();
   });
   it("does not navigate after leaving while Google session storage is pending", async () => {
@@ -225,12 +226,12 @@ describe("account form", () => {
     expect(alert.textContent).not.toContain("person@example.com");
     expect(done).not.toHaveBeenCalled();
   });
-  it("rejects missing configuration and short registration passwords", () => {
+  it("rejects missing configuration and short registration passwords", async () => {
     mocks.configured = false; const { unmount } = render(<AccountForm onAuthenticated={() => {}}/>); fill();
     fireEvent.click(screen.getByRole("button", { name: "Sign in" })); expect(mocks.signIn).not.toHaveBeenCalled();
     unmount(); mocks.configured = true; render(<AccountForm onAuthenticated={() => {}}/>);
     fireEvent.click(screen.getByRole("button", { name: "Create an account" })); fill("short");
     fireEvent.click(screen.getByRole("button", { name: "Create account" }));
-    expect(screen.getByRole("alert").textContent).toContain("at least 8 characters"); expect(mocks.register).not.toHaveBeenCalled();
+    expect((await screen.findByRole("alert")).textContent).toContain("at least 8 characters"); expect(mocks.register).not.toHaveBeenCalled();
   });
 });

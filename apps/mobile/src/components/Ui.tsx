@@ -12,8 +12,9 @@ import {
   type ScrollViewProps
 } from "react-native";
 import { HapticPressable as Pressable } from "./HapticPressable";
-import { ArrowLeft, Check, RefreshCw, Search, SlidersHorizontal, WifiOff } from "lucide-react-native";
+import { ArrowLeft, Check, Search, SlidersHorizontal } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { FeedbackToast } from "./FeedbackToast";
 import { fonts, radii, sizes, space, useTheme, useThemeStyles, type ThemeColours } from "../theme";
 
 export function Page({ children, contentContainerStyle, ...props }: ScrollViewProps & { children: ReactNode }) {
@@ -144,6 +145,7 @@ export function SearchField({ value, onChangeText, onFilter, placeholder = "Sear
 export function Notice({ title, message, loading = false, actionLabel, onAction }: { title: string; message?: string; loading?: boolean; actionLabel?: string; onAction?: () => void }) {
   const { colours } = useTheme();
   const styles = useThemeStyles(createStyles);
+  if (!loading) return <FeedbackToast message={title} detail={message} action={actionLabel && onAction ? { label: actionLabel, onPress: onAction } : undefined}/>;
   return (
     <View accessibilityRole="alert" style={styles.notice}>
       {loading ? <ActivityIndicator color={colours.primary} /> : null}
@@ -155,21 +157,8 @@ export function Notice({ title, message, loading = false, actionLabel, onAction 
 }
 
 export function CacheNotice({ fetchedAt, expired, onRetry }: { fetchedAt: string | null; expired: boolean; onRetry: () => void }) {
-  const { colours } = useTheme();
-  const styles = useThemeStyles(createStyles);
   const updated = fetchedAt ? new Date(fetchedAt).toLocaleString() : "unknown";
-  return (
-    <View style={styles.cacheNotice}>
-      <WifiOff color={colours.text} size={18} />
-      <View style={styles.cacheCopy}>
-        <Text style={styles.cacheTitle}>Showing saved places</Text>
-        <Text style={styles.cacheText}>Last updated {updated}{expired ? ". This copy is over seven days old." : "."}</Text>
-      </View>
-      <Pressable accessibilityRole="button" accessibilityLabel="Retry live data" hitSlop={8} onPress={onRetry} style={({ pressed }) => [styles.retryButton, pressed && styles.pressed]}>
-        <RefreshCw color={colours.text} size={18} />
-      </Pressable>
-    </View>
-  );
+  return <FeedbackToast message="Showing saved places" detail={`Last updated ${updated}${expired ? ". This copy is over seven days old." : "."}`} action={{ label: "Retry live data", onPress: onRetry }}/>;
 }
 
 export function Panel({ children }: { children: ReactNode }) {
@@ -216,11 +205,6 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   notice: { minHeight: 160, paddingVertical: 28, paddingHorizontal: 20, alignItems: "center", justifyContent: "center", gap: 8, borderTopWidth: 1, borderBottomWidth: 1, borderColor: colours.border },
   noticeTitle: { paddingBottom: 3, color: colours.text, fontFamily: fonts.extraBold, fontSize: 20, lineHeight: 23, textAlign: "center" },
   noticeText: { color: colours.muted, fontFamily: fonts.regular, fontSize: 14, lineHeight: 20, textAlign: "center" },
-  cacheNotice: { minHeight: 72, padding: 14, flexDirection: "row", alignItems: "center", gap: 12, borderLeftWidth: 3, borderColor: colours.warning, borderRadius: radii.surface, backgroundColor: colours.control },
-  cacheCopy: { flex: 1, gap: 3 },
-  cacheTitle: { color: colours.text, fontFamily: fonts.extraBold, fontSize: 14 },
-  cacheText: { color: colours.muted, fontFamily: fonts.regular, fontSize: 12, lineHeight: 17 },
-  retryButton: { width: sizes.iconButton, height: sizes.iconButton, alignItems: "center", justifyContent: "center" },
   panel: { padding: 16, gap: 14, borderRadius: radii.surface, borderWidth: 1, borderColor: colours.border, backgroundColor: colours.surface },
   skeleton: { borderRadius: radii.surface, backgroundColor: colours.elevated, opacity: 0.72 }
 });

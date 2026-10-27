@@ -3,17 +3,19 @@
     "name": "KNOGO",
     "slug": "knogo",
     "version": "0.1.0",
-    "runtimeVersion": { "policy": "appVersion" },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "orientation": "portrait",
     "scheme": "knogo",
     "userInterfaceStyle": "automatic",
     "icon": "./assets/icon.png",
     "android": {
       "package": "za.co.knogo.app",
-      "versionCode": 1,
+      "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#f7f5ef"
+        "backgroundColor": "#f3f3e8"
       }
     },
     "plugins": [
@@ -22,10 +24,10 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/splash.png",
-          "imageWidth": 260,
+          "image": "./assets/splash-mascot.png",
+          "imageWidth": 44,
           "resizeMode": "contain",
-          "backgroundColor": "#f7f5ef"
+          "backgroundColor": "#000000"
         }
       ],
       "expo-font",
@@ -44,7 +46,12 @@
     },
     "extra": {
       "supabaseUrl": "",
-      "supabasePublishableKey": ""
-    }
+      "supabasePublishableKey": "",
+      "router": {},
+      "eas": {
+        "projectId": "0e258bea-a78c-4222-b430-75e87b85431b"
+      }
+    },
+    "owner": "xanderpoalses"
   }
 }

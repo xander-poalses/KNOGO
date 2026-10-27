@@ -1,4 +1,5 @@
-import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, screen, within } from "@testing-library/react";
+import { render } from "../testRender";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mockPlaces, type Place, type PlaceGroup, type TrustClaim, type ConfirmationType } from "@knogo/core";
 import { PlaceDetailScreen } from "./PlaceDetailScreen";
@@ -11,7 +12,7 @@ vi.mock("expo-router", async () => {
 vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ places: mocks.places, placeGroups: mocks.placeGroups, loading: mocks.loading, isSaved: () => mocks.saved, toggleSaved: mocks.toggle, refreshPlace: mocks.refresh }) }));
 vi.mock("../telemetry", () => ({ captureEvent: vi.fn() }));
 vi.mock("react-native-safe-area-context", () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0 }) }));
-vi.mock("lucide-react-native", () => Object.fromEntries(["CheckCircle2", "ChevronDown", "ChevronUp", "ChevronRight", "CircleHelp", "CircleX", "Clock3", "ExternalLink", "Globe", "Heart", "MapPin", "MoreHorizontal", "Navigation", "Phone", "TriangleAlert", "UtensilsCrossed"].map(name => [name, () => null])));
+vi.mock("lucide-react-native", () => Object.fromEntries(["X", "CheckCircle2", "ChevronDown", "ChevronUp", "ChevronRight", "CircleHelp", "CircleX", "Clock3", "ExternalLink", "Globe", "Heart", "MapPin", "MoreHorizontal", "Navigation", "Phone", "TriangleAlert", "UtensilsCrossed"].map(name => [name, () => null])));
 vi.mock("../theme", () => ({ fonts: {}, radii: {}, shadows: {}, sizes: {}, space: {}, useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({}) }));
 vi.mock("../components/PlaceSheet", async () => {
   const { createElement } = await import("react");

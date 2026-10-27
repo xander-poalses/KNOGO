@@ -33,6 +33,7 @@ type PlacesContextValue = {
   savedPlaceIds: string[];
   settings: LocalSettings;
   settingsLoaded: boolean;
+  storageReady: boolean;
   loading: boolean;
   refreshing: boolean;
   error: string | null;
@@ -65,6 +66,7 @@ type PlacesContextValue = {
   updatePassword: (password: string) => Promise<void>;
   registerWithEmail: (email: string, password: string, redirectTo: string) => Promise<SupabaseSession | null>;
   signOut: () => Promise<void>;
+  signInAsTester: () => Promise<void>;
   addConfirmations: (placeId: string, answers: ConfirmationAnswer[], reportSource: ReportSource, sourceUrl?: string) => Promise<ReportSubmissionResult>;
   updateSettings: (settings: LocalSettings) => Promise<void>;
 };
@@ -80,6 +82,7 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
   const [savedPlaceIds, setSavedPlaceIds] = useState<string[]>([]);
   const [settings, setSettings] = useState<LocalSettings>(defaultSettings);
   const [settingsLoaded, setSettingsLoaded] = useState(false);
+  const [storageReady, setStorageReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -201,23 +204,26 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let active = true;
-    void mobileStorage.readSettings().then((storedSettings) => {
+    const settingsRestore = mobileStorage.readSettings().then((storedSettings) => {
       if (!active) return;
       setSettings(storedSettings);
       setSettingsLoaded(true);
     }).catch(() => {
     });
     const restore = <T,>(read: Promise<T>, apply: (value: T) => void) => {
-      void read.then(value => { if (active) apply(value); }).catch(() => undefined);
+      return read.then(value => { if (active) apply(value); }).catch(() => undefined);
     };
     savedRestore.current = mobileStorage.readSavedPlaceIds().then(ids => {
       if (!active) return;
       savedIds.current = ids;
       setSavedPlaceIds(ids);
     }).catch(() => undefined);
-    restore(mobileStorage.readConfirmations(), setConfirmations);
-    restore(mobileStorage.readRecentSearches(), setRecentSearches);
-    restore(mobileStorage.readFallbackArea(), setFallbackAreaState);
+    void Promise.all([
+      settingsRestore, savedRestore.current,
+      restore(mobileStorage.readConfirmations(), setConfirmations),
+      restore(mobileStorage.readRecentSearches(), setRecentSearches),
+      restore(mobileStorage.readFallbackArea(), setFallbackAreaState)
+    ]).then(() => { if (active) setStorageReady(true); });
     void mobileStorage.readPlaceDataCache().catch(() => null).then(cached => {
       if (!active) return;
       if (cached && !useMockData) {
@@ -250,6 +256,7 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
       savedPlaceIds,
       settings,
       settingsLoaded,
+      storageReady,
       loading,
       refreshing,
       error,
@@ -333,6 +340,11 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
         authRevision.current += 1;
         setSession(nextSession);
       },
+      signInAsTester: async () => {
+        const nextSession = await supabaseApi.signInAsTester();
+        authRevision.current += 1;
+        setSession(nextSession);
+      },
       signOut: async () => {
         authRevision.current += 1;
         try { await supabaseApi.signOut(); }
@@ -366,7 +378,7 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
         setSettings(next);
       }
     }),
-    [authLoading, cacheExpired, confirmations, coordinates, currentPlaces, dataSource, error, fallbackArea, lastUpdatedAt, loadRemote, loading, locationError, locationLoading, locationPermission, placeGroups, places, recentSearches, refreshing, refreshPlace, requestNearby, savedPlaceIds, session, settings, settingsLoaded]
+    [authLoading, cacheExpired, confirmations, coordinates, currentPlaces, dataSource, error, fallbackArea, lastUpdatedAt, loadRemote, loading, locationError, locationLoading, locationPermission, placeGroups, places, recentSearches, refreshing, refreshPlace, requestNearby, savedPlaceIds, session, settings, settingsLoaded, storageReady]
   );
 
   return <PlacesContext.Provider value={value}>{children}</PlacesContext.Provider>;

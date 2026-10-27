@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { TelemetryGate } from "./TelemetryGate";
 
 const mocks = vi.hoisted(() => ({ update: vi.fn(), enable: vi.fn(), disable: vi.fn(), capture: vi.fn(), consent: "unset", loaded: true }));
+vi.mock("./FeedbackToast", () => ({ FeedbackToast: ({ message }: any) => message ? <p role="alert">{message}</p> : null }));
 vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ settings: { telemetryConsent: mocks.consent }, settingsLoaded: mocks.loaded, updateSettings: mocks.update }) }));
 vi.mock("../telemetry", () => ({ captureEvent: mocks.capture, enableTelemetry: mocks.enable, disableTelemetry: mocks.disable }));
 vi.mock("../theme", () => ({ fonts: {}, useThemeStyles: (factory: (value: object) => object) => factory({}) }));

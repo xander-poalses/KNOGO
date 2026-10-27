@@ -2,6 +2,10 @@
 
 KNOGO stores account email addresses, saved places and submitted community reports so the service can work. Reports include the selected place, answers, check method, time and an online source link when supplied.
 
+The tester build offers Skip sign-in. This creates a guest account ID and session without asking for an email or password. Guest reports share the same database, retention rules and review process as other reports. Signing out, clearing app data or reinstalling can lose access to the guest identity. Settings shows the guest ID for support and deletion requests. Creating or signing into an email account does not transfer guest reports to it.
+
+On 23 October 2026, Gemini processing was paused while the Google billing tier is unverified. Reports can still be stored; automated assessments remain queued. The database caps remain in place. Re-enable processing only after checking the project's Free tier status in Google AI Studio.
+
 ## Report Review And Retention
 
 The reporting release is for testers aged 18 or over. Before reporting, each account must acknowledge notice version `2026-10-19`. KNOGO stores its version and acceptance time, not a date of birth. This is an acknowledgement, not age verification.

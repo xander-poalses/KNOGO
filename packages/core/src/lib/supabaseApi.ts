@@ -19,6 +19,7 @@ export type SupabaseSession = {
   userId: string;
   email: string;
   expiresAt: number;
+  isAnonymous?: boolean;
 };
 
 export type ConfirmationAnswer = {
@@ -39,7 +40,7 @@ type AuthResponse = {
   refresh_token?: string;
   expires_in?: number;
   expires_at?: number;
-  user?: { id: string; email?: string };
+  user?: { id: string; email?: string; is_anonymous?: boolean };
 };
 
 type AuthUserResponse = { id?: string; email?: string };
@@ -56,6 +57,7 @@ export function createSupabaseApi(config: {
   url?: string;
   publishableKey?: string;
   venueClaimUrl?: string;
+  allowGuestReporting?: boolean;
   sessionStorage: SessionStorage;
 }) {
   const { url, publishableKey, sessionStorage } = config;
@@ -125,6 +127,7 @@ export function createSupabaseApi(config: {
       refreshToken: response.refresh_token,
       userId: response.user.id,
       email: response.user.email ?? fallbackEmail,
+      ...(response.user.is_anonymous === true ? { isAnonymous: true } : {}),
       expiresAt: response.expires_at ?? Math.floor(Date.now() / 1000) + (response.expires_in ?? 3600)
     };
   }
@@ -213,6 +216,16 @@ export function createSupabaseApi(config: {
       email: user.email ?? "",
       expiresAt: Math.floor(Date.now() / 1000) + (Number.isFinite(expiresIn) ? expiresIn : 3600)
     };
+    await sessionStorage.write(session);
+    return session;
+  }
+
+  async function signInAsTester() {
+    if (!config.allowGuestReporting) throw new Error("Guest reporting is only available in the tester build.");
+    const current = await getValidSession();
+    if (current) return current;
+    const session = mapAuthResponse(await authRequest("signup", {}), "");
+    if (!session.isAnonymous) throw new Error("KNOGO could not start a guest session.");
     await sessionStorage.write(session);
     return session;
   }
@@ -314,6 +327,7 @@ export function createSupabaseApi(config: {
     if (input.reportSource === "online" && !input.sourceUrl?.trim()) throw new Error("Add the page where you checked this information.");
     const session = await getValidSession();
     if (!session) throw new Error("You need to sign in before confirming a status.");
+    if (session.isAnonymous && !config.allowGuestReporting) throw new Error("Sign in before submitting a report.");
     const results = await request<Array<{
       report_id: string;
       outcome: "pending" | "accepted" | "conflict";
@@ -488,6 +502,7 @@ export function createSupabaseApi(config: {
     verifyEmailCode,
     completeEmailLink,
     signInWithEmail,
+    signInAsTester,
     requestPasswordRecovery,
     updatePassword,
     signUpWithEmail,

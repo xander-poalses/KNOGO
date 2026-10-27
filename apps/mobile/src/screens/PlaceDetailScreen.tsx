@@ -33,6 +33,7 @@ import { AppState, Linking, StyleSheet, Text, View } from "react-native";
 import { HapticPressable as Pressable } from "../components/HapticPressable";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ActionButton, BackButton, Notice, Page } from "../components/Ui";
+import { FeedbackToast } from "../components/FeedbackToast";
 import { PlaceSheet } from "../components/PlaceSheet";
 import { TripPlanner } from "../components/TripPlanner";
 import { usePlaces } from "../state/PlacesContext";
@@ -395,11 +396,7 @@ function ActionSheet({
       <Pressable accessibilityRole="button" accessibilityLabel="View place information" onPress={onInformation} style={styles.actionRow}>
         <MapPin color={colours.text} size={20}/><Text style={styles.actionText}>Place information</Text><ChevronRight color={colours.muted} size={17}/>
       </Pressable>
-      {error ? (
-        <Text accessibilityRole="alert" style={styles.linkError}>
-          {error}
-        </Text>
-      ) : null}
+      <FeedbackToast message={error} onDismiss={() => setError(null)}/>
       {contactMissing ? (
         <Text style={styles.contactMissing}>Contact details not listed</Text>
       ) : null}

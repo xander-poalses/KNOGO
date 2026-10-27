@@ -3,6 +3,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { AccessibilityInfo, Animated, Modal, StyleSheet, View, type ModalProps } from "react-native";
 import { useTheme } from "../theme";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { ToastViewport } from "./ToastProvider";
 
 // State and Helpers
 const entrance = { backdropMs: 120, sheetMs: 220, offset: 48 };
@@ -44,7 +45,10 @@ export function StagedModal({ children, visible, onShow, onReady, backdropColour
     });
   };
   return <Modal {...props} visible={visible} transparent animationType="none" onShow={show}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: backdropColour ?? colours.overlayStrong, opacity: backdrop }]} />
-    <Animated.View style={{ flex: 1, opacity: sheet, transform: [{ translateY: sheet.interpolate({ inputRange: [0, 1], outputRange: [entrance.offset, 0] }) }] }}><GestureHandlerRootView style={{ flex: 1 }}><View style={{ flex: 1 }}>{children}</View></GestureHandlerRootView></Animated.View>
+    <Animated.View style={{ flex: 1, opacity: sheet, transform: [{ translateY: sheet.interpolate({ inputRange: [0, 1], outputRange: [entrance.offset, 0] }) }] }}><View style={{ flex: 1 }}>{children}</View></Animated.View>
+    {visible ? <ToastViewport modal/> : null}
+    </GestureHandlerRootView>
   </Modal>;
 }

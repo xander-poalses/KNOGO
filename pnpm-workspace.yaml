@@ -9,3 +9,11 @@ allowBuilds:
 
 patchedDependencies:
   expo-router@57.0.19: patches/expo-router@57.0.19.patch
+
+packageExtensions:
+  sonner:
+    peerDependencies:
+      '@types/react': '*'
+  sonner-native:
+    peerDependencies:
+      '@types/react': '*'

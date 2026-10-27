@@ -4,15 +4,17 @@ import { mockPlaces } from "@knogo/core";
 import { ConfirmScreen } from "./ConfirmScreen";
 import { ReportAssessmentReceipt } from "../components/ReportAssessmentReceipt";
 
-const mocks = vi.hoisted(() => ({ session: null as object | null, replace: vi.fn(), refreshPlace: vi.fn(async()=>{}), authLoading: false, configured: true, read: vi.fn(), write: vi.fn(), clear: vi.fn(), submit: vi.fn(), assessment: vi.fn(), places: [] as any[], placeId: "", loading: false }));
+const mocks = vi.hoisted(() => ({ testerBuild: false, guest: vi.fn(), session: null as object | null, replace: vi.fn(), refreshPlace: vi.fn(async()=>{}), authLoading: false, configured: true, read: vi.fn(), write: vi.fn(), clear: vi.fn(), submit: vi.fn(), assessment: vi.fn(), places: [] as any[], placeId: "", loading: false }));
+vi.mock("../testing", () => ({ get testerBuild() { return mocks.testerBuild; } }));
 vi.mock("../supabase", () => ({ supabaseApi: { readReportAssessment: mocks.assessment } }));
 vi.mock("../components/ReportReviewGate",()=>({ReportReviewGate:({children}:any)=>children}));
 vi.mock("../storage", () => ({ mobileStorage: { readPendingReport: mocks.read, writePendingReport: mocks.write, clearPendingReport: mocks.clear } }));
-vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ places: mocks.places, loading: mocks.loading, addConfirmations: mocks.submit, refreshPlace:mocks.refreshPlace, authLoading: mocks.authLoading, hasSupabaseConfig: mocks.configured, session: mocks.session }) }));
-vi.mock("expo-router", () => ({ useLocalSearchParams: () => ({ placeId: mocks.placeId }), useRouter: () => ({ replace: mocks.replace }) }));
+vi.mock("../state/PlacesContext", () => ({ usePlaces: () => ({ signInAsTester: mocks.guest, places: mocks.places, loading: mocks.loading, addConfirmations: mocks.submit, refreshPlace:mocks.refreshPlace, authLoading: mocks.authLoading, hasSupabaseConfig: mocks.configured, session: mocks.session }) }));
+vi.mock("expo-router", () => ({ Stack: { Screen: () => null }, useLocalSearchParams: () => ({ placeId: mocks.placeId }), useRouter: () => ({ replace: mocks.replace }) }));
+vi.mock("react-native-safe-area-context", () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0 }) }));
 vi.mock("../components/PlaceSheet", () => ({ PlaceSheet: ({ visible, title, onClose, children }: any) => visible ? <div role="dialog" aria-label={title}>{children}<button onClick={onClose}>Cancel report</button></div> : null }));
 vi.mock("../telemetry", () => ({ captureEvent: vi.fn(), captureError: vi.fn() }));
-vi.mock("../components/FeedbackToast", () => ({ FeedbackToast: ({ message }: any) => message ? <p role="alert">{message}</p> : null }));
+vi.mock("../components/FeedbackToast", () => ({ FeedbackToast: ({ message, detail, action }: any) => message ? <section><p role="alert">{message}</p>{detail ? <p>{detail}</p> : null}{action ? <button onClick={action.onPress}>{action.label}</button> : null}</section> : null }));
 vi.mock("../theme", () => ({ fonts: {}, radii: {}, shadows: {}, sizes: {}, space: {}, useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({}) }));
 vi.mock("lucide-react-native", () => ({ Check: () => null, ChevronRight: () => null }));
 vi.mock("../components/AccountForm", async () => {
@@ -30,11 +32,13 @@ vi.mock("../components/HapticPressable", async () => {
 vi.mock("react-native", async () => {
   const { createElement } = await import("react");
   const box = ({ children, accessibilityRole }: any) => createElement("div", { role: accessibilityRole }, children);
-  return { View: box, Text: box, AccessibilityInfo: { addEventListener: () => ({ remove() {} }) }, StyleSheet: { create: (value: unknown) => value }, TextInput: ({ accessibilityLabel, value, onChangeText }: any) => createElement("input", { "aria-label": accessibilityLabel, value, onChange: (e: any) => onChangeText(e.target.value) }) };
+  return { View: box, Text: box, ScrollView: box, AccessibilityInfo: { addEventListener: () => ({ remove() {} }) }, StyleSheet: { create: (value: unknown) => value }, TextInput: ({ accessibilityLabel, value, onChangeText }: any) => createElement("input", { "aria-label": accessibilityLabel, value, onChange: (e: any) => onChangeText(e.target.value) }) };
 });
 beforeEach(() => {
   vi.clearAllMocks(); mocks.places = [mockPlaces[0]]; mocks.placeId = mockPlaces[0].id;
   mocks.loading = false;
+  mocks.testerBuild = false;
+  mocks.guest.mockResolvedValue(undefined);
   mocks.session = { userId: "tester" }; mocks.authLoading = false; mocks.configured = true;
   mocks.read.mockResolvedValue(null); mocks.write.mockResolvedValue(undefined);
   mocks.clear.mockResolvedValue(undefined);
@@ -46,6 +50,36 @@ function draft(createdAt = new Date().toISOString()) {
 }
 function next() { fireEvent.click(screen.getByRole("button", { name: "Continue" })); }
 function answer(label: string) { fireEvent.click(screen.getByRole("radio", { name: label })); next(); }
+
+describe("tester sign-in skip", () => {
+  it("keeps sign-in and offers Skip only for the tester build", async () => {
+    mocks.session = null;
+    const view = render(<ConfirmScreen/>);
+    expect(screen.queryByRole("button", { name: "Skip sign-in" })).toBeNull();
+    mocks.testerBuild = true;
+    view.rerender(<ConfirmScreen/>);
+    expect(screen.getByRole("button", { name: "Account access" })).toBeTruthy();
+    mocks.guest.mockImplementation(async () => { mocks.session = { userId: "guest", isAnonymous: true }; });
+    fireEvent.click(screen.getByRole("button", { name: "Skip sign-in" }));
+    await waitFor(() => expect(screen.getByText("How did you check?")).toBeTruthy());
+    expect(mocks.guest).toHaveBeenCalledOnce();
+    fireEvent.click(screen.getByRole("button", { name: "By phone" })); next();
+    fireEvent.click(screen.getByRole("radio", { name: "Yes, open" }));
+    fireEvent.click(screen.getByRole("button", { name: "Review check" }));
+    mocks.submit.mockResolvedValue({ reportId: "report-1", outcome: "pending" });
+    fireEvent.click(screen.getByRole("button", { name: "Submit check" }));
+    await screen.findByText("Report submitted");
+    expect(mocks.submit).toHaveBeenCalledWith(mocks.placeId, [{ type: "open_status", value: "open" }], "phone", "");
+  });
+  it("keeps sign-in usable after a guest connection failure", async () => {
+    mocks.session = null; mocks.testerBuild = true;
+    mocks.guest.mockRejectedValue(new Error("Guest connection failed"));
+    render(<ConfirmScreen/>);
+    fireEvent.click(screen.getByRole("button", { name: "Skip sign-in" }));
+    await waitFor(() => expect(screen.getByRole("alert").textContent).toBe("Guest connection failed"));
+    expect(screen.getByRole("button", { name: "Account access" })).toBeTruthy();
+  });
+});
 
 describe("report assessment polling", () => {
   it("does not keep polling a receipt removed by retention",async()=>{
@@ -139,7 +173,7 @@ describe("report account hand-off", () => {
     expect(screen.queryByRole("button", { name: "Add more checks" })).toBeNull();
     mocks.submit.mockResolvedValue({ reportId: "report-1", outcome: "pending" });
     fireEvent.click(screen.getByRole("button", { name: "Submit check" }));
-    await screen.findByText("Report received.");
+    await screen.findByText("Report submitted");
     expect(mocks.submit).toHaveBeenCalledWith(mocks.placeId, [{ type: "open_status", value: "open" }], method === "Online" ? "online" : "phone", method === "Online" ? "https://example.com/hours" : "");
   });
   it("removes venue details when switching a draft to phone", async () => {
@@ -164,7 +198,7 @@ describe("report account hand-off", () => {
     expect(screen.queryByRole("button", { name: "Add more checks" })).toBeNull();
     mocks.submit.mockResolvedValue({ reportId: "report-1", outcome: "pending" });
     fireEvent.click(screen.getByRole("button", { name: "Submit check" }));
-    await screen.findByText("Report received.");
+    await screen.findByText("Report submitted");
     expect(mocks.submit).toHaveBeenCalledWith(mocks.placeId, [{ type: "open_status", value: "closed" }], "in_person", "");
   });
   it("removes follow-up answers from a restored phone draft", async () => {
@@ -175,7 +209,7 @@ describe("report account hand-off", () => {
     expect(screen.queryByRole("button", { name: "Add more checks" })).toBeNull();
     mocks.submit.mockResolvedValue({ reportId: "report-1", outcome: "pending" });
     fireEvent.click(screen.getByRole("button", { name: "Submit check" }));
-    await screen.findByText("Report received.");
+    await screen.findByText("Report submitted");
     expect(mocks.write).toHaveBeenCalledWith(expect.objectContaining({ answers: [{ type: "open_status", value: "open" }], reportSource: "phone" }));
   });
   it("asks guests to sign in in a popup before showing any questions", async () => {
@@ -242,6 +276,17 @@ describe("report account hand-off", () => {
     expect(screen.getByText("Step 4 of 4")).toBeTruthy();
     expect(screen.queryByText("Is the kitchen serving?")).toBeNull();
   });
+  it("lets DONE leave a submitted report while review is pending without resubmitting", async () => {
+    mocks.read.mockResolvedValue(draft());
+    mocks.submit.mockResolvedValue({ reportId: "report-1", outcome: "pending" });
+    render(<ConfirmScreen/>);
+    fireEvent.click(await screen.findByRole("button", { name: "Submit check" }));
+    await screen.findByText("Report submitted");
+    fireEvent.click(screen.getByRole("button", { name: "DONE" }));
+    expect(mocks.replace).toHaveBeenCalledWith({ pathname: "/restaurants/[placeId]", params: { placeId: mocks.placeId } });
+    expect(mocks.submit).toHaveBeenCalledOnce();
+    expect(mocks.clear).toHaveBeenCalledOnce();
+  });
   it("keeps the submitted report ID and shows its queued review without claiming Gemini ran", async () => {
     mocks.session = { userId: "tester" }; mocks.read.mockResolvedValue(draft());
     mocks.submit.mockResolvedValue({ reportId: "report-1", outcome: "pending" });
@@ -298,7 +343,7 @@ describe("report account hand-off", () => {
     fireEvent.click(screen.getByRole("button", { name: "Review check" }));
     mocks.submit.mockResolvedValue({ reportId: "report-1", outcome: "pending" });
     fireEvent.click(screen.getByRole("button", { name: "Submit check" }));
-    await screen.findByText("Report received.");
+    await screen.findByText("Report submitted");
     expect(mocks.write).toHaveBeenCalledWith(expect.objectContaining({ answers: [{ type: "open_status", value: "closed" }] }));
     expect(mocks.submit).toHaveBeenCalledWith(mocks.placeId, [{ type: "open_status", value: "closed" }], "phone", "");
   });

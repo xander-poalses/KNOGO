@@ -7,6 +7,7 @@ export type ThemePreference = "system" | "light" | "dark";
 export const lightColours = {
   background: "#F3F3E8",
   surface: "#F6F7F2",
+  toastSurface: "#F6F7F2",
   elevated: "#e9ede7",
   statusSurface: "#e7e7df",
   tripSurface: "#F6F7F2",
@@ -54,6 +55,7 @@ export const lightColours = {
 export const darkColours: typeof lightColours = {
   background: "#000000",
   surface: "#121817",
+  toastSurface: "#181b1a",
   elevated: "#222c29",
   statusSurface: "#000000",
   tripSurface: "#121816",

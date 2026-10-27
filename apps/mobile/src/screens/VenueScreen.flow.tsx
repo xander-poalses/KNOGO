@@ -1,4 +1,5 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { render } from "../testRender";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mockPlaces } from "@knogo/core";
 import { VenueScreen } from "./VenueScreen";
@@ -20,8 +21,8 @@ vi.mock("../components/Ui", async () => {
     ActionButton: ({ label, onPress }: any) => createElement("button", { onClick: onPress }, label)
   };
 });
-vi.mock("../theme", () => ({ fonts: {}, useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({}) }));
-vi.mock("lucide-react-native", () => ({ Check: () => null }));
+vi.mock("../theme", () => ({ fonts: {}, radii: {}, useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({}) }));
+vi.mock("lucide-react-native", () => ({ Check: () => null, X: () => null }));
 vi.mock("react-native", async () => {
   const { createElement } = await import("react");
   const box = ({ children }: any) => createElement("div", null, children);

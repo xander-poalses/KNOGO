@@ -1,4 +1,5 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { render } from "../testRender";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SettingsScreen } from "./SettingsScreen";
 
@@ -18,7 +19,7 @@ vi.mock("../components/HapticPressable", async () => {
   const { createElement } = await import("react");
   return { HapticPressable: ({ children, onPress }: any) => createElement("button", { onClick: onPress }, children) };
 });
-vi.mock("lucide-react-native", () => ({ ChevronRight: () => null, FileText: () => null, Fuel: () => null, LogOut: () => null, Moon: () => null, Palette: () => null, ShieldCheck: () => null, Sun: () => null }));
+vi.mock("lucide-react-native", () => ({ ChevronRight: () => null, FileText: () => null, Fuel: () => null, LogOut: () => null, Moon: () => null, Palette: () => null, ShieldCheck: () => null, Sun: () => null, X: () => null }));
 vi.mock("react-native", async () => {
   const { createElement } = await import("react");
   const box = ({ children, accessibilityRole }: any) => createElement("div", { role: accessibilityRole }, children);

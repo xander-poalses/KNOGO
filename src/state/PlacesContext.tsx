@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type React from "react";
+import { toast } from "sonner";
 import { applyConfirmation, getCurrentStatus, mockPlaces } from "@knogo/core";
 import { useStatusClock } from "./useStatusClock";
 import { fetchSupabasePlace, fetchSupabasePlaceGroups, fetchSupabasePlaces, hasSupabaseConfig, submitSupabaseConfirmation } from "../lib/supabaseApi";
@@ -56,7 +57,9 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
         }
       })
       .catch((error) => {
+        if (cancelled) return;
         console.error("Could not load Supabase places. Falling back to local data.", error);
+        toast.error("Places could not refresh", { id: "places-load", description: "Showing demo data. Reports may be out of date.", duration: Infinity });
       });
 
     return () => {
@@ -90,11 +93,13 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
       refreshPlace,
       isSaved: (placeId) => savedPlaceIds.includes(placeId),
       toggleSaved: (placeId) => {
+        const saved = savedPlaceIds.includes(placeId);
         setSavedPlaceIds((current) => {
           const next = current.includes(placeId) ? current.filter((id) => id !== placeId) : [...current, placeId];
           writeSavedPlaceIds(next);
           return next;
         });
+        toast.success(saved ? "Removed from saved" : "Place saved", { id: `saved-${placeId}` });
       },
       addConfirmation: async (placeId, type, value) => {
         const fallbackConfirmation: Confirmation = {

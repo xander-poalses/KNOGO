@@ -400,6 +400,46 @@ permissions and offline recovery on Android. Never use a public venue for
 invented observations. The retained Expo Router patch covers initial-link
 timing; review it when upgrading the router.
 
+## Google Play testing
+
+The `testing` EAS profile creates a standalone Android App Bundle for Play
+internal and closed testing. It uses the preview EAS environment and the same
+Supabase project as production. `EXPO_PUBLIC_APP_ENV=testing` adds Skip sign-in
+to reporting and identifies the environment in the header. Production sets
+`EXPO_PUBLIC_APP_ENV=production` and does not offer Skip.
+
+Enable anonymous sign-ins in Supabase Auth, then enable the server switch:
+
+```sql
+update knogo_private.testing_settings set guest_reporting_enabled=true where id;
+```
+
+Guests still accept the report notice and follow report validation, throttling,
+expiry and review. They cannot claim venues. Test reports share app data.
+Before public launch, set `guest_reporting_enabled=false`, turn off anonymous
+sign-ins, and build with the production profile. Disabling the server switch
+also excludes guest reports from live trust and automated review.
+
+Configure the preview EAS environment with the Supabase URL/publishable key,
+Mapbox public token and support email from `apps/mobile/.env.example`. Configure
+trip endpoints, Google sign-in and consent-based telemetry as needed. Never
+include provider secrets or Supabase service-role keys in an app build.
+
+After signing into Expo and linking this app to an EAS project:
+
+```sh
+cd apps/mobile
+eas build --platform android --profile testing
+```
+
+Upload the resulting `.aab` to KNOGO's Play testing track. Keep the package
+`za.co.knogo.app` and signing credentials for future updates. Do not promote
+the tester bundle to production: create a production build instead.
+
+Gemini processing is paused until the Google project's Free tier is verified.
+Rate limits alone cannot guarantee zero charges. See the release checklist
+for the account, policy, signing and device checks still needed before upload.
+
 ## Project structure
 
 | Folder | Purpose |

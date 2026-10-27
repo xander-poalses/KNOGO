@@ -12,11 +12,13 @@ import { usePlaces } from "../state/PlacesContext";
 import { radii, fonts, shadows, sizes, space, useTheme, useThemeStyles, type ThemeColours } from "../theme";
 import { captureError, captureEvent } from "../telemetry";
 import { mobileStorage } from "../storage";
+import { testerBuild } from "../testing";
 import { FeedbackToast } from "../components/FeedbackToast";
 import { ReportAssessmentReceipt } from "../components/ReportAssessmentReceipt";
+import { ReportSuccessScreen } from "../components/ReportSuccessScreen";
 import { ReportReviewGate } from "../components/ReportReviewGate";
 import Animated from "react-native-reanimated";
-import { ReceiptMotion, StateMotion, useMotionPreference } from "../components/Motion";
+import { StateMotion, useMotionPreference } from "../components/Motion";
 
 type CheckStep = {
   type: ConfirmationType;
@@ -45,7 +47,7 @@ function VenueReportForm() {
   const styles = useThemeStyles(createStyles);
   const { placeId, outcome: callbackOutcome, source: callbackSource } = useLocalSearchParams<{ placeId: string; outcome?: ReportOutcome; source?: ReportSource }>();
   const router = useRouter();
-  const { places, loading: placesLoading, addConfirmations, refreshPlace, authLoading, hasSupabaseConfig, session } = usePlaces();
+  const { places, loading: placesLoading, addConfirmations, refreshPlace, authLoading, hasSupabaseConfig, session, signInAsTester } = usePlaces();
   const place = places.find((item) => item.id === placeId);
   const supportsKitchen = !place || isFoodCategory(place.category);
   const [error, setError] = useState<string | null>(null);
@@ -93,13 +95,15 @@ function VenueReportForm() {
     }
   };
 
-  if (hasSupabaseConfig && !session && !done) {
+  if (hasSupabaseConfig && (!session || (session.isAnonymous && !testerBuild)) && !done) {
     return (
         <Page contentContainerStyle={styles.centerPage}>
           <BackButton label="Back to place" />
           <PlaceSheet visible title="Leave a report" onClose={() => router.replace({ pathname: "/restaurants/[placeId]", params: { placeId: place.id } })}>
             <Text style={styles.helper}>Sign in or create an account to report on {place.name}.</Text>
             <AccountForm reportPlaceId={place.id} onAuthenticated={() => setError(null)}/>
+            {testerBuild ? <ActionButton label="Skip sign-in" tone="light" loading={busy} onPress={() => void run(signInAsTester, "Could not start testing. Try again.")}/> : null}
+            <FeedbackToast message={error} onDismiss={() => setError(null)}/>
           </PlaceSheet>
         </Page>
     );
@@ -118,14 +122,7 @@ function VenueReportForm() {
   }, "Could not save this check.");
 
   if (done) {
-    const title = outcome === "conflict" ? "Reports disagree." : "Report received.";
-    const message = outcome === "accepted"
-      ? `Your observation about ${place.name} is recorded. It is not proof of availability.`
-      : outcome === "conflict"
-        ? "The checks include opposing reports. KNOGO keeps both sources visible rather than choosing a side."
-        : "Other checks may be needed before the status changes.";
-    const resultSource = reportSource ?? callbackSource;
-    return <Page contentContainerStyle={styles.centerPage}><BackButton label="Back to place" iconOnly /><View style={styles.done}><ReceiptMotion><Check color={colours.primary} size={46} /></ReceiptMotion><Text style={styles.title}>{title}</Text><Text style={styles.helper}>{message}</Text>{resultSource ? <Text style={styles.unverified}>Checked by {resultSource === "in_person" ? "a person at the venue" : resultSource === "phone" ? "phone" : "an online source"}.</Text> : null}{hasSupabaseConfig && session && reportId ? <ReportAssessmentReceipt key={`${session.userId}:${reportId}`} reportId={reportId} onReviewed={() => { void refreshPlace(place.id).catch(() => undefined); }} /> : null}<ActionButton label="Back to place" tone="green" onPress={() => router.replace({ pathname: "/restaurants/[placeId]", params: { placeId: place.id } })} /></View></Page>;
+    return <ReportSuccessScreen conflict={outcome === "conflict"} onDone={() => router.replace({ pathname: "/restaurants/[placeId]", params: { placeId: place.id } })} notification={hasSupabaseConfig && session && reportId ? <ReportAssessmentReceipt compact key={`${session.userId}:${reportId}`} reportId={reportId} onReviewed={() => { void refreshPlace(place.id).catch(() => undefined); }} /> : null}/>;
   }
 
   const current = steps[step];

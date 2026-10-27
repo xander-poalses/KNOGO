@@ -1,10 +1,11 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, screen } from "@testing-library/react";
+import { render } from "../testRender";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ActionButton, CacheNotice, SearchField } from "./Ui";
 
 vi.mock("expo-router", () => ({ useRouter: () => ({}) }));
 vi.mock("react-native-safe-area-context", () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0 }) }));
-vi.mock("lucide-react-native", () => ({ Search: () => null, SlidersHorizontal: () => null, WifiOff: () => null, RefreshCw: () => null }));
+vi.mock("lucide-react-native", () => ({ X: () => null, Search: () => null, SlidersHorizontal: () => null }));
 vi.mock("../theme", () => ({
   fonts: {}, radii: {}, sizes: { control: 52, touch: 44, iconButton: 44 }, space: { sm: 10 },
   useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({})
@@ -18,8 +19,8 @@ vi.mock("react-native", async () => {
     ActivityIndicator: () => createElement("span", { "data-testid": "loading" }),
     StyleSheet: { create: (styles: unknown) => styles },
     Pressable: ({ children, onPress, accessibilityLabel, accessibilityState = {}, disabled, style }: any) => {
-      const values = style({ pressed: false });
-      const merged = Object.assign({}, ...values.filter(Boolean));
+      const values = typeof style === "function" ? style({ pressed: false }) : [style];
+      const merged = Object.assign({}, ...values.flat().filter(Boolean));
       return createElement("button", { onClick: onPress, disabled, "aria-label": accessibilityLabel, "aria-busy": accessibilityState.busy, "aria-selected": accessibilityState.selected, "data-height": merged.minHeight ?? merged.height, "data-width": merged.minWidth ?? merged.width }, children);
     }
   };
@@ -27,10 +28,10 @@ vi.mock("react-native", async () => {
 afterEach(cleanup);
 
 describe("CTA feedback", () => {
-  it("gives cached-data retry a 44px target and runs its action", () => {
+  it("gives cached-data retry a 44px target and runs its action", async () => {
     const onRetry = vi.fn();
     render(<CacheNotice fetchedAt={null} expired={false} onRetry={onRetry}/>);
-    const button = screen.getByRole("button", { name: "Retry live data" });
+    const button = await screen.findByRole("button", { name: "Retry live data" });
     expect(button.getAttribute("data-height")).toBe("44");
     expect(button.getAttribute("data-width")).toBe("44");
     fireEvent.click(button);

@@ -6,7 +6,7 @@ import { fonts, space, useThemeStyles, type ThemeColours } from "../theme";
 import { ActionButton } from "./Ui";
 import { FeedbackToast } from "./FeedbackToast";
 
-export function ReportAssessmentReceipt({ reportId, onReviewed }: { reportId: string; onReviewed?: () => void }) {
+export function ReportAssessmentReceipt({ reportId, onReviewed, compact = false }: { reportId: string; onReviewed?: () => void; compact?: boolean }) {
   const styles = useThemeStyles(createStyles);
   const [assessment, setAssessment] = useState<ReportAssessment | null>(null);
   const [loading, setLoading] = useState(true);
@@ -54,6 +54,8 @@ export function ReportAssessmentReceipt({ reportId, onReviewed }: { reportId: st
     : state === "queued" || state === "reviewing" ? "You can leave this screen."
     : state === "expired" ? "Report details are removed after 24 hours during cleanup."
     : "Community checks still count.";
+
+  if (compact) return <FeedbackToast message={error ?? (state === "reviewing" ? "Gemini is processing your report" : title)} detail={error ? "Your report was received. You can leave this screen." : state === "queued" || state === "reviewing" ? "You're welcome to exit this screen" : message} action={!loading && state !== "complete" && state !== "expired" ? { label: "Check review", onPress: () => setRefresh(value => value + 1) } : undefined}/>;
 
   return <View style={styles.section}>
     <View accessibilityLiveRegion="polite" accessibilityState={{ busy: loading }}>

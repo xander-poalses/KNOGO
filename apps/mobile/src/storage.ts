@@ -54,7 +54,8 @@ function parseStoredSession(value: unknown): SupabaseSession | null {
     || (session.expiresAt !== undefined && (!Number.isSafeInteger(session.expiresAt) || session.expiresAt < 0))) return null;
   return {
     accessToken: session.accessToken, refreshToken: session.refreshToken,
-    userId: session.userId, email: session.email, expiresAt: session.expiresAt ?? 0
+    userId: session.userId, email: session.email, expiresAt: session.expiresAt ?? 0,
+    ...(session.isAnonymous === true ? { isAnonymous: true } : {})
   };
 }
 

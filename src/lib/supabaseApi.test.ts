@@ -5,14 +5,14 @@ function response(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", ...(Array.isArray(body) ? { "Content-Range": `*/${body.length}` } : {}) } });
 }
 
-function createHarness(initialSession: SupabaseSession | null = null, venueClaimUrl?: string) {
+function createHarness(initialSession: SupabaseSession | null = null, venueClaimUrl?: string, allowGuestReporting = false) {
   let session = initialSession;
   const storage = {
     read: vi.fn(async () => session),
     write: vi.fn(async (next: SupabaseSession) => { session = next; }),
     clear: vi.fn(async () => { session = null; })
   };
-  return { api: createSupabaseApi({ url: "https://test.supabase.co", publishableKey: "publishable", sessionStorage: storage, venueClaimUrl }), storage };
+  return { api: createSupabaseApi({ url: "https://test.supabase.co", publishableKey: "publishable", sessionStorage: storage, venueClaimUrl, allowGuestReporting }), storage };
 }
 
 const authResponse = {
@@ -23,6 +23,30 @@ const authResponse = {
 };
 
 afterEach(() => { vi.restoreAllMocks(); vi.useRealTimers(); });
+
+describe("tester guest sessions", () => {
+  it("does not create guests in production", async () => {
+    const fetcher = vi.spyOn(globalThis, "fetch");
+    await expect(createHarness().api.signInAsTester()).rejects.toThrow("tester build");
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it("creates and reuses a guest session without an email or password", async () => {
+    const fetcher = vi.spyOn(globalThis, "fetch").mockResolvedValue(response({ ...authResponse, user: { id: "guest-1", is_anonymous: true } }));
+    const { api, storage } = createHarness(null, undefined, true);
+    const session = await api.signInAsTester();
+    expect(session).toMatchObject({ userId: "guest-1", isAnonymous: true, email: "" });
+    expect(storage.write).toHaveBeenCalledWith(session);
+    expect(await api.signInAsTester()).toEqual(session);
+    expect(fetcher).toHaveBeenCalledOnce();
+    expect(fetcher.mock.calls[0][1]?.body).toBe("{}");
+  });
+  it("blocks restored guests from submitting through a production client", async () => {
+    const fetcher = vi.spyOn(globalThis, "fetch");
+    const { api } = createHarness({ accessToken: "a", refreshToken: "r", userId: "g", email: "", expiresAt: 9999999999, isAnonymous: true });
+    await expect(api.submitConfirmations({ placeId: "place", reportSource: "phone", answers: [{ type: "open_status", value: "open" }] })).rejects.toThrow("Sign in");
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+});
 
 describe("report review notice", () => {
   const session: SupabaseSession = { accessToken: "access", refreshToken: "refresh", userId: "user-1", email: "person@example.test", expiresAt: Math.floor(Date.now() / 1000) + 3600 };

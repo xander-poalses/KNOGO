@@ -1,8 +1,10 @@
 // Imports
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { render } from "../testRender";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mockPlaces, emptyFuelPreferences, type FuelPreferences } from "@knogo/core";
 import { TripPlanner } from "./TripPlanner";
+import { fuelFeed } from "../fuelFeed";
 vi.mock('expo-constants',()=>({default:{expoConfig:{extra:{}}}}));
 vi.mock('../state/PlacesContext',()=>({usePlaces:()=>({coordinates:null})}));
 
@@ -60,10 +62,34 @@ beforeEach(() => {
   mocks.refresh.mockResolvedValue(undefined);
   mocks.save.mockResolvedValue(undefined);
 });
-afterEach(cleanup);
+afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 // Tests
 describe("trip planner flow", () => {
+  it.each([
+    ["petrol_93", "Petrol 93"], ["petrol_95", "Petrol 95"],
+    ["diesel_50ppm", "Diesel 50 ppm"], ["diesel_500ppm", "Diesel 500 ppm"], [null, "Fuel"]
+  ] as const)("shows the price used for %s", async (grade, label) => {
+    mocks.preferences = { ...emptyFuelPreferences, grade, consumptionLPer100Km: 7.5, priceOverrideZarPerLitre: 30.25 };
+    render(<TripPlanner place={mockPlaces[0]} />);
+    fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
+    expect(await screen.findByText("R 18.15")).toBeTruthy();
+    expect(screen.getByText(`${label}: R30.25`)).toBeTruthy();
+  });
+  it("shows the reference price and switches to a saved override", async () => {
+    const now = new Date().toISOString();
+    vi.spyOn(fuelFeed, "currentCache").mockReturnValue({ version: 2, feedUrl: "https://example.com/fuel", termsUrl: "https://example.com/terms", fetchedAt: now, records: [
+      { grade: "petrol_95", region: "inland", zarPerLitre: 23.10, effectiveAt: now, effectiveUntil: null, checkedAt: now, sourceUrl: "https://example.com/fuel", kind: "retail_reference" }
+    ] });
+    mocks.preferences = { ...emptyFuelPreferences, grade: "petrol_95", region: "inland", consumptionLPer100Km: 7.5 };
+    const view = render(<TripPlanner place={mockPlaces[0]} />);
+    fireEvent.click(screen.getByRole("button", { name: "Estimate my trip" }));
+    expect(await screen.findByText("Petrol 95: R23.10")).toBeTruthy();
+    mocks.preferences = { ...mocks.preferences, priceOverrideZarPerLitre: 30.25 };
+    view.rerender(<TripPlanner place={mockPlaces[0]} />);
+    expect(screen.getByText("Petrol 95: R30.25")).toBeTruthy();
+    expect(screen.queryByText("Petrol 95: R23.10")).toBeNull();
+  });
   it('shows price loading without blocking routes and hides it for a price override',async()=>{
     mocks.loading=true;
     const view=render(<TripPlanner place={mockPlaces[0]}/>);
@@ -129,6 +155,7 @@ describe("trip planner flow", () => {
     expect(screen.getAllByText("15 min")).toHaveLength(1);
     expect(screen.queryByText("15 min drive")).toBeNull();
     expect(screen.queryByText("8.0 km away")).toBeNull();
+    expect(screen.queryByText(/^(Petrol|Diesel|Fuel).*: R/)).toBeNull();
   });
   it("keeps fuel edits when returning through Back without saving", async () => {
     render(<TripPlanner place={mockPlaces[0]}/>);

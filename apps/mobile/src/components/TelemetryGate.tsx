@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text } from "react-native";
 import { PlaceSheet } from "./PlaceSheet";
 import { ActionButton } from "./Ui";
+import { FeedbackToast } from "./FeedbackToast";
 import { usePlaces } from "../state/PlacesContext";
 import { captureEvent, disableTelemetry, enableTelemetry } from "../telemetry";
 import { fonts, useThemeStyles, type ThemeColours } from "../theme";
@@ -30,7 +31,7 @@ export function TelemetryGate({ children }: { children: ReactNode }) {
     <Text style={styles.body}>KNOGO can send crash details and anonymous action counts. We do not send your email, searches, location, report answers or source links.</Text>
     <ActionButton label="Allow diagnostics" tone="green" disabled={busy} onPress={() => void choose("granted")}/>
     <ActionButton label="Not now" tone="light" disabled={busy} onPress={() => void choose("denied")}/>
-    {error ? <Text accessibilityRole="alert" style={styles.body}>{error}</Text> : null}
+    <FeedbackToast message={error} onDismiss={() => setError("")}/>
   </PlaceSheet></>;
 }
 

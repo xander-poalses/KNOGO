@@ -2,6 +2,7 @@ import { ChevronDown, Compass, Home, Info, Settings, Star } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import { toast } from "sonner";
 import styles from "./AppShell.module.css";
 
 const navItems = [
@@ -26,6 +27,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const category = new URLSearchParams(location.search).get("category");
   const isCategoryPicker = location.pathname === "/restaurants" && !["restaurant", "quick_bites", "bar"].includes(category ?? "");
   const activeIndex = getActiveIndex(location.pathname);
+  useEffect(() => () => { toast.dismiss("knogo-beta"); }, []);
+  const toggleBeta = () => {
+    if (betaOpen) { toast.dismiss("knogo-beta"); setBetaOpen(false); return; }
+    setBetaOpen(true);
+    toast.info("KNOGO is in beta", {
+      id: "knogo-beta", duration: Infinity,
+      description: "Food and drink spots in Pretoria East are available.",
+      onDismiss: () => setBetaOpen(false)
+    });
+  };
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
@@ -87,12 +98,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </main>
       <div className={styles.betaWrap}>
-        {betaOpen ? (
-          <div className={styles.betaPopup} role="status">
-            KNOGO is in beta. For now, food and drink spots in Pretoria East are available.
-          </div>
-        ) : null}
-        <button className={styles.betaButton} type="button" onClick={() => setBetaOpen((current) => !current)} aria-expanded={betaOpen}>
+        <button className={styles.betaButton} type="button" onClick={toggleBeta} aria-expanded={betaOpen} aria-label="About KNOGO beta">
           <Info size={18} aria-hidden="true" />
         </button>
       </div>

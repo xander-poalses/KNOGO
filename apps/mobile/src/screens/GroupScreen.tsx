@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Linking, StyleSheet, Text, View } from "react-native";
 import { HapticPressable as Pressable } from "../components/HapticPressable";
 import { PlaceSheet } from "../components/PlaceSheet";
+import { FeedbackToast } from "../components/FeedbackToast";
 import { BranchMap } from "../components/BranchMap";
 import { PlaceLogo } from "../components/PlaceLogo";
 import { ActionButton, BackButton, Body, Notice, Page, Title } from "../components/Ui";
@@ -77,7 +78,7 @@ function BranchSheet({ place, onClose }: { place: Place | null; onClose: () => v
     <View style={styles.metaRow}><Clock3 color={colours.muted} size={15}/><Text style={styles.meta}>{getCloseTime(place.openingHours)}</Text></View>
     <ActionButton label="View branch" tone="green" onPress={() => { onClose(); router.push({ pathname: "/restaurants/[placeId]", params: { placeId: place.id } }); }}/>
     {directions ? <ActionButton label="Directions" tone="light" icon={<ExternalLink color={colours.text} size={17}/>} onPress={() => { setLinkError(""); void Linking.openURL(directions.url).catch(() => setLinkError("Directions could not open. Try again or use the branch address.")); }}/> : null}
-    {linkError ? <Text accessibilityRole="alert" style={styles.meta}>{linkError}</Text> : null}
+    <FeedbackToast message={linkError} onDismiss={() => setLinkError("")}/>
   </PlaceSheet>;
 }
 

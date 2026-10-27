@@ -7,13 +7,14 @@ import { PlaceSheet } from "./PlaceSheet";
 import { FilterSheet } from "./FilterSheet";
 import { defaultFilters } from "@knogo/core";
 import { Text } from "react-native";
+import { ToastProvider } from "./ToastProvider";
 
 // State and Helpers
 const route = vi.hoisted(() => ({ outcome: undefined as "pending" | undefined }));
 
 // @ts-expect-error Test the installed web renderer, not a native-component mock.
 vi.mock("react-native", () => import("../../node_modules/react-native-web"));
-vi.mock("expo-router", () => ({ useRouter: () => ({}), useLocalSearchParams: () => ({ placeId: "progress-test", outcome: route.outcome }) }));
+vi.mock("expo-router", () => ({ Stack: { Screen: () => null }, useRouter: () => ({}), useLocalSearchParams: () => ({ placeId: "progress-test", outcome: route.outcome }) }));
 vi.mock("react-native-safe-area-context", () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0 }) }));
 vi.mock("lucide-react-native", async () => {
   const { createElement } = await import("react");
@@ -29,6 +30,8 @@ vi.mock("./AccountForm", () => ({ AccountForm: () => null }));
 vi.mock("./ReportAssessmentReceipt", () => ({ ReportAssessmentReceipt: () => null }));
 vi.mock("./ReportReviewGate",()=>({ReportReviewGate:({children}:any)=>children}));
 vi.mock("./FeedbackToast", () => ({ FeedbackToast: () => null }));
+vi.mock("./Sonner", () => import("./Sonner.web"));
+window.matchMedia ??= () => ({ matches: false, addEventListener() {}, removeEventListener() {} } as unknown as MediaQueryList);
 vi.mock("../theme", () => ({
   fonts: {}, radii: {}, shadows: {}, sizes: { control: 52, touch: 44 }, space: { xs: 4, sm: 10, md: 16, lg: 24 },
   useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({ focus: "#0b4f2f" })
@@ -47,17 +50,26 @@ describe("rendered web CTA semantics", () => {
     expect(button.getAttribute("aria-busy")).toBe("true");
     expect(button.getAttribute("aria-disabled")).toBe("true");
   });
-  it("keeps the report result back button at the top of the page", () => {
+  it("shows the report success heading and the DONE command", () => {
     route.outcome = "pending";
     render(<ConfirmScreen />);
-    const back = screen.getAllByRole("button", { name: "Back to place" })[0];
-    expect(getComputedStyle(back.parentElement!).justifyContent).toBe("flex-start");
+    expect(screen.getByRole("heading", { name: "Report submitted" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "DONE" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Back to place" })).toBeNull();
   });
-  it("hides the toast icon without sending native props to SVG", async () => {
+  it("uses the Figma bell as decoration and keeps notification controls accessible", async () => {
     const { FeedbackToast } = await vi.importActual<typeof import("./FeedbackToast")>("./FeedbackToast");
     const errors = vi.spyOn(console, "error").mockImplementation(() => {});
-    const view = render(<FeedbackToast message="Try again" onDismiss={() => {}} />);
-    expect(view.container.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
+    const dismiss = vi.fn();
+    const retry = vi.fn();
+    render(<ToastProvider><FeedbackToast message="Try again" detail="Your report was received." onDismiss={dismiss} action={{ label: "Retry", onPress: retry }} /></ToastProvider>);
+    expect((await screen.findByRole("alert")).textContent).toBe("Try again");
+    expect(document.querySelector("[data-sonner-toast] img")?.getAttribute("alt")).toBe("");
+    expect(screen.getByText("Your report was received.")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    fireEvent.click(screen.getByRole("button", { name: "Dismiss notification" }));
+    expect(dismiss).toHaveBeenCalledOnce();
+    expect(retry).toHaveBeenCalledOnce();
     expect(errors.mock.calls.flat().join(" ")).not.toContain("accessibilityElementsHidden");
   });
   it("names place dialogs from the current sheet title", async () => {

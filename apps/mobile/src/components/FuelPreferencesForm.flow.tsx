@@ -1,9 +1,10 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { render } from "../testRender";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { emptyFuelPreferences } from "@knogo/core";
 import { FuelPreferencesForm } from "./FuelPreferencesForm";
 
-vi.mock("lucide-react-native", () => ({ Check: () => null, ChevronDown: () => null }));
+vi.mock("lucide-react-native", () => ({ Check: () => null, ChevronDown: () => null, X: () => null }));
 vi.mock("../theme", () => ({ fonts: {}, radii: {}, useTheme: () => ({ colours: {} }), useThemeStyles: (factory: (value: object) => object) => factory({}) }));
 vi.mock("./Ui", async () => {
   const { createElement } = await import("react");

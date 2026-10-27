@@ -31,10 +31,11 @@ function deferred<T>() {
 }
 
 function Probe({ track }: { track: (promise: Promise<unknown>) => void }) {
-  const { session, authLoading, settings, settingsLoaded, loading, refreshing, error, savedPlaceIds, recentSearches, fallbackArea, toggleSaved, refresh, signInWithEmail, signOut } = usePlaces();
+  const { session, authLoading, settings, settingsLoaded, storageReady, loading, refreshing, error, savedPlaceIds, recentSearches, fallbackArea, toggleSaved, refresh, signInWithEmail, signOut } = usePlaces();
   return <>
     <output data-testid="session">{session?.accessToken ?? "none"}</output>
     <output data-testid="auth-loading">{String(authLoading)}</output>
+    <output data-testid="storage-ready">{String(storageReady)}</output>
     <output data-testid="place-loading">{String(loading)}</output>
     <output data-testid="refreshing">{String(refreshing)}</output>
     <output data-testid="error">{error}</output>
@@ -62,6 +63,17 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("place provider recovery", () => {
+  it("waits for local restoration and settles storage failures without changing consent", async () => {
+    const saved = deferred<string[]>();
+    mocks.saved.mockReturnValue(saved.promise);
+    mocks.settings.mockRejectedValue(new Error("Settings unavailable"));
+    render(<PlacesProvider><Probe track={() => {}} /></PlacesProvider>);
+    await waitFor(() => expect(screen.getByTestId("place-loading").textContent).toBe("false"));
+    expect(screen.getByTestId("storage-ready").textContent).toBe("false");
+    await act(async () => { saved.resolve([]); });
+    await waitFor(() => expect(screen.getByTestId("storage-ready").textContent).toBe("true"));
+    expect(JSON.parse(screen.getByTestId("settings").textContent!).loaded).toBe(false);
+  });
   it("preserves saved places when a tap precedes startup restoration", async () => {
     const restore = deferred<string[]>(); mocks.saved.mockReturnValue(restore.promise);
     const tasks: Promise<unknown>[] = [];

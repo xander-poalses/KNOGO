@@ -3,7 +3,8 @@
   "build": {
     "development": { "developmentClient": true, "distribution": "internal", "environment": "development" },
     "preview": { "distribution": "internal", "environment": "preview", "android": { "buildType": "apk" }, "uploadSourceMaps": true },
-    "production": { "autoIncrement": true, "environment": "production", "android": { "buildType": "app-bundle" }, "uploadSourceMaps": true }
+    "testing": { "distribution": "store", "autoIncrement": true, "environment": "preview", "env": { "EXPO_PUBLIC_APP_ENV": "testing", "EXPO_PUBLIC_USE_MOCK_DATA": "false", "SENTRY_DISABLE_AUTO_UPLOAD": "true" }, "android": { "buildType": "app-bundle" }, "uploadSourceMaps": true },
+    "production": { "autoIncrement": true, "environment": "production", "env": { "EXPO_PUBLIC_APP_ENV": "production", "EXPO_PUBLIC_USE_MOCK_DATA": "false" }, "android": { "buildType": "app-bundle" }, "uploadSourceMaps": true }
   },
   "submit": { "production": {} }
 }

@@ -11,6 +11,8 @@ import { loadMapbox } from "./loadMapbox.native";
 import { HapticPressable } from "./HapticPressable";
 import { getTripPosition } from "../tripLocation";
 import { ExpoGoSkeleton } from "./ExpoGoSkeleton";
+import { FeedbackToast } from "./FeedbackToast";
+import { ToastViewport } from "./ToastProvider";
 import { fonts, radii, shadows, useTheme, useThemeStyles, type ThemeColours } from "../theme";
 
 // Types
@@ -153,10 +155,10 @@ export function BranchMap({ branches, selectedId, onSelect, route }: BranchMapPr
         <HapticPressable accessibilityRole="button" accessibilityLabel="Show my location" accessibilityState={{ busy: locating, disabled: locating }} disabled={locating} onPress={() => void locate()} style={styles.tool}><LocateFixed size={22} color={colours.primary} /></HapticPressable>
         <HapticPressable accessibilityRole="button" accessibilityLabel={expanded ? "Close map" : "Expand map"} onPress={() => { setExpanded(!expanded); setMapReady(false); }} style={styles.tool}>{expanded ? <X size={22} color={colours.text} /> : <Maximize2 size={22} color={colours.text} />}</HapticPressable>
       </View>
-      {locationError ? <View accessibilityRole="alert" style={[styles.locationNotice, { bottom: expanded ? insets.bottom + 52 : 40 }]}><Text style={styles.copy}>{locationError}</Text></View> : null}
+      <FeedbackToast message={locationError}/>
     </View>
   );
-  return expanded ? <Modal visible animationType="none" onRequestClose={() => { setExpanded(false); setMapReady(false); }}>{map}</Modal> : map;
+  return expanded ? <Modal visible animationType="none" onRequestClose={() => { setExpanded(false); setMapReady(false); }}>{map}<ToastViewport modal/></Modal> : map;
 }
 
 // Styles
@@ -174,7 +176,7 @@ const createStyles = (colours: ThemeColours) => StyleSheet.create({
   userMarker: { alignItems: "center", gap: 3 },
   userPin: { width: 44, height: 44, borderRadius: radii.round, backgroundColor: colours.primary, alignItems: "center", justifyContent: "center", ...shadows.card },
   userLabel: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: radii.control, backgroundColor: colours.background, color: colours.text, fontFamily: fonts.extraBold, fontSize: 12 },
-  locationNotice: { position: "absolute", left: 16, right: 16, padding: 12, borderRadius: radii.control, backgroundColor: colours.surface },
+  locationNotice: { position: "absolute", left: 16, right: 16 },
   loading: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, alignItems: "center", justifyContent: "center", backgroundColor: colours.elevated },
   copy: { color: colours.muted, fontFamily: fonts.regular, fontSize: 13 },
 });

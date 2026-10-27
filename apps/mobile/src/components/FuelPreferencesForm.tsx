@@ -5,6 +5,7 @@ import { Check, ChevronDown } from "lucide-react-native";
 import { HapticPressable as Pressable } from "./HapticPressable";
 import { radii, fonts, useTheme, useThemeStyles, type ThemeColours } from "../theme";
 import { ActionButton } from "./Ui";
+import { FeedbackToast } from "./FeedbackToast";
 
 const grades: Array<[FuelGrade, string]> = [["petrol_93", "Petrol 93"], ["petrol_95", "Petrol 95"], ["diesel_50ppm", "Diesel 50 ppm"], ["diesel_500ppm", "Diesel 500 ppm"]];
 export function FuelPreferencesForm({ preferences, onSave, allowClear = false, automaticRegion = null }: { preferences: FuelPreferences; onSave: (value: FuelPreferences) => Promise<void>; allowClear?: boolean; automaticRegion?: FuelRegion | null }) {
@@ -63,7 +64,7 @@ export function FuelPreferencesForm({ preferences, onSave, allowClear = false, a
     {!automaticRegion ? select<FuelRegion>("region", "Reference-price region", region, [["inland", "Inland"], ["coastal", "Coastal"]], setRegion) : null}
     {input("Price override (R/litre)", price, setPrice)}
     {grade?.startsWith("diesel_") ? <Text style={styles.note}>Diesel reference prices are wholesale, not a promise of pump prices. Use the price you pay as an override.</Text> : null}
-    {message ? <Text accessibilityRole="alert" style={styles.note}>{message}</Text> : null}
+    <FeedbackToast message={message} onDismiss={() => setMessage(null)}/>
     <ActionButton label={busy ? "Saving..." : "Save fuel setup"} tone="green" loading={busy} onPress={() => void save()} />
     {allowClear ? <ActionButton label="Clear fuel setup" tone="light" disabled={busy} onPress={() => void save(true)} /> : null}
   </View>;

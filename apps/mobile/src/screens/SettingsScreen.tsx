@@ -6,6 +6,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { HapticPressable as Pressable } from "../components/HapticPressable";
 import { ActionButton, Page } from "../components/Ui";
 import { AccountForm } from "../components/AccountForm";
+import { FeedbackToast } from "../components/FeedbackToast";
 import { PlaceSheet } from "../components/PlaceSheet";
 import { fonts, radii, space, sizes, useTheme, useThemeStyles, type ThemeColours, type ThemePreference } from "../theme";
 import { usePlaces } from "../state/PlacesContext";
@@ -42,10 +43,11 @@ export function SettingsScreen() {
     <Page>
       <View style={styles.header}><Text accessibilityRole="header" style={styles.title}>Settings</Text></View>
       <View style={styles.account}>
-        <View style={styles.accountHead}><View style={styles.accountIcon}><ShieldCheck color={colours.primary} size={26}/></View><View style={styles.profileCopy}><Text style={styles.accountTitle}>{session ? "Your account" : "Join the community"}</Text><Text style={styles.help}>{session ? session.email : "Sign in to share a check."}</Text></View></View>
-        {!session ? <ActionButton label="Sign in" tone="green" style={styles.accountAction} disabled={signingOut} onPress={() => { setAccountError(""); setAccountOpen(true); }}/> : null}
+        <View style={styles.accountHead}><View style={styles.accountIcon}><ShieldCheck color={colours.primary} size={26}/></View><View style={styles.profileCopy}><Text style={styles.accountTitle}>{session?.isAnonymous ? "Testing as a guest" : session ? "Your account" : "Join the community"}</Text><Text style={styles.help}>{session?.isAnonymous ? "Sign in to use an account." : session ? session.email : "Sign in to share a check."}</Text></View></View>
+        {!session || session.isAnonymous ? <ActionButton label="Sign in" tone="green" style={styles.accountAction} disabled={signingOut} onPress={() => { setAccountError(""); setAccountOpen(true); }}/> : null}
         {session ? <ActionButton label="Sign out" tone="light" style={styles.accountAction} icon={<LogOut color={colours.text} size={18}/>} loading={signingOut} onPress={() => void leaveAccount()}/> : null}
-        {accountError ? <Text accessibilityRole="alert" style={styles.help}>{accountError}</Text> : null}
+        {session?.isAnonymous ? <Text selectable style={styles.help}>Guest ID: {session.userId}</Text> : null}
+        <FeedbackToast message={accountError} onDismiss={() => setAccountError("")}/>
       </View>
       <View style={styles.section}>
         <Text accessibilityRole="header" style={styles.sectionTitle}>Preferences</Text>
@@ -56,6 +58,7 @@ export function SettingsScreen() {
         <Text accessibilityRole="header" style={styles.sectionTitle}>Help and policies</Text>
         <Pressable accessibilityRole="link" onPress={() => router.push("/support")} style={styles.linkRow}><ShieldCheck color={colours.text} size={18} /><Text style={styles.linkText}>Support and data corrections</Text><ChevronRight color={colours.muted} size={18} /></Pressable>
         <Pressable accessibilityRole="link" onPress={() => router.push("/legal/privacy")} style={styles.linkRow}><FileText color={colours.text} size={18} /><Text style={styles.linkText}>Privacy and community rules</Text><ChevronRight color={colours.muted} size={18} /></Pressable>
+        <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/support", params: { reason: "account-deletion" } })} style={styles.linkRow}><ShieldCheck color={colours.text} size={18}/><Text style={styles.linkText}>Request account deletion</Text><ChevronRight color={colours.muted} size={18}/></Pressable>
       </View>
       <PlaceSheet title="Your account" visible={accountOpen} onClose={() => setAccountOpen(false)}><AccountForm onAuthenticated={() => setAccountOpen(false)}/></PlaceSheet>
       <PlaceSheet title={preferencesSheet === "fuel" ? "Fuel and trip estimates" : "Appearance"} visible={preferencesSheet !== null} onClose={() => setPreferencesSheet(null)}>

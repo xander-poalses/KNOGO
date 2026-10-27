@@ -43,6 +43,10 @@ describe("device session restoration", () => {
     await mobileStorage.writeSession({ ...session, expiresAt: 1 });
     expect(await mobileStorage.readSession()).toEqual({ ...session, expiresAt: 1 });
   });
+  it("preserves guest identity across restarts", async () => {
+    await mobileStorage.writeSession({ ...session, email: "", isAnonymous: true });
+    expect(await mobileStorage.readSession()).toEqual({ ...session, email: "", isAnonymous: true });
+  });
   it("marks a legacy session without expiry for refresh", async () => {
     const { expiresAt, ...legacy } = session;
     device.values.set(storageKeys.supabaseSession, JSON.stringify(legacy));
