@@ -344,22 +344,65 @@ $$;
 revoke all on function public.submit_status_report(text,text,text,jsonb) from public,anon;
 grant execute on function public.submit_status_report(text,text,text,jsonb) to authenticated;
 
-create function public.publish_venue_update(p_place_id text,p_check_type text,p_value text,p_dispute boolean default false) returns uuid
-language plpgsql security definer set search_path='' as $$
-declare result_id uuid;
+create function public.publish_venue_update(
+  p_place_id text,
+  p_check_type text,
+  p_value text,
+  p_dispute boolean default false
+) returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  result_id uuid;
 begin
- if auth.uid() is null or not knogo_private.venue_access_valid(p_place_id,auth.uid()) then
-  raise exception 'Verify access to the venue phone before publishing.' using errcode='42501'; end if;
- if not knogo_private.check_answer(p_check_type,p_value) then raise exception 'Choose a supported answer.' using errcode='22023'; end if;
- perform pg_advisory_xact_lock(hashtextextended('venue-update:'||p_place_id||auth.uid()::text,0));
- if exists(select 1 from knogo_private.venue_updates where place_id=p_place_id and user_id=auth.uid() and created_at>now()-interval '5 minutes') then raise exception 'Wait five minutes before publishing again.' using errcode='42900'; end if;
- insert into knogo_private.venue_updates(place_id,user_id,check_type,value) values(p_place_id,auth.uid(),p_check_type,p_value) returning id into result_id;
- if p_dispute then insert into knogo_private.venue_disputes(place_id,user_id,check_type,claimed_value,update_id) values(p_place_id,auth.uid(),p_check_type,p_value,result_id); end if;
- return result_id;
+  if auth.uid() is null
+    or not knogo_private.venue_access_valid(p_place_id, auth.uid()) then
+    raise exception 'Verify access to the venue phone before publishing.'
+      using errcode = '42501';
+  end if;
+
+  if not knogo_private.check_answer(p_check_type, p_value) then
+    raise exception 'Choose a supported answer.'
+      using errcode = '22023';
+  end if;
+
+  perform pg_advisory_xact_lock(
+    hashtextextended('venue-update:' || p_place_id || auth.uid()::text, 0)
+  );
+
+  if exists (
+    select 1
+    from knogo_private.venue_updates
+    where place_id = p_place_id
+      and user_id = auth.uid()
+      and created_at > now() - interval '5 minutes'
+  ) then
+    raise exception 'Wait five minutes before publishing again.'
+      using errcode = '42900';
+  end if;
+
+  insert into knogo_private.venue_updates (
+    place_id, user_id, check_type, value
+  )
+  values (p_place_id, auth.uid(), p_check_type, p_value)
+  returning id into result_id;
+
+  if p_dispute then
+    insert into knogo_private.venue_disputes (
+      place_id, user_id, check_type, claimed_value, update_id
+    )
+    values (p_place_id, auth.uid(), p_check_type, p_value, result_id);
+  end if;
+
+  return result_id;
 end;
 $$;
-revoke all on function public.publish_venue_update(text,text,text,boolean) from public,anon;
-grant execute on function public.publish_venue_update(text,text,text,boolean) to authenticated;
+revoke all on function public.publish_venue_update(text, text, text, boolean)
+  from public, anon;
+grant execute on function public.publish_venue_update(text, text, text, boolean)
+  to authenticated;
 
 create function public.read_venue_access(p_place_id text) returns jsonb
 language plpgsql security definer set search_path='' as $$

@@ -468,9 +468,16 @@ Upload the resulting `.aab` to KNOGO's Play testing track. Keep the package
 `za.co.knogo.app` and signing credentials for future updates. Do not promote
 the tester bundle to production: create a production build instead.
 
-Gemini processing is paused until the Google project's Free tier is verified.
-Rate limits alone cannot guarantee zero charges. See the release checklist
-for the account, policy, signing and device checks still needed before upload.
+Gemini report processing is enabled. A backend check on 28 October 2026
+confirmed worker version 17, active minute dispatch, provider readiness and
+two completed `gemini-3.5-flash-lite` assessments from 27 October. The Gemini
+provider caps were 100 requests per UTC day and rolling 25-hour window, and
+five per rolling minute. This is a dated check, not a guarantee of availability.
+
+Rate limits alone cannot guarantee zero charges. The Google project's billing
+tier was not independently checked in this verification. Review it in AI Studio
+before further provider tests. See the release checklist for the account,
+policy, signing and device checks still needed before upload.
 
 ## Tester feedback
 
