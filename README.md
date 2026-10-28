@@ -1,5 +1,9 @@
 # KNOGO
 
+## App Walkthrough
+
+[Watch the KNOGO walkthrough](docs/media/KNOGO-Walkthrough.mp4) (4 minutes, 1080p, on-screen captions and music).
+
 Run `pnpm test:jest` for 20 checks covering test-environment notice placement, report-answer filtering and swipe dismissal boundaries. These run alongside the existing Vitest suites.
 
 The mobile app uses Expo SDK 58 and React Native 0.88. Gesture Handler is pinned to 3.4 because its maintainer lists 0.88 support there; Expo's SDK 58 list still recommends 3.3. The package is excluded from Expo's version alignment for that reason. The existing gesture builder API remains supported but deprecated. Recheck this exception when Expo updates its version list. SDK upgrades require a new app build; version 0.2.0 separates this runtime from the SDK 57 version 0.1.0.
